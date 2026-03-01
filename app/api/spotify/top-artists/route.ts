@@ -16,7 +16,7 @@ export async function GET() {
       }) => ({
         name: artist.name,
         genres: artist.genres.slice(0, 2),
-        imageUrl: artist.images[0]?.url,
+        image: artist.images[0]?.url,
         url: artist.external_urls.spotify,
       })
     )

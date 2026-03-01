@@ -102,7 +102,14 @@ export default function Home() {
   const [heroIdx, setHeroIdx] = useState(0)
   const [flagInput, setFlagInput] = useState("")
   const [flagUnlocked, setFlagUnlocked] = useState(false)
+  const [showHints, setShowHints] = useState(false)
   const correctFlag = "som_loves_pencils_and_travel"
+
+  const hints = [
+    "check the creative side bio section carefully...",
+    "what are two things i'm obsessed with?",
+    "combine them with underscores",
+  ]
 
   const handleFlagSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -562,21 +569,44 @@ export default function Home() {
                           autoFocus
                         />
                       </div>
-                      <button
-                        type="submit"
-                        className="font-mono text-xs px-3 py-1 bg-[#1a1a1a] border border-[#555] text-[#ccc] hover:bg-[#2a2a2a] hover:border-[#999] transition-colors"
-                      >
-                        submit
-                      </button>
+                      <div className="flex gap-2">
+                        <button
+                          type="submit"
+                          className="font-mono text-xs px-3 py-1 bg-[#1a1a1a] border border-[#555] text-[#ccc] hover:bg-[#2a2a2a] hover:border-[#999] transition-colors"
+                        >
+                          submit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setShowHints(!showHints)}
+                          className="font-mono text-xs px-3 py-1 bg-[#1a1a1a] border border-[#333] text-[#777] hover:border-[#555] transition-colors"
+                        >
+                          {showHints ? "hide" : "show"} hints
+                        </button>
+                      </div>
+                      {showHints && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="space-y-1 p-2 bg-[#0a0a0a] border border-[#333] text-[#888]"
+                        >
+                          {hints.map((hint, i) => (
+                            <p key={i} className="text-[0.7rem]">
+                              {`> hint ${i + 1}: ${hint}`}
+                            </p>
+                          ))}
+                        </motion.div>
+                      )}
                     </form>
                   ) : (
                     <motion.div
                       initial={{ opacity: 0, y: 4 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="p-2 bg-[#1a1a1a] border border-[#555] text-[#7fb07f]"
+                      className="p-2 bg-[#1a1a1a] border border-[#555] text-[#7fb07f] space-y-2"
                     >
-                      <p className="mb-2">{"> flag accepted!"}</p>
+                      <p>{"> flag accepted!"}</p>
                       <p className="text-[#555]">{"> unlocking god playlist..."}</p>
+                      <p className="text-[#666] mt-2">{"> way too nerd to listen to this playlist lol"}</p>
                     </motion.div>
                   )}
                 </div>
