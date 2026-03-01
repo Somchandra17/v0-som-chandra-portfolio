@@ -8,53 +8,80 @@ import { Camera, PenTool, BookOpen, X, Compass, Guitar } from "lucide-react"
 
 type Tab = "photos" | "sketches" | "sidequests"
 
-// Aspect ratio types: "portrait" (3:4), "landscape" (4:3), "square" (1:1), "wide" (16:9), "ultrawide" (20:9), "panorama" (21:9 or wider)
-type AspectType = "portrait" | "landscape" | "square" | "wide" | "ultrawide" | "panorama"
+// Auto-detect aspect type from image dimensions
+type AspectType = "panoramic" | "landscape" | "square" | "portrait"
 
-const photoGallery: Array<{
-  id: number
-  title: string
-  desc: string
-  location: string
-  date: string
-  aspectType: AspectType
-}> = [
-  { id: 1, title: "Urban Geometrey", desc: "lines and shadwos in concrete jungels", location: "Mumbai, IN", date: "Dec 2024", aspectType: "portrait" },
-  { id: 2, title: "Golden Hour", desc: "that fiften-minute window where evrything glows", location: "Goa, IN", date: "Nov 2024", aspectType: "landscape" },
-  { id: 3, title: "Strangerss", desc: "faces in transit, storeis untold", location: "Delhi, IN", date: "Oct 2024", aspectType: "square" },
-  { id: 4, title: "After Rainn", desc: "wet streets reflecitng neon", location: "Bangalore, IN", date: "Sep 2024", aspectType: "wide" },
-  { id: 5, title: "Solitudee", desc: "a bench, a tree, nobdoy around", location: "Himachal, IN", date: "Aug 2024", aspectType: "portrait" },
-  { id: 6, title: "Rust & Dacay", desc: "beuaty in what is being forgoten", location: "Kolkata, IN", date: "Jul 2024", aspectType: "ultrawide" },
-  { id: 7, title: "Night Walkk", desc: "long exposurs at 2 AM", location: "Pune, IN", date: "Jun 2024", aspectType: "panorama" },
-  { id: 8, title: "Rooftop Veiw", desc: "the city from abvoe", location: "Jaipur, IN", date: "May 2024", aspectType: "landscape" },
-]
-
-// Helper to get aspect ratio class and grid span based on aspect type
-const getAspectConfig = (aspectType: AspectType) => {
-  const configs: Record<AspectType, { aspect: string; colSpan: string; rowSpan: string }> = {
-    portrait: { aspect: "aspect-[3/4]", colSpan: "col-span-1", rowSpan: "row-span-2" },
-    landscape: { aspect: "aspect-[4/3]", colSpan: "col-span-1", rowSpan: "row-span-1" },
-    square: { aspect: "aspect-square", colSpan: "col-span-1", rowSpan: "row-span-1" },
-    wide: { aspect: "aspect-video", colSpan: "md:col-span-2", rowSpan: "row-span-1" },
-    ultrawide: { aspect: "aspect-[20/9]", colSpan: "md:col-span-2", rowSpan: "row-span-1" },
-    panorama: { aspect: "aspect-[21/9]", colSpan: "col-span-full", rowSpan: "row-span-1" },
-  }
-  return configs[aspectType]
+function getAspectType(width: number, height: number): AspectType {
+  const ratio = width / height
+  if (ratio > 2.5) return "panoramic"   // 20:1, 3:1 etc - full width
+  if (ratio > 1.4) return "landscape"   // 16:9, 4:3
+  if (ratio > 0.8) return "square"      // roughly square
+  return "portrait"                      // tall shots
 }
 
-const sketchGallery: Array<{
+// Grid span map - determines how each aspect type fills the grid
+const spanMap: Record<AspectType, string> = {
+  panoramic: "col-span-2 md:col-span-3 row-span-1",  // full row
+  landscape: "col-span-1 md:col-span-2 row-span-2",  // 2 wide, 2 tall
+  square: "col-span-1 row-span-2",                   // 1 wide, 2 tall
+  portrait: "col-span-1 row-span-3",                 // 1 wide, 3 tall
+}
+
+// Photo and sketch data - no need to specify aspect, it's auto-detected from image
+interface PhotoItem {
   id: number
   title: string
   desc: string
-  aspectType: AspectType
-}> = [
-  { id: 1, title: "Portraitt Study #14", desc: "graphite on papar, 2 hours", aspectType: "portrait" },
-  { id: 2, title: "Hand Gesturs", desc: "anatomey practice from refernce", aspectType: "square" },
-  { id: 3, title: "Cat in Inkk", desc: "quick ink sktech, 20 minuts", aspectType: "portrait" },
-  { id: 4, title: "Archetecture", desc: "that bilding I pass evrey day", aspectType: "landscape" },
-  { id: 5, title: "Abstact Flow", desc: "pen on napkinn during lnuch", aspectType: "square" },
-  { id: 6, title: "Eye Detale", desc: "close-up studey, charcol", aspectType: "portrait" },
+  location?: string
+  date?: string
+  src?: string // optional image source - will show placeholder if not provided
+}
+
+const photoGallery: PhotoItem[] = [
+  { id: 1, title: "Urban Geometrey", desc: "lines and shadwos in concrete jungels", location: "Mumbai, IN", date: "Dec 2024" },
+  { id: 2, title: "Golden Hour", desc: "that fiften-minute window where evrything glows", location: "Goa, IN", date: "Nov 2024" },
+  { id: 3, title: "Strangerss", desc: "faces in transit, storeis untold", location: "Delhi, IN", date: "Oct 2024" },
+  { id: 4, title: "After Rainn", desc: "wet streets reflecitng neon", location: "Bangalore, IN", date: "Sep 2024" },
+  { id: 5, title: "Solitudee", desc: "a bench, a tree, nobdoy around", location: "Himachal, IN", date: "Aug 2024" },
+  { id: 6, title: "Rust & Dacay", desc: "beuaty in what is being forgoten", location: "Kolkata, IN", date: "Jul 2024" },
+  { id: 7, title: "Night Walkk", desc: "long exposurs at 2 AM", location: "Pune, IN", date: "Jun 2024" },
+  { id: 8, title: "Rooftop Veiw", desc: "the city from abvoe", location: "Jaipur, IN", date: "May 2024" },
 ]
+
+const sketchGallery: PhotoItem[] = [
+  { id: 1, title: "Portraitt Study #14", desc: "graphite on papar, 2 hours" },
+  { id: 2, title: "Hand Gesturs", desc: "anatomey practice from refernce" },
+  { id: 3, title: "Cat in Inkk", desc: "quick ink sktech, 20 minuts" },
+  { id: 4, title: "Archetecture", desc: "that bilding I pass evrey day" },
+  { id: 5, title: "Abstact Flow", desc: "pen on napkinn during lnuch" },
+  { id: 6, title: "Eye Detale", desc: "close-up studey, charcol" },
+]
+
+// Sort photos to prevent grid gaps - interleave panoramics evenly
+function sortForGrid(photos: PhotoItem[], aspectTypes: Record<number, AspectType>): PhotoItem[] {
+  const panoramics = photos.filter(p => aspectTypes[p.id] === "panoramic")
+  const rest = photos.filter(p => aspectTypes[p.id] !== "panoramic")
+  
+  if (panoramics.length === 0) return photos
+  
+  const result: PhotoItem[] = []
+  const interval = Math.max(1, Math.floor(rest.length / (panoramics.length + 1)))
+  let panoramicIndex = 0
+  
+  rest.forEach((photo, i) => {
+    result.push(photo)
+    if ((i + 1) % interval === 0 && panoramicIndex < panoramics.length) {
+      result.push(panoramics[panoramicIndex++])
+    }
+  })
+  
+  // Add remaining panoramics at the end
+  while (panoramicIndex < panoramics.length) {
+    result.push(panoramics[panoramicIndex++])
+  }
+  
+  return result
+}
 
 const sideQuestGallery = [
   { id: 1, title: "WFH at IKEA", desc: "set up my laptop in the showrrom display desk. connected to thier wifi. worked for 4 hours before somone asked if i was an employe. peak productivty tbh.", icon: "desk", date: "Jan 2025" },
@@ -123,12 +150,87 @@ const fadeUp = {
   transition: { duration: 0.5 },
 }
 
+// Photo card component with auto aspect detection
+function PhotoCard({ 
+  item, 
+  index, 
+  activeTab, 
+  onClick,
+  aspectType,
+  onAspectDetected
+}: { 
+  item: PhotoItem
+  index: number
+  activeTab: Tab
+  onClick: () => void
+  aspectType: AspectType
+  onAspectDetected: (id: number, type: AspectType) => void
+}) {
+  const spanClass = spanMap[aspectType]
+  
+  return (
+    <motion.div
+      className={`paper-card overflow-hidden cursor-pointer group hover-bounce ${spanClass}`}
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay: index * 0.05, duration: 0.35 }}
+      onClick={onClick}
+    >
+      <div className="relative w-full h-full min-h-[200px] bg-[#1a1a1a] border-b border-[#333] overflow-hidden">
+        {item.src ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={item.src}
+            alt={item.title}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            onLoad={(e) => {
+              const img = e.currentTarget
+              const detected = getAspectType(img.naturalWidth, img.naturalHeight)
+              onAspectDetected(item.id, detected)
+            }}
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center">
+            {activeTab === "photos" ? (
+              <Camera className="h-8 w-8 text-[#333] group-hover:text-[#555] transition-colors" />
+            ) : (
+              <PenTool className="h-8 w-8 text-[#333] group-hover:text-[#555] transition-colors" />
+            )}
+          </div>
+        )}
+        <div className="absolute inset-0 bg-[#e8e8e8]/0 group-hover:bg-[#e8e8e8]/5 transition-colors duration-300" />
+        
+        {/* Caption overlay - reveals on hover */}
+        <div className="absolute bottom-0 left-0 right-0 bg-black/80 text-[#e8e8e8] px-3 py-2 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+          <p className="text-sm font-bold">{item.title}</p>
+          <p className="text-xs text-[#999] mt-0.5">{item.desc}</p>
+          {item.location && (
+            <div className="flex items-center justify-between mt-1 text-xs text-[#555]">
+              <span className="font-mono">{item.location}</span>
+              <span className="font-mono">{item.date}</span>
+            </div>
+          )}
+        </div>
+      </div>
+    </motion.div>
+  )
+}
+
 export default function CreativePage() {
   const [activeTab, setActiveTab] = useState<Tab>("photos")
-  const [lightboxItem, setLightboxItem] = useState<{ title: string; desc: string } | null>(null)
+  const [lightboxItem, setLightboxItem] = useState<PhotoItem | null>(null)
   const [showPhone, setShowPhone] = useState(false)
+  const [aspectTypes, setAspectTypes] = useState<Record<number, AspectType>>({})
 
   const gallery = activeTab === "photos" ? photoGallery : activeTab === "sketches" ? sketchGallery : null
+  
+  // Sort gallery to prevent gaps (interleave panoramics)
+  const sortedGallery = gallery ? sortForGrid(gallery, aspectTypes) : null
+  
+  const handleAspectDetected = (id: number, type: AspectType) => {
+    setAspectTypes(prev => ({ ...prev, [id]: type }))
+  }
 
   return (
     <>
@@ -300,50 +402,26 @@ export default function CreativePage() {
                     </motion.div>
                   ))}
                 </motion.div>
-              ) : gallery && (
+              ) : sortedGallery && (
                 <motion.div
                   key={activeTab}
-                  className="grid grid-cols-2 md:grid-cols-3 gap-4 auto-rows-auto"
+                  className="grid grid-cols-2 md:grid-cols-3 auto-rows-[100px] gap-2"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.3 }}
                 >
-                  {gallery.map((item, i) => {
-                    const config = getAspectConfig(item.aspectType)
-                    return (
-                      <motion.div
-                        key={`${activeTab}-${item.id}`}
-                        className={`paper-card overflow-hidden cursor-pointer group hover-bounce ${config.colSpan}`}
-                        initial={{ opacity: 0, y: 16 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: i * 0.05, duration: 0.35 }}
-                        onClick={() => setLightboxItem(item)}
-                      >
-                        <div className={`${config.aspect} w-full bg-[#1a1a1a] border-b border-[#333] relative overflow-hidden`}>
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            {activeTab === "photos" ? (
-                              <Camera className="h-8 w-8 text-[#333] group-hover:text-[#555] transition-colors" />
-                            ) : (
-                              <PenTool className="h-8 w-8 text-[#333] group-hover:text-[#555] transition-colors" />
-                            )}
-                          </div>
-                          <div className="absolute inset-0 bg-[#e8e8e8]/0 group-hover:bg-[#e8e8e8]/5 transition-colors duration-300" />
-                        </div>
-                        <div className="p-3">
-                          <p className="text-sm font-bold text-[#e8e8e8]">{item.title}</p>
-                          <p className="text-xs text-[#999] mt-0.5">{item.desc}</p>
-                          {"location" in item && (
-                            <div className="flex items-center justify-between mt-2 text-xs text-[#555]">
-                              <span className="font-mono">{(item as typeof photoGallery[0]).location}</span>
-                              <span className="font-mono">{(item as typeof photoGallery[0]).date}</span>
-                            </div>
-                          )}
-                        </div>
-                      </motion.div>
-                    )
-                  })}
+                  {sortedGallery.map((item, i) => (
+                    <PhotoCard
+                      key={`${activeTab}-${item.id}`}
+                      item={item}
+                      index={i}
+                      activeTab={activeTab}
+                      onClick={() => setLightboxItem(item)}
+                      aspectType={aspectTypes[item.id] || "landscape"}
+                      onAspectDetected={handleAspectDetected}
+                    />
+                  ))}
                 </motion.div>
               )}
             </AnimatePresence>
