@@ -4,11 +4,11 @@ import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 
 const messages = [
-  "flipping through pages...",
-  "spilled ink on the desk...",
-  "looking for a pen...",
-  "found a coffee stain...",
-  "almost there...",
+  "looking for my other sock...",
+  "untangling the headphones...",
+  "oops, wrong folder...",
+  "brewing questionable coffee...",
+  "found it, hold on...",
 ]
 
 export function Loader({ onComplete }: { onComplete: () => void }) {
@@ -19,12 +19,12 @@ export function Loader({ onComplete }: { onComplete: () => void }) {
       setMsgIndex((prev) => {
         if (prev >= messages.length - 1) {
           clearInterval(interval)
-          setTimeout(onComplete, 600)
+          setTimeout(onComplete, 500)
           return prev
         }
         return prev + 1
       })
-    }, 450)
+    }, 420)
     return () => clearInterval(interval)
   }, [onComplete])
 
@@ -32,25 +32,37 @@ export function Loader({ onComplete }: { onComplete: () => void }) {
     <motion.div
       className="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-[#0a0a0a]"
       exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.5, ease: "easeInOut" }}
+      transition={{ duration: 0.4, ease: "easeInOut" }}
     >
-      <motion.div
-        className="mb-8 h-px bg-[#e8e8e8]"
-        initial={{ width: 0 }}
-        animate={{ width: 120 }}
-        transition={{ duration: 2.2, ease: "easeOut" }}
-      />
+      <motion.p
+        className="text-lg md:text-xl font-bold text-[#e8e8e8] mb-6"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        {"one sec..."}
+      </motion.p>
 
-      <p className="font-mono text-sm tracking-wide text-[#666]">
+      <motion.p
+        key={msgIndex}
+        className="font-mono text-sm text-[#777]"
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25 }}
+      >
         {messages[msgIndex]}
-      </p>
+      </motion.p>
 
-      <div className="mt-6 flex gap-2">
+      <div className="mt-8 flex gap-2">
         {messages.map((_, i) => (
-          <div
+          <motion.div
             key={i}
-            className="h-1.5 w-1.5 transition-colors duration-300"
-            style={{ background: i <= msgIndex ? "#e8e8e8" : "#333" }}
+            className="h-1.5 w-1.5"
+            animate={{
+              background: i <= msgIndex ? "#e8e8e8" : "#333",
+              scale: i === msgIndex ? 1.4 : 1,
+            }}
+            transition={{ duration: 0.2 }}
+            style={{ borderRadius: "50%" }}
           />
         ))}
       </div>

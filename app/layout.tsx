@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Space_Grotesk, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
+import { LayoutShell } from '@/components/layout-shell'
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -18,7 +19,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'Som Chandra | Two Sides, One Person',
   description:
-    'The dual-personality portfolio of Som Chandra -- cybersecurity engineer by trade, creative by nature. Pick a side.',
+    'The portfolio of Som Chandra -- cybersecurity engineer by trade, creative by accident. Pick a side.',
   icons: {
     icon: [
       { url: '/icon-light-32x32.png', media: '(prefers-color-scheme: light)' },
@@ -44,7 +45,7 @@ export default function RootLayout({
       <body
         className={`${spaceGrotesk.variable} ${geistMono.variable} font-sans antialiased bg-[#0a0a0a] text-[#e8e8e8]`}
       >
-        {children}
+        <LayoutShell>{children}</LayoutShell>
         <Analytics />
       </body>
     </html>

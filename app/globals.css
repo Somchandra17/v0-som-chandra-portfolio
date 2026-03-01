@@ -13,12 +13,12 @@
   --primary: #e8e8e8;
   --primary-foreground: #0a0a0a;
   --secondary: #1a1a1a;
-  --secondary-foreground: #aaaaaa;
+  --secondary-foreground: #bbbbbb;
   --muted: #1a1a1a;
-  --muted-foreground: #666666;
+  --muted-foreground: #777777;
   --accent: #1a1a1a;
   --accent-foreground: #e8e8e8;
-  --destructive: #666666;
+  --destructive: #777777;
   --destructive-foreground: #e8e8e8;
   --border: #2a2a2a;
   --input: #1a1a1a;
@@ -74,8 +74,8 @@
 
 @keyframes wobble {
   0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(-0.8deg); }
-  75% { transform: rotate(0.8deg); }
+  25% { transform: rotate(-0.6deg); }
+  75% { transform: rotate(0.6deg); }
 }
 
 @keyframes tape-wiggle {
@@ -85,28 +85,30 @@
 
 @keyframes float-slow {
   0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-5px); }
-}
-
-@keyframes page-enter {
-  from { opacity: 0; transform: translateY(24px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes ink-spread {
-  0% { transform: scale(0); opacity: 0; }
-  60% { opacity: 0.12; }
-  100% { transform: scale(1); opacity: 0.06; }
-}
-
-@keyframes underline-draw {
-  from { width: 0; }
-  to { width: 100%; }
+  50% { transform: translateY(-6px); }
 }
 
 @keyframes spin-vinyl {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  20% { transform: rotate(-3deg); }
+  40% { transform: rotate(3deg); }
+  60% { transform: rotate(-2deg); }
+  80% { transform: rotate(2deg); }
+}
+
+@keyframes bounce-gentle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
 }
 
 /* ---- Base ---- */
@@ -132,27 +134,44 @@
 
 @layer utilities {
 
-  /* White grain noise on black background */
+  /* White grain noise on black */
   .paper-texture::before {
     content: '';
     position: fixed;
     inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");
     pointer-events: none;
     z-index: 50;
     mix-blend-mode: screen;
   }
 
-  /* Ruled notebook lines */
-  .ruled-lines {
-    background-image: repeating-linear-gradient(
-      to bottom,
-      transparent,
-      transparent 31px,
-      #1e1e1e 31px,
-      #1e1e1e 32px
-    );
+  /* Curved ruled paper -- the magic: a radial gradient that fades ruled lines
+     into a subtle arc, plus perspective on the wrapper to make content "lift" */
+  .curved-paper-bg {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image:
+      repeating-linear-gradient(
+        to bottom,
+        transparent,
+        transparent 31px,
+        rgba(255,255,255,0.04) 31px,
+        rgba(255,255,255,0.04) 32px
+      );
     background-size: 100% 32px;
+    /* radial vignette to create the "curved page" illusion */
+    mask-image: radial-gradient(ellipse 90% 80% at 50% 50%, black 50%, transparent 100%);
+    -webkit-mask-image: radial-gradient(ellipse 90% 80% at 50% 50%, black 50%, transparent 100%);
+  }
+
+  /* Floating content wrapper -- slight perspective lift */
+  .float-content {
+    position: relative;
+    z-index: 10;
+    transform: perspective(1200px) rotateX(0.4deg);
+    transform-origin: center top;
   }
 
   /* Margin line */
@@ -161,7 +180,7 @@
     padding-left: 1.5rem;
   }
 
-  /* Coffee ring stain -- lighter on dark bg */
+  /* Coffee ring stain */
   .coffee-stain::after {
     content: '';
     position: absolute;
@@ -179,7 +198,7 @@
     z-index: 2;
   }
 
-  /* Tape strip on top of card */
+  /* Tape strip */
   .tape-top::before {
     content: '';
     position: absolute;
@@ -195,19 +214,7 @@
     animation: tape-wiggle 5s ease-in-out infinite;
   }
 
-  /* Ink splatter dot */
-  .ink-splat::after {
-    content: '';
-    position: absolute;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background: radial-gradient(ellipse at 35% 35%, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
-    pointer-events: none;
-    z-index: 2;
-  }
-
-  /* Paper card -- dark variant */
+  /* Paper card */
   .paper-card {
     background: #111111;
     border: 1px solid #2a2a2a;
@@ -215,11 +222,6 @@
   }
   .paper-card:hover {
     box-shadow: 3px 3px 0px #222222;
-  }
-
-  /* Dashed border */
-  .dashed-border {
-    border: 2px dashed #2a2a2a;
   }
 
   /* Draw-underline on hover */
@@ -241,12 +243,22 @@
     width: 100%;
   }
 
-  /* Straight scribble underline -- white on black */
+  /* Scribble underline */
   .scribble-underline {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 6'%3E%3Cpath d='M0,3 Q50,0 100,3 T200,3' fill='none' stroke='%23e8e8e8' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
     background-repeat: repeat-x;
     background-position: bottom;
     background-size: 100px 6px;
     padding-bottom: 4px;
+  }
+
+  /* Fun interactive hover bounce */
+  .hover-bounce:hover {
+    animation: bounce-gentle 0.4s ease-in-out;
+  }
+
+  /* Wiggle on hover */
+  .hover-wiggle:hover {
+    animation: wiggle 0.5s ease-in-out;
   }
 }

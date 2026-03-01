@@ -15,12 +15,12 @@ export function PageHeader({ title, subtitle }: PageHeaderProps) {
       className="sticky top-0 z-40 border-b border-[#2a2a2a] bg-[#0a0a0a]/95 backdrop-blur-sm"
       initial={{ y: -60, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
     >
-      <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
+      <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3.5">
         <Link
           href="/"
-          className="draw-underline flex items-center gap-2 text-sm font-mono text-[#666] hover:text-[#e8e8e8] transition-colors"
+          className="draw-underline flex items-center gap-2 text-sm font-mono text-[#777] hover:text-[#e8e8e8] transition-colors"
           data-hover
         >
           <ArrowLeft className="h-4 w-4" />
@@ -28,9 +28,9 @@ export function PageHeader({ title, subtitle }: PageHeaderProps) {
         </Link>
 
         <div className="text-right">
-          <h1 className="text-lg font-bold tracking-tight text-[#e8e8e8]">{title}</h1>
+          <h1 className="text-base font-bold tracking-tight text-[#e8e8e8]">{title}</h1>
           {subtitle && (
-            <p className="text-xs font-mono text-[#555]">{subtitle}</p>
+            <p className="text-xs font-mono text-[#777]">{subtitle}</p>
           )}
         </div>
       </div>
