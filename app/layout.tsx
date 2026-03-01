@@ -1,11 +1,17 @@
 import type { Metadata, Viewport } from 'next'
-import { Space_Grotesk, Geist_Mono } from 'next/font/google'
+import { Caveat, Space_Grotesk, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
-const spaceGrotesk = Space_Grotesk({
+const caveat = Caveat({
   subsets: ['latin'],
   variable: '--font-sans',
+  display: 'swap',
+})
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  variable: '--font-body',
   display: 'swap',
 })
 
@@ -16,8 +22,8 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'Som Chandra | Cybersecurity Engineer & Creative',
-  description: 'Personal portfolio of Som Chandra — Cybersecurity Engineer, Photographer, Sketch Artist. Breaking systems by day, building frames by night.',
+  title: "hey, it's som -- welcome to the mess",
+  description: 'A clumsy, coffee-stained corner of the internet. Security stuff, doodles, and vibes.',
   generator: 'v0.app',
   icons: {
     icon: [
@@ -39,8 +45,8 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: '#000000',
-  colorScheme: 'dark',
+  themeColor: '#fbf1c7',
+  colorScheme: 'light',
 }
 
 export default function RootLayout({
@@ -49,8 +55,9 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body className={`${spaceGrotesk.variable} ${geistMono.variable} font-sans antialiased bg-[#000000] text-[#f5f5f5]`}>
+    <html lang="en">
+      <body className={`${caveat.variable} ${spaceGrotesk.variable} ${geistMono.variable} antialiased`}
+        style={{ fontFamily: "'Space Grotesk', sans-serif", background: '#fbf1c7', color: '#3c3836' }}>
         {children}
         <Analytics />
       </body>

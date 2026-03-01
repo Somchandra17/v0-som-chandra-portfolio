@@ -3,57 +3,77 @@
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 
+const doodles = [
+  "( . Y . )",
+  "~(^-^)~",
+  "*scribbles furiously*",
+  "loading my mess...",
+  "hold on, spilled coffee",
+  "where did I put that page...",
+]
+
 export function Loader({ onComplete }: { onComplete: () => void }) {
-  const [text, setText] = useState("")
-  const [showCursor, setShowCursor] = useState(true)
-  const [phase, setPhase] = useState<"typing" | "done" | "exit">("typing")
-  const fullName = "Som Chandra"
+  const [doodle, setDoodle] = useState(doodles[0])
+  const [phase, setPhase] = useState<"loading" | "exit">("loading")
 
   useEffect(() => {
     let i = 0
-    const typeInterval = setInterval(() => {
-      if (i < fullName.length) {
-        setText(fullName.slice(0, i + 1))
-        i++
-      } else {
-        clearInterval(typeInterval)
-        setTimeout(() => setPhase("done"), 400)
-        setTimeout(() => setPhase("exit"), 1000)
-        setTimeout(() => onComplete(), 1600)
-      }
-    }, 100)
+    const interval = setInterval(() => {
+      i = (i + 1) % doodles.length
+      setDoodle(doodles[i])
+    }, 400)
 
-    const cursorInterval = setInterval(() => {
-      setShowCursor((prev) => !prev)
-    }, 500)
+    setTimeout(() => {
+      clearInterval(interval)
+      setPhase("exit")
+    }, 2000)
 
-    return () => {
-      clearInterval(typeInterval)
-      clearInterval(cursorInterval)
-    }
+    setTimeout(() => onComplete(), 2600)
+
+    return () => clearInterval(interval)
   }, [onComplete])
 
   return (
     <AnimatePresence>
-      {phase !== "exit" ? null : null}
       <motion.div
-        className="fixed inset-0 z-[10000] flex items-center justify-center bg-[#000000]"
+        className="fixed inset-0 z-[10000] flex flex-col items-center justify-center"
+        style={{ background: '#f9f5d7' }}
         initial={{ opacity: 1 }}
+        animate={phase === "exit" ? { opacity: 0, y: -40 } : { opacity: 1 }}
         exit={{ opacity: 0 }}
-        animate={phase === "exit" ? { opacity: 0, scale: 1.1 } : { opacity: 1 }}
         transition={{ duration: 0.6, ease: [0.76, 0, 0.24, 1] }}
       >
-        <motion.h1
-          className="font-sans text-4xl font-bold tracking-tighter text-[#ffffff] sm:text-6xl md:text-8xl"
-          animate={phase === "done" ? { scale: [1, 1.05, 1], letterSpacing: ["-.05em", "-.02em", "-.05em"] } : {}}
-          transition={{ duration: 0.4, ease: "easeInOut" }}
+        {/* Coffee stain in corner */}
+        <div className="absolute top-20 right-20 w-40 h-40 rounded-full opacity-10"
+          style={{ background: 'radial-gradient(ellipse, #a08450 0%, transparent 70%)' }} />
+        
+        {/* Scribble animation */}
+        <motion.div
+          animate={{ rotate: [-2, 2, -1, 1, 0] }}
+          transition={{ duration: 0.5, repeat: Infinity }}
         >
-          {text}
-          <span
-            className="inline-block w-[3px] h-[1em] bg-[#ffffff] ml-1 align-middle"
-            style={{ opacity: showCursor ? 1 : 0 }}
-          />
-        </motion.h1>
+          <svg width="120" height="40" viewBox="0 0 120 40" className="mb-6">
+            <motion.path
+              d="M5,20 Q15,5 30,20 T60,20 T90,20 T120,20"
+              fill="none"
+              stroke="#cc241d"
+              strokeWidth="2"
+              strokeLinecap="round"
+              initial={{ pathLength: 0 }}
+              animate={{ pathLength: 1 }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+            />
+          </svg>
+        </motion.div>
+
+        <motion.p
+          className="text-2xl"
+          style={{ fontFamily: "'Caveat', cursive", color: '#7c6f64' }}
+          animate={{ opacity: [0.4, 1, 0.4] }}
+          transition={{ duration: 0.8, repeat: Infinity }}
+        >
+          {doodle}
+        </motion.p>
       </motion.div>
     </AnimatePresence>
   )

@@ -10,16 +10,19 @@ const galleryItems = {
   Photography: Array.from({ length: 6 }, (_, i) => ({
     id: `photo-${i + 1}`,
     aspectRatio: [1, 1.3, 0.8, 1.2, 0.9, 1.1][i],
+    caption: ["golden hour", "street corner", "rain day", "rooftop vibes", "the alley", "morning light"][i],
   })),
   Sketching: Array.from({ length: 6 }, (_, i) => ({
     id: `sketch-${i + 1}`,
     aspectRatio: [1.2, 0.8, 1, 1.4, 0.7, 1.1][i],
+    caption: ["face study", "hands again", "city line", "messy portrait", "gesture", "still life"][i],
   })),
 }
 
-function GalleryItem({ id, aspectRatio, index, onClick }: {
+function GalleryItem({ id, aspectRatio, caption, index, onClick }: {
   id: string
   aspectRatio: number
+  caption: string
   index: number
   onClick: () => void
 }) {
@@ -29,26 +32,34 @@ function GalleryItem({ id, aspectRatio, index, onClick }: {
   return (
     <motion.div
       ref={ref}
-      className="group relative cursor-pointer overflow-hidden bg-[#111111]"
-      style={{ aspectRatio: aspectRatio }}
-      initial={{ opacity: 0, y: 30 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      className="group relative cursor-pointer overflow-hidden"
+      style={{
+        aspectRatio,
+        background: '#ebdbb2',
+        borderRadius: '2px',
+        transform: `rotate(${(index % 2 === 0 ? -1 : 1) * (0.5 + index * 0.3)}deg)`,
+      }}
+      initial={{ opacity: 0, y: 30, scale: 0.95 }}
+      animate={isInView ? { opacity: 1, y: 0, scale: 1 } : {}}
       transition={{ duration: 0.5, delay: index * 0.08 }}
       onClick={onClick}
+      whileHover={{ rotate: 0, scale: 1.03 }}
       data-hover
     >
-      {/* Shimmer placeholder */}
-      <div className="absolute inset-0 shimmer-bg" />
+      {/* Paper-like placeholder */}
+      <div className="absolute inset-0 flex items-center justify-center"
+        style={{ background: 'linear-gradient(135deg, #ebdbb2 0%, #d5c4a1 100%)' }}>
+        <span className="text-lg" style={{ fontFamily: "'Caveat', cursive", color: '#bdae93' }}>
+          {caption}
+        </span>
+      </div>
 
-      {/* Hover sweep */}
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#ffffff10] to-transparent -translate-x-full transition-transform duration-700 group-hover:translate-x-full" />
-
-      {/* Zoom effect */}
-      <div className="absolute inset-0 transition-transform duration-500 group-hover:scale-105" />
-
-      {/* Label */}
-      <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100">
-        <span className="text-xs uppercase tracking-[0.3em] text-[#ffffff] bg-[#00000080] px-3 py-1">{id}</span>
+      {/* Hover label */}
+      <div className="absolute inset-0 flex items-end p-3 opacity-0 transition-opacity group-hover:opacity-100"
+        style={{ background: 'linear-gradient(transparent 60%, #3c383666 100%)' }}>
+        <span className="text-xs px-2 py-1" style={{ background: '#fbf1c7', color: '#3c3836', borderRadius: '2px' }}>
+          {id}
+        </span>
       </div>
     </motion.div>
   )
@@ -57,28 +68,34 @@ function GalleryItem({ id, aspectRatio, index, onClick }: {
 function Lightbox({ onClose }: { onClose: () => void }) {
   return (
     <motion.div
-      className="fixed inset-0 z-[200] flex items-center justify-center bg-[#000000ee]"
+      className="fixed inset-0 z-[200] flex items-center justify-center"
+      style={{ background: '#3c3836ee' }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       onClick={onClose}
     >
       <motion.div
-        className="relative aspect-[4/3] w-[90vw] max-w-[800px] bg-[#111111]"
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
+        className="relative aspect-[4/3] w-[90vw] max-w-[700px] p-4 pb-14 shadow-xl"
+        style={{ background: '#f2e5bc' }}
+        initial={{ scale: 0.8, opacity: 0, rotate: -3 }}
+        animate={{ scale: 1, opacity: 1, rotate: 1 }}
         exit={{ scale: 0.8, opacity: 0 }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="absolute inset-0 shimmer-bg" />
+        <div className="h-full w-full" style={{ background: '#ebdbb2' }} />
+        <p className="absolute bottom-4 left-4 text-lg" style={{ fontFamily: "'Caveat', cursive", color: '#7c6f64' }}>
+          (imagine something beautiful here)
+        </p>
         <button
-          className="absolute -right-4 -top-4 z-10 flex h-8 w-8 items-center justify-center bg-[#ffffff] text-[#000000] transition-transform hover:scale-110"
+          className="absolute -right-3 -top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full shadow-md transition-transform hover:scale-110"
+          style={{ background: '#cc241d', color: '#fbf1c7' }}
           onClick={onClose}
           aria-label="Close lightbox"
           data-hover
         >
-          <X size={16} />
+          <X size={14} />
         </button>
       </motion.div>
     </motion.div>
@@ -92,33 +109,41 @@ export function CreativeSection() {
   const [lightboxItem, setLightboxItem] = useState<string | null>(null)
 
   return (
-    <section id="creative" ref={sectionRef} className="relative bg-[#000000] py-24 md:py-32">
-      <div className="mx-auto max-w-6xl px-6">
-        {/* Heading with brush reveal style */}
+    <section id="creative" ref={sectionRef} className="relative py-24 md:py-32" style={{ background: '#fbf1c7' }}>
+      <div className="mx-auto max-w-5xl px-6">
         <motion.div
           className="mb-8"
-          initial={{ opacity: 0, x: -40 }}
+          initial={{ opacity: 0, x: -30 }}
           animate={isInView ? { opacity: 1, x: 0 } : {}}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.8 }}
         >
-          <h2 className="text-3xl font-bold tracking-tighter text-[#ffffff] sm:text-4xl md:text-5xl">
-            Creative Corner
+          <h2 className="text-4xl sm:text-5xl md:text-6xl" style={{ fontFamily: "'Caveat', cursive", color: '#3c3836' }}>
+            creative bits
           </h2>
+          <motion.svg width="110" height="8" viewBox="0 0 110 8" className="mt-1">
+            <motion.path
+              d="M2,5 Q20,1 40,5 T80,5 T110,4"
+              fill="none" stroke="#b16286" strokeWidth="2" strokeLinecap="round"
+              initial={{ pathLength: 0 }}
+              animate={isInView ? { pathLength: 1 } : { pathLength: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+            />
+          </motion.svg>
         </motion.div>
 
-        {/* Quote */}
         <motion.blockquote
-          className="mb-12 border-l-2 border-[#333333] pl-6 text-base italic text-[#666666] sm:text-lg"
+          className="mb-10 pl-4 border-l-2 text-base italic"
+          style={{ borderColor: '#d5c4a1', color: '#7c6f64', fontFamily: "'Caveat', cursive", fontSize: '1.2rem' }}
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}
           transition={{ delay: 0.4 }}
         >
-          {'"Between breaking systems and building frames -- this is where I breathe."'}
+          {"between breaking systems and building frames -- this is where I breathe."}
         </motion.blockquote>
 
         {/* Tabs */}
         <motion.div
-          className="mb-10 flex gap-1"
+          className="mb-8 flex gap-1"
           initial={{ opacity: 0, y: 10 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: 0.3 }}
@@ -127,24 +152,20 @@ export function CreativeSection() {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`relative px-6 py-2.5 text-sm font-medium uppercase tracking-widest transition-colors ${
-                activeTab === tab ? "text-[#ffffff]" : "text-[#666666] hover:text-[#999999]"
-              }`}
+              className="relative px-5 py-2 text-sm font-medium transition-all"
+              style={{
+                color: activeTab === tab ? '#3c3836' : '#bdae93',
+                background: activeTab === tab ? '#ebdbb2' : 'transparent',
+                borderRadius: '2px',
+              }}
               data-hover
             >
               {tab}
-              {activeTab === tab && (
-                <motion.div
-                  className="absolute inset-x-0 bottom-0 h-[1px] bg-[#ffffff]"
-                  layoutId="tab-indicator"
-                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                />
-              )}
             </button>
           ))}
         </motion.div>
 
-        {/* Gallery grid (masonry-like via columns) */}
+        {/* Gallery */}
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
@@ -167,7 +188,6 @@ export function CreativeSection() {
         </AnimatePresence>
       </div>
 
-      {/* Lightbox */}
       <AnimatePresence>
         {lightboxItem && <Lightbox onClose={() => setLightboxItem(null)} />}
       </AnimatePresence>

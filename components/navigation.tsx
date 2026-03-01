@@ -5,13 +5,13 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Menu, X } from "lucide-react"
 
 const navItems = [
-  { label: "About", href: "#about" },
-  { label: "Work", href: "#work" },
-  { label: "Projects", href: "#projects" },
-  { label: "Creative", href: "#creative" },
-  { label: "Music", href: "#music" },
-  { label: "Void", href: "#void" },
-  { label: "Contact", href: "#contact" },
+  { label: "about me", href: "#about" },
+  { label: "work stuff", href: "#work" },
+  { label: "projects", href: "#projects" },
+  { label: "creative bits", href: "#creative" },
+  { label: "tunes", href: "#music" },
+  { label: "thoughts", href: "#void" },
+  { label: "say hi", href: "#contact" },
 ]
 
 export function Navigation() {
@@ -27,15 +27,24 @@ export function Navigation() {
   return (
     <>
       <motion.nav
-        className={`fixed top-0 left-0 right-0 z-[50] flex items-center justify-between px-6 py-4 transition-colors duration-500 ${
-          scrolled ? "bg-[#000000ee] backdrop-blur-md" : "bg-transparent"
+        className={`fixed top-0 left-0 right-0 z-[50] flex items-center justify-between px-6 py-4 transition-all duration-500 ${
+          scrolled ? "shadow-sm" : ""
         }`}
+        style={{
+          background: scrolled ? '#fbf1c7ee' : 'transparent',
+          backdropFilter: scrolled ? 'blur(8px)' : 'none',
+        }}
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6, delay: 1.8 }}
       >
-        <a href="#hero" className="font-bold text-[#ffffff] tracking-tighter text-lg" data-hover>
-          SC
+        <a
+          href="#hero"
+          className="text-2xl"
+          style={{ fontFamily: "'Caveat', cursive", color: '#cc241d' }}
+          data-hover
+        >
+          som~
         </a>
 
         {/* Desktop nav */}
@@ -44,7 +53,8 @@ export function Navigation() {
             <a
               key={item.label}
               href={item.href}
-              className="text-xs uppercase tracking-[0.2em] text-[#999999] transition-colors hover:text-[#ffffff]"
+              className="text-sm transition-colors hover:text-[#cc241d]"
+              style={{ color: '#7c6f64' }}
               data-hover
             >
               {item.label}
@@ -54,12 +64,13 @@ export function Navigation() {
 
         {/* Mobile toggle */}
         <button
-          className="text-[#ffffff] md:hidden"
+          className="md:hidden"
+          style={{ color: '#3c3836' }}
           onClick={() => setMobileOpen(true)}
           aria-label="Open navigation"
           data-hover
         >
-          <Menu size={20} />
+          <Menu size={22} />
         </button>
       </motion.nav>
 
@@ -67,31 +78,34 @@ export function Navigation() {
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
-            className="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-[#000000] md:hidden"
+            className="fixed inset-0 z-[60] flex flex-col items-center justify-center md:hidden"
+            style={{ background: '#fbf1c7' }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
             <button
-              className="absolute right-6 top-4 text-[#ffffff]"
+              className="absolute right-6 top-4"
+              style={{ color: '#3c3836' }}
               onClick={() => setMobileOpen(false)}
               aria-label="Close navigation"
               data-hover
             >
-              <X size={20} />
+              <X size={22} />
             </button>
 
-            <div className="flex flex-col items-center gap-6">
+            <div className="flex flex-col items-center gap-5">
               {navItems.map((item, i) => (
                 <motion.a
                   key={item.label}
                   href={item.href}
-                  className="text-2xl font-bold tracking-tighter text-[#ffffff]"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  className="text-3xl"
+                  style={{ fontFamily: "'Caveat', cursive", color: '#3c3836' }}
+                  initial={{ opacity: 0, y: 20, rotate: -2 }}
+                  animate={{ opacity: 1, y: 0, rotate: 0 }}
                   exit={{ opacity: 0, y: 20 }}
-                  transition={{ delay: i * 0.05 }}
+                  transition={{ delay: i * 0.06 }}
                   onClick={() => setMobileOpen(false)}
                   data-hover
                 >
