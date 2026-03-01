@@ -8,24 +8,52 @@ import { Camera, PenTool, BookOpen, X, Compass, Guitar } from "lucide-react"
 
 type Tab = "photos" | "sketches" | "sidequests"
 
-const photoGallery = [
-  { id: 1, title: "Urban Geometrey", desc: "lines and shadwos in concrete jungels", location: "Mumbai, IN", date: "Dec 2024", aspect: "aspect-[4/5]" },
-  { id: 2, title: "Golden Hour", desc: "that fiften-minute window where evrything glows", location: "Goa, IN", date: "Nov 2024", aspect: "aspect-[3/4]" },
-  { id: 3, title: "Strangerss", desc: "faces in transit, storeis untold", location: "Delhi, IN", date: "Oct 2024", aspect: "aspect-square" },
-  { id: 4, title: "After Rainn", desc: "wet streets reflecitng neon", location: "Bangalore, IN", date: "Sep 2024", aspect: "aspect-[4/5]" },
-  { id: 5, title: "Solitudee", desc: "a bench, a tree, nobdoy around", location: "Himachal, IN", date: "Aug 2024", aspect: "aspect-[3/4]" },
-  { id: 6, title: "Rust & Dacay", desc: "beuaty in what is being forgoten", location: "Kolkata, IN", date: "Jul 2024", aspect: "aspect-square" },
-  { id: 7, title: "Night Walkk", desc: "long exposurs at 2 AM", location: "Pune, IN", date: "Jun 2024", aspect: "aspect-[4/5]" },
-  { id: 8, title: "Rooftop Veiw", desc: "the city from abvoe", location: "Jaipur, IN", date: "May 2024", aspect: "aspect-[3/4]" },
+// Aspect ratio types: "portrait" (3:4), "landscape" (4:3), "square" (1:1), "wide" (16:9), "ultrawide" (20:9), "panorama" (21:9 or wider)
+type AspectType = "portrait" | "landscape" | "square" | "wide" | "ultrawide" | "panorama"
+
+const photoGallery: Array<{
+  id: number
+  title: string
+  desc: string
+  location: string
+  date: string
+  aspectType: AspectType
+}> = [
+  { id: 1, title: "Urban Geometrey", desc: "lines and shadwos in concrete jungels", location: "Mumbai, IN", date: "Dec 2024", aspectType: "portrait" },
+  { id: 2, title: "Golden Hour", desc: "that fiften-minute window where evrything glows", location: "Goa, IN", date: "Nov 2024", aspectType: "landscape" },
+  { id: 3, title: "Strangerss", desc: "faces in transit, storeis untold", location: "Delhi, IN", date: "Oct 2024", aspectType: "square" },
+  { id: 4, title: "After Rainn", desc: "wet streets reflecitng neon", location: "Bangalore, IN", date: "Sep 2024", aspectType: "wide" },
+  { id: 5, title: "Solitudee", desc: "a bench, a tree, nobdoy around", location: "Himachal, IN", date: "Aug 2024", aspectType: "portrait" },
+  { id: 6, title: "Rust & Dacay", desc: "beuaty in what is being forgoten", location: "Kolkata, IN", date: "Jul 2024", aspectType: "ultrawide" },
+  { id: 7, title: "Night Walkk", desc: "long exposurs at 2 AM", location: "Pune, IN", date: "Jun 2024", aspectType: "panorama" },
+  { id: 8, title: "Rooftop Veiw", desc: "the city from abvoe", location: "Jaipur, IN", date: "May 2024", aspectType: "landscape" },
 ]
 
-const sketchGallery = [
-  { id: 1, title: "Portraitt Study #14", desc: "graphite on papar, 2 hours", aspect: "aspect-[3/4]" },
-  { id: 2, title: "Hand Gesturs", desc: "anatomey practice from refernce", aspect: "aspect-square" },
-  { id: 3, title: "Cat in Inkk", desc: "quick ink sktech, 20 minuts", aspect: "aspect-[4/5]" },
-  { id: 4, title: "Archetecture", desc: "that bilding I pass evrey day", aspect: "aspect-[3/4]" },
-  { id: 5, title: "Abstact Flow", desc: "pen on napkinn during lnuch", aspect: "aspect-square" },
-  { id: 6, title: "Eye Detale", desc: "close-up studey, charcol", aspect: "aspect-[4/5]" },
+// Helper to get aspect ratio class and grid span based on aspect type
+const getAspectConfig = (aspectType: AspectType) => {
+  const configs: Record<AspectType, { aspect: string; colSpan: string; rowSpan: string }> = {
+    portrait: { aspect: "aspect-[3/4]", colSpan: "col-span-1", rowSpan: "row-span-2" },
+    landscape: { aspect: "aspect-[4/3]", colSpan: "col-span-1", rowSpan: "row-span-1" },
+    square: { aspect: "aspect-square", colSpan: "col-span-1", rowSpan: "row-span-1" },
+    wide: { aspect: "aspect-video", colSpan: "md:col-span-2", rowSpan: "row-span-1" },
+    ultrawide: { aspect: "aspect-[20/9]", colSpan: "md:col-span-2", rowSpan: "row-span-1" },
+    panorama: { aspect: "aspect-[21/9]", colSpan: "col-span-full", rowSpan: "row-span-1" },
+  }
+  return configs[aspectType]
+}
+
+const sketchGallery: Array<{
+  id: number
+  title: string
+  desc: string
+  aspectType: AspectType
+}> = [
+  { id: 1, title: "Portraitt Study #14", desc: "graphite on papar, 2 hours", aspectType: "portrait" },
+  { id: 2, title: "Hand Gesturs", desc: "anatomey practice from refernce", aspectType: "square" },
+  { id: 3, title: "Cat in Inkk", desc: "quick ink sktech, 20 minuts", aspectType: "portrait" },
+  { id: 4, title: "Archetecture", desc: "that bilding I pass evrey day", aspectType: "landscape" },
+  { id: 5, title: "Abstact Flow", desc: "pen on napkinn during lnuch", aspectType: "square" },
+  { id: 6, title: "Eye Detale", desc: "close-up studey, charcol", aspectType: "portrait" },
 ]
 
 const sideQuestGallery = [
@@ -275,44 +303,47 @@ export default function CreativePage() {
               ) : gallery && (
                 <motion.div
                   key={activeTab}
-                  className="columns-2 md:columns-3 gap-4 space-y-4"
+                  className="grid grid-cols-2 md:grid-cols-3 gap-4 auto-rows-auto"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.3 }}
                 >
-                  {gallery.map((item, i) => (
-                    <motion.div
-                      key={`${activeTab}-${item.id}`}
-                      className="break-inside-avoid paper-card overflow-hidden cursor-pointer group hover-bounce"
-                      initial={{ opacity: 0, y: 16 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: i * 0.05, duration: 0.35 }}
-                      onClick={() => setLightboxItem(item)}
-                    >
-                      <div className={`${item.aspect} w-full bg-[#1a1a1a] border-b border-[#333] relative overflow-hidden`}>
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          {activeTab === "photos" ? (
-                            <Camera className="h-8 w-8 text-[#333] group-hover:text-[#555] transition-colors" />
-                          ) : (
-                            <PenTool className="h-8 w-8 text-[#333] group-hover:text-[#555] transition-colors" />
+                  {gallery.map((item, i) => {
+                    const config = getAspectConfig(item.aspectType)
+                    return (
+                      <motion.div
+                        key={`${activeTab}-${item.id}`}
+                        className={`paper-card overflow-hidden cursor-pointer group hover-bounce ${config.colSpan}`}
+                        initial={{ opacity: 0, y: 16 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: i * 0.05, duration: 0.35 }}
+                        onClick={() => setLightboxItem(item)}
+                      >
+                        <div className={`${config.aspect} w-full bg-[#1a1a1a] border-b border-[#333] relative overflow-hidden`}>
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            {activeTab === "photos" ? (
+                              <Camera className="h-8 w-8 text-[#333] group-hover:text-[#555] transition-colors" />
+                            ) : (
+                              <PenTool className="h-8 w-8 text-[#333] group-hover:text-[#555] transition-colors" />
+                            )}
+                          </div>
+                          <div className="absolute inset-0 bg-[#e8e8e8]/0 group-hover:bg-[#e8e8e8]/5 transition-colors duration-300" />
+                        </div>
+                        <div className="p-3">
+                          <p className="text-sm font-bold text-[#e8e8e8]">{item.title}</p>
+                          <p className="text-xs text-[#999] mt-0.5">{item.desc}</p>
+                          {"location" in item && (
+                            <div className="flex items-center justify-between mt-2 text-xs text-[#555]">
+                              <span className="font-mono">{(item as typeof photoGallery[0]).location}</span>
+                              <span className="font-mono">{(item as typeof photoGallery[0]).date}</span>
+                            </div>
                           )}
                         </div>
-                        <div className="absolute inset-0 bg-[#e8e8e8]/0 group-hover:bg-[#e8e8e8]/5 transition-colors duration-300" />
-                      </div>
-                      <div className="p-3">
-                        <p className="text-sm font-bold text-[#e8e8e8]">{item.title}</p>
-                        <p className="text-xs text-[#999] mt-0.5">{item.desc}</p>
-                        {"location" in item && (
-                          <div className="flex items-center justify-between mt-2 text-xs text-[#555]">
-                            <span className="font-mono">{(item as typeof photoGallery[0]).location}</span>
-                            <span className="font-mono">{(item as typeof photoGallery[0]).date}</span>
-                          </div>
-                        )}
-                      </div>
-                    </motion.div>
-                  ))}
+                      </motion.div>
+                    )
+                  })}
                 </motion.div>
               )}
             </AnimatePresence>
