@@ -8,74 +8,110 @@ type CommandHistory = Array<{ input: string; output: string }>
 export function MusicDCTF() {
   const [solved, setSolved] = useState(false)
   const [input, setInput] = useState('')
+  const [currentDir, setCurrentDir] = useState('/home/musicd')
   const [history, setHistory] = useState<CommandHistory>([
-    { input: '', output: '> MusicD v0.1 is running...\n> Type "musicd help" to get started' },
+    { input: '', output: '> MusicD v0.1 daemon ready\n> Type "help" to see available commands' },
   ])
   const terminalRef = useRef<HTMLDivElement>(null)
 
-  // Frontend filesystem - hidden from easy view
-  const filesystem = {
-    'songs/paranoid_android.lrc': '[00:01] Rain down, rain down...\n[00:05] Fitter, happier...',
-    'songs/comfortably_numb.lrc': '[00:01] Hello? Is there anybody in there?\n[00:10] I can ease your pain...',
-    'songs/now_playing.log': 'Last played: comfortably_numb @ 03:42',
-    'README.txt': 'MusicD v0.1 - by Som\nUsage: musicd load <trackname>\nNote: tracks must be in the songs/ directory.\nTODO: fix the file loader, it\'s reading from\n      wherever you tell it lol',
-    'daemon.sh': '#!/bin/bash\n# load track for playback\nTRACK_PATH="songs/$1"\ncat "$TRACK_PATH"   # ← no sanitization lmaooo',
-    'flag.txt': 'flag{tr4v3rs1ng_thr0ugh_th3_b34t5}',
-  } as Record<string, string>
+  // Complete filesystem structure
+  const filesystem: Record<string, string | boolean> = {
+    '/home/musicd/README.txt': 'MusicD v0.1 - Music Daemon\nUsage: load <song_name>\nAll tracks are stored in ./songs/\n\nNote: There was a path traversal bug in v0.0 but we fixed it... or did we?',
+    '/home/musicd/daemon.sh': '#!/bin/bash\n# Music daemon loader\nTRACK_PATH="songs/$1"\ncat "$TRACK_PATH"',
+    '/home/musicd/songs/paranoid_android.lrc': '[00:00] When you were here before\n[00:15] Couldn\'t look you in the eye\n[00:28] You\'re just like my father too\n[00:42] I\'ll take a quiet life...',
+    '/home/musicd/songs/comfortably_numb.lrc': '[00:00] Hello, is there anybody in there?\n[00:15] Just nod if you can hear me\n[00:28] Is there anyone home?\n[00:42] Come on, now...',
+    '/home/musicd/songs/flag': 'som_loves_pencils_and_travel',
+    '/home/musicd/songs': true, // directory
+    '/home/musicd': true, // directory
+  }
 
-  const resolvePath = (p: string): string | null => {
-    // Path traversal check - intentionally vulnerable
-    let resolved = p.replace(/^songs\//, '')
-    
-    // Remove leading ../ sequences to allow traversal
-    while (resolved.startsWith('../')) {
-      resolved = resolved.substring(3)
+  const resolvePath = (p: string, fromDir: string): string => {
+    let resolved = p
+    if (p.startsWith('/')) {
+      return p
     }
-    
-    // Check if accessing flag.txt
-    if (resolved === 'flag.txt' || resolved === 'flag' || p.includes('flag')) {
-      return 'flag.txt'
+    if (p === '.' || p === '') {
+      return fromDir
     }
-    
-    // Otherwise prefix with songs/
-    const fullPath = 'songs/' + resolved
-    return filesystem[fullPath] ? fullPath : null
+    if (p === '..') {
+      return fromDir.split('/').slice(0, -1).join('/') || '/'
+    }
+    if (p.startsWith('./')) {
+      resolved = p.substring(2)
+    }
+    if (fromDir === '/home/musicd' || fromDir === '/home/musicd/songs') {
+      return fromDir + (fromDir.endsWith('/') ? '' : '/') + resolved
+    }
+    return fromDir + '/' + resolved
   }
 
   const handleCommand = (cmd: string) => {
     const trimmed = cmd.trim()
     let output = ''
 
-    if (trimmed === 'musicd help') {
-      output = 'MusicD v0.1\nCommands:\n  musicd help\n  musicd list\n  musicd play <song>\n  musicd load <song>  (THE VULNERABLE ONE)'
-    } else if (trimmed === 'musicd list') {
-      output = 'Available tracks:\n  - paranoid_android.lrc\n  - comfortably_numb.lrc'
-    } else if (trimmed.startsWith('musicd load ')) {
-      const trackName = trimmed.replace('musicd load ', '')
-      
-      // Vulnerable: doesn't sanitize path
-      const resolved = resolvePath('songs/' + trackName)
-      
-      if (resolved === 'flag.txt') {
-        setSolved(true)
-        output = '🎵 Now Playing: You found it.\nCongrats — you think like an attacker.\nHit me up: somchandra.infosec@gmail.com'
-      } else if (resolved) {
-        output = filesystem[resolved] || 'musicd: file read error'
-      } else {
-        output = `musicd: cannot load '${trackName}': No such file`
-      }
+    if (!trimmed) {
+      output = ''
+    } else if (trimmed === 'help') {
+      output = `MusicD v0.1 - Commands:
+  help              Show this help
+  ls                List directory contents
+  cd <dir>          Change directory
+  pwd               Print working directory
+  cat <file>        Display file contents
+  load <song>       Load and play a track
+  whoami            Show current user
+  clear             Clear terminal`
+    } else if (trimmed === 'clear') {
+      setHistory([])
+      setInput('')
+      return
     } else if (trimmed === 'ls') {
-      output = 'songs/  daemon.sh  README.txt'
-    } else if (trimmed === 'cat README.txt' || trimmed === 'cat README') {
-      output = filesystem['README.txt']
-    } else if (trimmed === 'cat daemon.sh' || trimmed === 'cat daemon') {
-      output = filesystem['daemon.sh']
+      if (currentDir === '/home/musicd') {
+        output = 'README.txt   daemon.sh   songs/'
+      } else if (currentDir === '/home/musicd/songs') {
+        output = 'paranoid_android.lrc   comfortably_numb.lrc   flag'
+      } else {
+        output = `ls: cannot access '${currentDir}': No such directory`
+      }
     } else if (trimmed === 'pwd') {
-      output = '/home/musicd'
+      output = currentDir
     } else if (trimmed === 'whoami') {
       output = 'som'
-    } else if (trimmed === '') {
-      output = ''
+    } else if (trimmed.startsWith('cd ')) {
+      const target = trimmed.replace('cd ', '').trim()
+      const newPath = resolvePath(target, currentDir)
+      
+      if (newPath === '/home/musicd' || newPath === '/home/musicd/songs') {
+        setCurrentDir(newPath)
+        output = ''
+      } else {
+        output = `bash: cd: ${target}: No such directory`
+      }
+    } else if (trimmed.startsWith('cat ')) {
+      const fileName = trimmed.replace('cat ', '').trim()
+      const filePath = resolvePath(fileName, currentDir)
+      
+      // Vulnerable path traversal check - allows ../ access
+      if (filePath === '/home/musicd/songs/flag' || fileName.includes('flag')) {
+        setSolved(true)
+        output = 'som_loves_pencils_and_travel'
+      } else if (filesystem[filePath] && typeof filesystem[filePath] === 'string') {
+        output = filesystem[filePath] as string
+      } else {
+        output = `cat: ${fileName}: No such file or directory`
+      }
+    } else if (trimmed.startsWith('load ')) {
+      const songName = trimmed.replace('load ', '').trim()
+      const songPath = resolvePath(`songs/${songName}`, '/home/musicd')
+      
+      if (songPath === '/home/musicd/songs/flag' || songName.includes('flag')) {
+        setSolved(true)
+        output = 'som_loves_pencils_and_travel'
+      } else if (filesystem[songPath] && typeof filesystem[songPath] === 'string') {
+        output = `Now playing: ${songName}\n${(filesystem[songPath] as string).split('\n').slice(0, 3).join('\n')}...`
+      } else {
+        output = `load: ${songName}: file not found`
+      }
     } else {
       output = `bash: ${trimmed}: command not found`
     }
@@ -113,7 +149,7 @@ export function MusicDCTF() {
       <p className="text-sm text-[#888] mb-6">
         {solved
           ? 'way too nerd to listen to this playlist lol'
-          : 'I set up a lightweight music daemon on my server to stream my playlist. Something feels off though...'}
+          : 'I set up a lightweight music daemon on my server. Something about it feels... insecure.'}
       </p>
 
       {!solved ? (
@@ -123,7 +159,8 @@ export function MusicDCTF() {
               <div key={i} className="space-y-1">
                 {item.input && (
                   <p className="text-[#e8e8e8]">
-                    <span className="text-[#666]">{'> '}</span>
+                    <span className="text-[#999]">{currentDir} </span>
+                    <span className="text-[#666]">$ </span>
                     {item.input}
                   </p>
                 )}
@@ -136,8 +173,9 @@ export function MusicDCTF() {
             ))}
           </div>
 
-          <form onSubmit={handleSubmit} className="flex items-center gap-1 border-t border-[#333] pt-2">
-            <span className="text-[#666]">{'> '}</span>
+          <form onSubmit={handleSubmit} className="flex items-center gap-2 border-t border-[#333] pt-2">
+            <span className="text-[#999]">{currentDir}</span>
+            <span className="text-[#666]">$</span>
             <input
               type="text"
               value={input}
@@ -154,14 +192,21 @@ export function MusicDCTF() {
           animate={{ opacity: 1 }}
           className="space-y-4"
         >
-          <div className="paper-card border border-[#555] p-4 font-mono text-xs bg-[#0a0a0a]">
-            <p className="text-[#7fb07f]">{'🎵 Now Playing: You found it.'}</p>
-            <p className="text-[#aaa] mt-2">
-              {'Congrats — you think like an attacker.'}
-            </p>
-            <p className="text-[#777] mt-2">
-              {'Hit me up: somchandra.infosec@gmail.com'}
-            </p>
+          <div className="paper-card border border-[#555] p-4 font-mono text-xs bg-[#0a0a0a] space-y-3">
+            <p className="text-[#7fb07f]">Now Playing: You found it.</p>
+            <p className="text-[#aaa]">Congrats — you think like an attacker.</p>
+            <p className="text-[#777]">Hit me up: somchandra.infosec@gmail.com</p>
+            <div className="pt-2 border-t border-[#333]">
+              <p className="text-[#666] mb-1">Get the God Playlist:</p>
+              <a
+                href="https://open.spotify.com/playlist/7fOEf8vDsrfgMMjU9fNiP1?si=691435c1ac7e4b24"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#1DB954] hover:text-[#1ed760] underline break-all text-[0.75rem]"
+              >
+                https://open.spotify.com/playlist/7fOEf8vDsrfgMMjU9fNiP1?si=691435c1ac7e4b24
+              </a>
+            </div>
           </div>
         </motion.div>
       )}
