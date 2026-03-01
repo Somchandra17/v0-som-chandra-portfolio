@@ -1,16 +1,51 @@
+"use client"
+
+import { useState, useCallback } from "react"
+import { AnimatePresence } from "framer-motion"
+import { CustomCursor } from "@/components/custom-cursor"
+import { Loader } from "@/components/loader"
+import { GrainOverlay } from "@/components/grain-overlay"
+import { Navigation } from "@/components/navigation"
+import { HeroSection } from "@/components/sections/hero"
+import { AboutSection } from "@/components/sections/about"
+import { WorkSection } from "@/components/sections/work"
+import { ProjectsSection } from "@/components/sections/projects"
+import { CreativeSection } from "@/components/sections/creative"
+import { SpotifySection } from "@/components/sections/spotify"
+import { VoidSection } from "@/components/sections/void"
+import { ContactSection } from "@/components/sections/contact"
+
 export default function Home() {
+  const [loading, setLoading] = useState(true)
+
+  const handleLoadComplete = useCallback(() => {
+    setLoading(false)
+  }, [])
+
   return (
-    <div className="flex min-h-screen items-center justify-center font-sans">
-      <main className="flex w-full max-w-3xl flex-col items-center gap-8 px-6 py-16 text-center sm:items-start sm:text-left">
-        <div className="flex flex-col gap-4">
-          <h1 className="text-4xl font-bold tracking-tight">
-            My own website
-          </h1>
-          <p className="max-w-md text-lg text-muted-foreground">
-            To get started, send a prompt or modify this page directly.
-          </p>
-        </div>
-      </main>
-    </div>
-  );
+    <>
+      <CustomCursor />
+      <GrainOverlay />
+
+      <AnimatePresence>
+        {loading && <Loader onComplete={handleLoadComplete} />}
+      </AnimatePresence>
+
+      {!loading && (
+        <>
+          <Navigation />
+          <main>
+            <HeroSection />
+            <AboutSection />
+            <WorkSection />
+            <ProjectsSection />
+            <CreativeSection />
+            <SpotifySection />
+            <VoidSection />
+            <ContactSection />
+          </main>
+        </>
+      )}
+    </>
+  )
 }
