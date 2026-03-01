@@ -109,8 +109,20 @@ export default function CreativePage() {
       <PageTransition>
         <div className="relative min-h-screen">
 
+          {/* Spelling disclaimer */}
+          <div className="mx-auto max-w-4xl px-6 pt-6">
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5, duration: 0.8 }}
+              className="font-mono text-[0.65rem] text-[#555] italic text-right"
+            >
+              {"* yes, the spelling mistakes are intentional. mostly. okay fine, some aren't. bear with me."}
+            </motion.p>
+          </div>
+
           {/* -- Bio -- */}
-          <section className="relative z-10 mx-auto max-w-4xl px-6 pt-14 pb-10">
+          <section className="relative z-10 mx-auto max-w-4xl px-6 pt-8 pb-10">
             <motion.div {...fadeUp}>
               <p className="font-mono text-xs tracking-widest uppercase text-[#999] mb-3">the other half</p>
               
