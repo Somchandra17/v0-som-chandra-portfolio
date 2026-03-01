@@ -44,7 +44,28 @@ const thoughts = [
   },
 ]
 
-type Tab = "photos" | "sketches"
+const bioContent = {
+  photos: {
+    heading: "when i'm not hacking, i'm probably holding a camera wrong.",
+    subtitle: "(or at least that's what my friends tell me)",
+    description: [
+      "Street photography mostly -- candid moments, urban textures, the way light hits concrete at weird angles. I'm obsessed with capturing the everyday, the forgotten corners that people walk past without seeing.",
+      "There's this moment right before you press the shutter where everything aligns -- the light, the composition, the story. That split-second clarity is why I carry a camera everywhere.",
+      "None of this is gallery-ready. Think of it as a visual journal of someone who stares at terminals all day and needs to look at literally anything else.",
+    ],
+    byTheWay: "i'm obsessed with travel: cramped buses, overnight trains with strangers, hiking solo with just a backpack, road trips with close friends, exploring new cities with someone special. literally anywhere, alone or with people i actually like. but family trips? absolutely despise them. too much drama, too many compromises, too little freedom.",
+  },
+  sketches: {
+    heading: "when i'm not hacking, i'm probably covered in graphite dust.",
+    subtitle: "(and staring at a blank sketchbook like it owes me money)",
+    description: [
+      "Sketching happens late at night, usually faces and anatomy studies in graphite or ink. There's something meditative about the scratch of pencil on paper, no undo button, no delete key. Just commitment.",
+      "I'm obsessed with pencils — mechanical, graphite, charcoal, anything with a sharp point. They're honest tools. No distractions, no fancy effects. Just you and the paper.",
+      "Sometimes I just doodle nonsense and call it art. Sometimes those nonsense doodles turn into something real. None of this is polished, and I prefer it that way.",
+    ],
+    byTheWay: "the best sketches happen when the world is asleep. 3 AM brain is a different person -- uncensored, experimental, messy. traveling with a sketchbook is freedom. pulling out a pencil in a train, a café, a random street corner and just... creating. that's when the magic happens.",
+  },
+}
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -70,26 +91,57 @@ export default function CreativePage() {
           <section className="relative z-10 mx-auto max-w-4xl px-6 pt-14 pb-10">
             <motion.div {...fadeUp}>
               <p className="font-mono text-xs tracking-widest uppercase text-[#999] mb-3">the other half</p>
-              <h2 className="text-2xl md:text-3xl font-bold text-[#e8e8e8] tracking-tight mb-2">
-                {"when i'm not hacking, i'm probably holding a camera wrong."}
-              </h2>
-              <p className="text-sm text-[#666] mb-5 italic">
-                {"(or staring at a blank sketchbook like it owes me money)"}
-              </p>
-              <div className="max-w-2xl space-y-4 text-sm md:text-base text-[#ccc] leading-relaxed margin-line">
-                <p>
-                  {"Street photography mostly -- candid moments, urban textures, the way light hits concrete at weird angles. Sketching happens late at night, usually faces and anatomy studies in graphite or ink. Sometimes I just doodle nonsense and call it art."}
-                </p>
-                <p>
-                  {"None of this is gallery-ready. Think of it as a visual journal of someone who stares at terminals all day and needs to look at literally anything else."}
-                </p>
-                <div className="border-l-2 border-[#555] pl-4 py-2">
-                  <p className="text-xs font-mono tracking-wider text-[#999] uppercase mb-2">by the way</p>
-                  <p className="text-sm text-[#aaa]">
-                    {"i'm obsessed with pencils — mechanical, graphite, anything with a sharp point. they're honest. no distractions, just you and the paper. also obsessed with travel: cramped buses, overnight trains with strangers, hiking solo with just a backpack, road trips with close friends, exploring new cities with someone special. literally anywhere, alone or with people i actually like. but family trips? absolutely despise them. too much drama, too many compromises, too little freedom."}
+              
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeTab}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.25 }}
+                >
+                  <h2 className="text-2xl md:text-3xl font-bold text-[#e8e8e8] tracking-tight mb-2">
+                    {bioContent[activeTab].heading}
+                  </h2>
+                  <p className="text-sm text-[#666] mb-5 italic">
+                    {bioContent[activeTab].subtitle}
                   </p>
-                </div>
-              </div>
+                </motion.div>
+              </AnimatePresence>
+
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={`bio-${activeTab}`}
+                  className="max-w-2xl space-y-4 text-sm md:text-base text-[#ccc] leading-relaxed margin-line"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.35, delay: 0.05 }}
+                >
+                  {bioContent[activeTab].description.map((para, i) => (
+                    <motion.p
+                      key={i}
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.08, duration: 0.3 }}
+                    >
+                      {para}
+                    </motion.p>
+                  ))}
+
+                  <motion.div
+                    className="border-l-2 border-[#555] pl-4 py-2"
+                    initial={{ opacity: 0, x: -8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2, duration: 0.3 }}
+                  >
+                    <p className="text-xs font-mono tracking-wider text-[#999] uppercase mb-2">by the way</p>
+                    <p className="text-sm text-[#aaa]">
+                      {bioContent[activeTab].byTheWay}
+                    </p>
+                  </motion.div>
+                </motion.div>
+              </AnimatePresence>
             </motion.div>
           </section>
 
