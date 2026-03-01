@@ -127,7 +127,7 @@ export default function NerdyPage() {
                 cybersecurity engineer who breaks things for a living.
               </h2>
               <p className="text-sm text-[#666] mb-5 italic">
-                {"(legally, most of the time)"}
+                {"(legally... mostly)"}
               </p>
               <div className="max-w-2xl space-y-4 text-sm md:text-base text-[#ccc] leading-relaxed margin-line">
                 <p>
@@ -150,7 +150,6 @@ export default function NerdyPage() {
                 { num: "Top 1%", label: "TryHackMe global" },
                 { num: "20+", label: "NCIIPC acks" },
                 { num: "P1", label: "Mastercard HoF" },
-                { num: "4+", label: "years in security" },
               ].map((s) => (
                 <div key={s.label} className="paper-card px-4 py-3 hover-bounce">
                   <p className="text-lg md:text-xl font-bold text-[#e8e8e8]">{s.num}</p>
@@ -339,7 +338,7 @@ export default function NerdyPage() {
           {/* Footer */}
           <footer className="relative z-10 border-t border-[#333]">
             <div className="mx-auto max-w-4xl px-6 py-7 flex items-center justify-between">
-              <p className="font-mono text-xs text-[#666]">som chandra -- 2025</p>
+              <p className="font-mono text-xs text-[#666]">som chandra, 2025</p>
               <p className="font-mono text-xs text-[#555]">{"$ cat resume.txt"}</p>
             </div>
           </footer>

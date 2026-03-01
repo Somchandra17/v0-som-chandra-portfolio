@@ -156,9 +156,9 @@ export default function Home() {
         >
         <motion.div
           className="mb-10 h-px bg-[#e8e8e8]"
-          initial={{ width: 0 }}
-          animate={{ width: "100%" }}
-          transition={{ duration: 1, ease: "easeOut", delay: 0.1 }}
+          initial={{ width: 0, opacity: 0 }}
+          animate={{ width: "100%", opacity: 1 }}
+          transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
         />
 
         <motion.div
@@ -176,10 +176,10 @@ export default function Home() {
               <AnimatePresence mode="wait">
                 <motion.span
                   key={nameMode}
-                  initial={{ opacity: 0, filter: "blur(8px)", y: 6 }}
-                  animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
-                  exit={{ opacity: 0, filter: "blur(8px)", y: -6 }}
-                  transition={{ duration: 0.3 }}
+                  initial={{ opacity: 0, filter: "blur(12px)", y: 8, scale: 0.95 }}
+                  animate={{ opacity: 1, filter: "blur(0px)", y: 0, scale: 1 }}
+                  exit={{ opacity: 0, filter: "blur(8px)", y: -8, scale: 1.02 }}
+                  transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
                   className={nameMode === "nerdy" ? "inline-block font-mono" : "inline-block"}
                   style={{
                     color: nameConfig[nameMode].color,
@@ -199,10 +199,10 @@ export default function Home() {
               <motion.p
                 key={heroIdx}
                 className="text-xl md:text-2xl lg:text-3xl font-bold text-[#777]"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.35 }}
+                initial={{ opacity: 0, y: 24, filter: "blur(4px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                exit={{ opacity: 0, y: -20, filter: "blur(2px)" }}
+                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
               >
                 {heroLines[heroIdx]}
               </motion.p>
@@ -215,10 +215,10 @@ export default function Home() {
               <motion.p
                 key={factIdx}
                 className="font-mono text-sm text-[#666]"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -12 }}
-                transition={{ duration: 0.3 }}
+                initial={{ opacity: 0, y: 14, x: -4 }}
+                animate={{ opacity: 1, y: 0, x: 0 }}
+                exit={{ opacity: 0, y: -10, x: 4 }}
+                transition={{ duration: 0.28, ease: "easeOut" }}
               >
                 {"// "}
                 {funFacts[factIdx]}
@@ -381,12 +381,15 @@ export default function Home() {
         {/* Scroll hint */}
         <motion.div
           className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.5 }}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.5, duration: 0.6, ease: "easeOut" }}
         >
           <p className="font-mono text-xs text-[#666]">scroll for vibes</p>
-          <motion.div animate={{ y: [0, 6, 0] }} transition={{ duration: 1.5, repeat: Infinity }}>
+          <motion.div 
+            animate={{ y: [0, 8, 0] }} 
+            transition={{ duration: 1.8, repeat: Infinity, ease: [0.45, 0, 0.55, 1] }}
+          >
             <ArrowDown className="h-4 w-4 text-[#666]" />
           </motion.div>
         </motion.div>
@@ -638,7 +641,7 @@ export default function Home() {
       {/* ---- FOOTER ---- */}
       <footer className="relative z-10 border-t border-[#333]">
         <div className="mx-auto max-w-5xl px-6 py-7 flex items-center justify-between">
-          <p className="font-mono text-xs text-[#888]">som chandra -- 2025</p>
+          <p className="font-mono text-xs text-[#888]">som chandra, 2025</p>
           <p className="font-mono text-xs text-[#666]">made with mass of coffee</p>
         </div>
       </footer>

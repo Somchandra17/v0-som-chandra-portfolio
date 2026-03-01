@@ -42,12 +42,12 @@ const photoGallery: PhotoItem[] = [
 ]
 
 const sketchGallery: PhotoItem[] = [
-  { id: 1, title: "Portraitt Study #14", desc: "graphite on papar, 2 hours", aspect: "portrait" },
-  { id: 2, title: "Hand Gesturs", desc: "anatomey practice from refernce", aspect: "square" },
-  { id: 3, title: "Cat in Inkk", desc: "quick ink sktech, 20 minuts", aspect: "portrait" },
-  { id: 4, title: "Archetecture", desc: "that bilding I pass evrey day", aspect: "wide" },
-  { id: 5, title: "Abstact Flow", desc: "pen on napkinn during lnuch", aspect: "square" },
-  { id: 6, title: "Eye Detale", desc: "close-up studey, charcol", aspect: "landscape" },
+  { id: 1, title: "Portraitt Study #14", desc: "graphite on papar, 2 hours", date: "Jan 2025", aspect: "portrait" },
+  { id: 2, title: "Hand Gesturs", desc: "anatomey practice from refernce", date: "Dec 2024", aspect: "square" },
+  { id: 3, title: "Cat in Inkk", desc: "quick ink sktech, 20 minuts", date: "Nov 2024", aspect: "portrait" },
+  { id: 4, title: "Archetecture", desc: "that bilding I pass evrey day", date: "Oct 2024", aspect: "wide" },
+  { id: 5, title: "Abstact Flow", desc: "pen on napkinn during lnuch", date: "Sep 2024", aspect: "square" },
+  { id: 6, title: "Eye Detale", desc: "close-up studey, charcol", date: "Aug 2024", aspect: "landscape" },
 ]
 
 const sideQuestGallery = [
@@ -68,12 +68,12 @@ const thoughts = [
   {
     title: "Why I sketch at 3 AM",
     date: "Sep 2024",
-    body: "the world is quiter at 3 AM. no notifcations, no stand-ups, no jira ticktes. just a pencil and whatver my brain decideds to put on paper. sometimes its faces. somtimes its shapes that don't mean anythng yet. watercolors can go die tho, i hate that medium with a pasion. give me graphite or give me deth.",
+    body: "there's a specfic kind of silence that only exsits after 2 AM. no slack pings. no \"can you check this tickt.\" no one asking you to \"hop on a quick call.\" just you, a pencil, and whatevr fever dream your brain decidd to commissin tonight.\n\nsometimes it's faces. sometimes it's geometrc nonsense that won't mean anythng until 3 weeks later when i look at it and go \"oh.\" the paper doesn't have acceptnce criteria. there's no definiton of done. you're just moving a stick across a surfce until it feels right and honeslty that's the most free i feel all week.\n\nwatercolors can die tho. i mean it. unpredictble, unforgving, bleeds everywere, dries into somthing completly different from what you painted. sounds like a bug that only reproducs in production. i don't negotite with either. graphite only. i need control over at least one thing in my life.",
   },
   {
     title: "Cameras and terminlas",
     date: "Jun 2024",
-    body: "people ask how i go from staring at burp suite all day to pickng up a camera. both are tools for seeng things more carefuly. a proxy interceps traffic. a lens intercepts light. same disipline. also i don't even own a real camera lmao, its all shot on my phone. but hey, the best camra is the one you have on you right?",
+    body: "i don't do photograpy. let me be clear about that.\n\ni don't wake up on weeknds with a plan to go shoot. i don't have a golden hour calender. i'm not out here doing compositon studies. i just go places, for food, for work, becuase someone dragged me somewere... and sometimes somthing looks intresting and i take my phone out for four secnds and that's it.\n\nthe photo either works or it doesn't. i don't bracket shots. i don't shoot in raw. i move on with my life.\n\nwhat's funny is people assume there's disciplne behind it. there isn't. it's closer to how i notice wierd things in a netwrok response; not becuase i'm looking for it, just becuase something felt off and i paid atention for a secnd. same thing. somthing catches, you captre it, you keep walkng.\n\ni think most people are so busy experiencng a moment that they forget to just look at it. i'm not better at photograpy. i'm just occasionaly present enough to notice when somthing is worth four secnds of my time.",
   },
 ]
 
@@ -82,11 +82,13 @@ const bioContent: Record<Tab, { heading: string; subtitle: string; description: 
     heading: "when i'm not hacking, i'm probaly holding my phone wrong.",
     subtitle: "(no i don't own a camera, its all on my phone lol)",
     description: [
-      "street photgraphy mostly -- candid momments, urban textures, the way light hits concete at weird angels. i'm obsesed with capturing the evryday, the forgoten corners that people walk past withot seeing.",
-      "there's this moment right befroe you press the shuttr where everything alines -- the light, the compoistion, the story. that split-secnd clarity is why i carry my " + "phone everywhere.",
-      "none of this is gallrey-ready. think of it as a visual journl of someone who stares at terminlas all day and needs to look at literaly anything else.",
+      "no camera. never ownd one. probaly never will. this is all shot on the thing i use to doom scroll at 2am and argue with strangers on the internt. ₹80,000 mirrorles camera stays on the wishlist next to \"fix sleep scheduel\" and \"drink more water.\"",
+      "i don't go out to shoot. i just go places, for food, becuase someone texted me, becuase i was bored, becuase the city exsits... and sometimes somthing looks intresting and i take my phone out for four secnds. that's the whole procss. there's no plan. there's no golden hour alrm.",
+      "what i end up capturng is just whatevr caught my eye long enough to make me stop walkng. wierd light on a wall. a moment happning in the backgrond that nobdoy else noticed. the evryday stuff that's been sitting there the whole time waitng for somone to give it four secnds of atention.",
+      "there's this split secnd right before you tap the shuttr where evrything just *locks in* and you know. that feelling is why my phone never dies peacfuly of old age.",
+      "none of this is gallrey-ready. think of it as visual notes from somone who stares at terminlas all day and occasionaly needs proof that the world outsde exists.",
     ],
-    byTheWay: "i'm obsesed with travel: cramped busses, overngiht trains with strangers, hiking solo with just a backpak, road trips with close freinds, exploring new citeis with someone specail. literaly anywhere, alone or with people i actually like. but famly trips? absolutley despise them. too much drama, too many compromsis, too little freedm.",
+    byTheWay: "also i have a problm and it's called travl. cramped busses. overngiht trains where you don't know your seat neighbr but somehow end up sharng their food by hour three. hiking solo with one backpak and the audacty to think that's enough. road trips where somone's aux cord privleges get revoked forty minuts in. new citeis with people you actualy want to be stuck in an airport with. i'll go anywere. alone, with freinds, with one person i actualy like... doesn't mattr. the plan can fall apart completley. i will still have a better time than i would siting still. famly trips tho? diffrent conversaton entireley. too much group poling on where to eat. too many compromsis. somone always wants to leave early. somone else always wants to stay too long. the itineary is eleven pages and we still spend four hours deciding lnuch. i love my famly. i would not travl with them again.",
   },
   sketches: {
     heading: "when i'm not hacking, i'm probaly covered in graphite dust.",
@@ -195,10 +197,11 @@ export default function CreativePage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5, duration: 0.8 }}
-              className="font-mono text-[0.65rem] text-[#555] italic text-right"
+              className="font-mono text-[0.65rem] text-[#1a1a1a] italic text-right bg-pink-200/80 px-3 py-1.5 rounded-sm inline-block float-right"
             >
               {"* yes, the spelling mistakes are intentional. mostly. okay fine, some aren't. bear with me."}
             </motion.p>
+            <div className="clear-both" />
           </div>
 
           {/* -- Bio -- */}
