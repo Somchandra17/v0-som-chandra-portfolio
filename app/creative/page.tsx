@@ -8,7 +8,7 @@ import { PageHeader } from "@/components/page-header"
 import { PageTransition } from "@/components/page-transition"
 import { Camera, PenTool, BookOpen, X } from "lucide-react"
 
-/* ── data ────────────────────────────────────────────────── */
+/* -- data -- */
 
 const photoGallery = [
   { id: 1, title: "Urban Geometry", desc: "Lines and shadows in concrete jungles", aspect: "aspect-[4/5]" },
@@ -50,7 +50,7 @@ const thoughts = [
 
 type Tab = "photos" | "sketches"
 
-/* ── animation helpers ───────────────────────────────────── */
+/* -- animation helpers -- */
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -59,7 +59,7 @@ const fadeUp = {
   transition: { duration: 0.5 },
 }
 
-/* ── page ────────────────────────────────────────────────── */
+/* -- page -- */
 
 export default function CreativePage() {
   const [activeTab, setActiveTab] = useState<Tab>("photos")
@@ -76,43 +76,35 @@ export default function CreativePage() {
 
       <PageTransition>
         <div className="relative min-h-screen">
-          <div className="ruled-lines fixed inset-0 pointer-events-none opacity-30 z-0" aria-hidden />
+          <div className="ruled-lines fixed inset-0 pointer-events-none opacity-20 z-0" aria-hidden />
 
-          {/* ── Bio ──────────────────────────────────── */}
+          {/* -- Bio -- */}
           <section className="relative z-10 mx-auto max-w-4xl px-6 pt-16 pb-12">
             <motion.div {...fadeUp}>
-              <p className="font-mono text-xs tracking-widest uppercase text-[#999] mb-4">
-                the other half
-              </p>
-              <h2 className="text-2xl md:text-3xl font-bold text-[#111] tracking-tight mb-6">
+              <p className="font-mono text-xs tracking-widest uppercase text-[#555] mb-4">the other half</p>
+              <h2 className="text-2xl md:text-3xl font-bold text-[#e8e8e8] tracking-tight mb-6">
                 When I am not in a terminal, I am behind a lens.
               </h2>
-              <div className="max-w-2xl space-y-4 text-sm md:text-base text-[#444] leading-relaxed margin-line">
+              <div className="max-w-2xl space-y-4 text-sm md:text-base text-[#aaa] leading-relaxed margin-line">
                 <p>
-                  Photography and sketching are how I decompress. Street photography
-                  mostly -- candid moments, urban textures, the way light hits concrete
-                  at weird angles. Sketching happens late at night, usually faces and
-                  anatomy studies in graphite or ink.
+                  Photography and sketching are how I decompress. Street photography mostly -- candid moments,
+                  urban textures, the way light hits concrete at weird angles. Sketching happens late at night,
+                  usually faces and anatomy studies in graphite or ink.
                 </p>
                 <p>
-                  None of this is particularly polished or gallery-ready. It is just a
-                  collection of what I see and what I put on paper. Think of it as a
-                  visual journal.
+                  None of this is particularly polished or gallery-ready. It is just a collection of what I see
+                  and what I put on paper. Think of it as a visual journal.
                 </p>
               </div>
             </motion.div>
           </section>
 
-          <div className="mx-auto max-w-4xl px-6">
-            <div className="h-px bg-[#c0c0b8]" />
-          </div>
+          <div className="mx-auto max-w-4xl px-6"><div className="h-px bg-[#2a2a2a]" /></div>
 
-          {/* ── Gallery ──────────────────────────────── */}
+          {/* -- Gallery -- */}
           <section className="relative z-10 mx-auto max-w-4xl px-6 py-16">
             <motion.div {...fadeUp}>
-              <p className="font-mono text-xs tracking-widest uppercase text-[#999] mb-6">
-                gallery
-              </p>
+              <p className="font-mono text-xs tracking-widest uppercase text-[#555] mb-6">gallery</p>
 
               {/* Tabs */}
               <div className="flex gap-1 mb-10">
@@ -126,8 +118,8 @@ export default function CreativePage() {
                     className={`
                       flex items-center gap-2 px-4 py-2.5 text-sm font-mono transition-colors border
                       ${activeTab === tab.key
-                        ? "bg-[#111] text-[#f5f5f0] border-[#111]"
-                        : "bg-transparent text-[#666] border-[#c0c0b8] hover:text-[#111] hover:border-[#999]"
+                        ? "bg-[#e8e8e8] text-[#0a0a0a] border-[#e8e8e8]"
+                        : "bg-transparent text-[#666] border-[#2a2a2a] hover:text-[#e8e8e8] hover:border-[#555]"
                       }
                     `}
                     data-hover
@@ -158,26 +150,25 @@ export default function CreativePage() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.06, duration: 0.4 }}
-                    whileHover={{ rotate: 0, y: -2, boxShadow: "3px 3px 0px #c0c0b8" }}
+                    whileHover={{ rotate: 0, y: -2, boxShadow: "3px 3px 0px #222" }}
                     onClick={() => setLightboxItem(item)}
                     data-hover
                   >
                     {/* Placeholder image area */}
-                    <div className={`${item.aspect} w-full bg-[#eaeae4] border-b border-[#c0c0b8] relative overflow-hidden`}>
-                      {/* Paper texture inside */}
+                    <div className={`${item.aspect} w-full bg-[#1a1a1a] border-b border-[#2a2a2a] relative overflow-hidden`}>
                       <div className="absolute inset-0 flex items-center justify-center">
                         {activeTab === "photos" ? (
-                          <Camera className="h-8 w-8 text-[#c0c0b8]" />
+                          <Camera className="h-8 w-8 text-[#2a2a2a]" />
                         ) : (
-                          <PenTool className="h-8 w-8 text-[#c0c0b8]" />
+                          <PenTool className="h-8 w-8 text-[#2a2a2a]" />
                         )}
                       </div>
                       {/* Hover overlay */}
-                      <div className="absolute inset-0 bg-[#111]/0 group-hover:bg-[#111]/5 transition-colors duration-300" />
+                      <div className="absolute inset-0 bg-[#e8e8e8]/0 group-hover:bg-[#e8e8e8]/5 transition-colors duration-300" />
                     </div>
                     <div className="p-3">
-                      <p className="text-sm font-bold text-[#111]">{item.title}</p>
-                      <p className="text-xs text-[#999] mt-0.5">{item.desc}</p>
+                      <p className="text-sm font-bold text-[#e8e8e8]">{item.title}</p>
+                      <p className="text-xs text-[#555] mt-0.5">{item.desc}</p>
                     </div>
                   </motion.div>
                 ))}
@@ -185,20 +176,16 @@ export default function CreativePage() {
             </AnimatePresence>
           </section>
 
-          <div className="mx-auto max-w-4xl px-6">
-            <div className="h-px bg-[#c0c0b8]" />
-          </div>
+          <div className="mx-auto max-w-4xl px-6"><div className="h-px bg-[#2a2a2a]" /></div>
 
-          {/* ── Thoughts / The Void ──────────────────── */}
+          {/* -- Thoughts / The Void -- */}
           <section className="relative z-10 mx-auto max-w-4xl px-6 py-16">
             <motion.div {...fadeUp}>
               <div className="flex items-center gap-2 mb-6">
-                <BookOpen className="h-4 w-4 text-[#999]" />
-                <p className="font-mono text-xs tracking-widest uppercase text-[#999]">
-                  thoughts
-                </p>
+                <BookOpen className="h-4 w-4 text-[#555]" />
+                <p className="font-mono text-xs tracking-widest uppercase text-[#555]">thoughts</p>
               </div>
-              <h2 className="text-2xl md:text-3xl font-bold text-[#111] tracking-tight mb-10">
+              <h2 className="text-2xl md:text-3xl font-bold text-[#e8e8e8] tracking-tight mb-10">
                 Random things I wrote down.
               </h2>
             </motion.div>
@@ -216,37 +203,37 @@ export default function CreativePage() {
                   whileHover={{ rotate: 0, y: -2 }}
                 >
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-bold text-[#111]">{t.title}</h3>
-                    <span className="font-mono text-xs text-[#999]">{t.date}</span>
+                    <h3 className="text-lg font-bold text-[#e8e8e8]">{t.title}</h3>
+                    <span className="font-mono text-xs text-[#555]">{t.date}</span>
                   </div>
-                  <p className="text-sm text-[#444] leading-relaxed">{t.body}</p>
+                  <p className="text-sm text-[#aaa] leading-relaxed">{t.body}</p>
                 </motion.article>
               ))}
             </div>
           </section>
 
           {/* Footer */}
-          <footer className="relative z-10 border-t border-[#c0c0b8]">
+          <footer className="relative z-10 border-t border-[#2a2a2a]">
             <div className="mx-auto max-w-4xl px-6 py-8 flex items-center justify-between">
-              <p className="font-mono text-xs text-[#999]">som chandra -- 2025</p>
-              <p className="font-mono text-xs text-[#ccc]">the creative side</p>
+              <p className="font-mono text-xs text-[#555]">som chandra -- 2025</p>
+              <p className="font-mono text-xs text-[#333]">the creative side</p>
             </div>
           </footer>
         </div>
       </PageTransition>
 
-      {/* ── Lightbox ───────────────────────────────── */}
+      {/* -- Lightbox -- */}
       <AnimatePresence>
         {lightboxItem && (
           <motion.div
-            className="fixed inset-0 z-[300] flex items-center justify-center bg-[#111]/80 backdrop-blur-sm p-6"
+            className="fixed inset-0 z-[300] flex items-center justify-center bg-[#000]/85 backdrop-blur-sm p-6"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setLightboxItem(null)}
           >
             <motion.div
-              className="relative bg-[#f5f5f0] border border-[#c0c0b8] max-w-lg w-full"
+              className="relative bg-[#111] border border-[#2a2a2a] max-w-lg w-full"
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
@@ -255,23 +242,23 @@ export default function CreativePage() {
             >
               <button
                 onClick={() => setLightboxItem(null)}
-                className="absolute top-3 right-3 p-1 hover:bg-[#eaeae4] transition-colors"
+                className="absolute top-3 right-3 p-1 hover:bg-[#1a1a1a] transition-colors"
                 data-hover
               >
                 <X className="h-5 w-5 text-[#666]" />
               </button>
 
               {/* Image placeholder */}
-              <div className="aspect-[4/3] w-full bg-[#eaeae4] flex items-center justify-center border-b border-[#c0c0b8]">
+              <div className="aspect-[4/3] w-full bg-[#1a1a1a] flex items-center justify-center border-b border-[#2a2a2a]">
                 <div className="text-center">
-                  <Camera className="h-12 w-12 text-[#c0c0b8] mx-auto mb-2" />
-                  <p className="font-mono text-xs text-[#999]">image placeholder</p>
+                  <Camera className="h-12 w-12 text-[#2a2a2a] mx-auto mb-2" />
+                  <p className="font-mono text-xs text-[#555]">image placeholder</p>
                 </div>
               </div>
 
               <div className="p-6">
-                <h3 className="text-lg font-bold text-[#111]">{lightboxItem.title}</h3>
-                <p className="text-sm text-[#666] mt-1">{lightboxItem.desc}</p>
+                <h3 className="text-lg font-bold text-[#e8e8e8]">{lightboxItem.title}</h3>
+                <p className="text-sm text-[#888] mt-1">{lightboxItem.desc}</p>
               </div>
             </motion.div>
           </motion.div>

@@ -30,12 +30,12 @@ export function Loader({ onComplete }: { onComplete: () => void }) {
 
   return (
     <motion.div
-      className="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-[#f5f5f0]"
+      className="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-[#0a0a0a]"
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.5, ease: "easeInOut" }}
     >
       <motion.div
-        className="mb-8 h-px bg-[#111]"
+        className="mb-8 h-px bg-[#e8e8e8]"
         initial={{ width: 0 }}
         animate={{ width: 120 }}
         transition={{ duration: 2.2, ease: "easeOut" }}
@@ -50,7 +50,7 @@ export function Loader({ onComplete }: { onComplete: () => void }) {
           <div
             key={i}
             className="h-1.5 w-1.5 transition-colors duration-300"
-            style={{ background: i <= msgIndex ? "#111" : "#ccc" }}
+            style={{ background: i <= msgIndex ? "#e8e8e8" : "#333" }}
           />
         ))}
       </div>

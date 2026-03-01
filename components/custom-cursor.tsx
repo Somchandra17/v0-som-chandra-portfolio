@@ -72,7 +72,7 @@ export function CustomCursor() {
         style={{
           width: hovering ? 8 : 5,
           height: hovering ? 8 : 5,
-          background: "#111",
+          background: "#e8e8e8",
           borderRadius: "50%",
         }}
       />
@@ -83,7 +83,7 @@ export function CustomCursor() {
           width: hovering ? 44 : 32,
           height: hovering ? 44 : 32,
           borderRadius: "50%",
-          border: `1.5px solid ${hovering ? "#111" : "#999"}`,
+          border: `1.5px solid ${hovering ? "#e8e8e8" : "#555"}`,
           marginLeft: hovering ? -6 : 0,
           marginTop: hovering ? -6 : 0,
         }}

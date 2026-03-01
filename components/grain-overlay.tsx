@@ -5,7 +5,7 @@ export function PaperOverlay() {
     <>
       <div className="paper-texture pointer-events-none fixed inset-0 z-50" aria-hidden />
 
-      {/* Coffee stain top-right */}
+      {/* Faint white ring stain top-right */}
       <div
         className="pointer-events-none fixed z-[51]"
         aria-hidden
@@ -16,11 +16,11 @@ export function PaperOverlay() {
           height: 130,
           borderRadius: "50%",
           background:
-            "radial-gradient(ellipse at center, transparent 40%, rgba(120,115,105,0.07) 48%, rgba(100,95,88,0.11) 54%, transparent 62%)",
+            "radial-gradient(ellipse at center, transparent 40%, rgba(255,255,255,0.03) 48%, rgba(255,255,255,0.05) 54%, transparent 62%)",
         }}
       />
 
-      {/* Coffee stain bottom-left */}
+      {/* Faint white ring stain bottom-left */}
       <div
         className="pointer-events-none fixed z-[51]"
         aria-hidden
@@ -31,7 +31,7 @@ export function PaperOverlay() {
           height: 100,
           borderRadius: "50%",
           background:
-            "radial-gradient(ellipse at center, transparent 38%, rgba(130,125,118,0.06) 46%, rgba(110,105,98,0.1) 52%, transparent 60%)",
+            "radial-gradient(ellipse at center, transparent 38%, rgba(255,255,255,0.025) 46%, rgba(255,255,255,0.045) 52%, transparent 60%)",
         }}
       />
 
@@ -45,7 +45,7 @@ export function PaperOverlay() {
           width: 24,
           height: 24,
           borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(20,20,20,0.07) 0%, transparent 70%)",
+          background: "radial-gradient(circle, rgba(255,255,255,0.04) 0%, transparent 70%)",
         }}
       />
     </>
