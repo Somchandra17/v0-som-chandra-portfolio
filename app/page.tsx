@@ -166,21 +166,22 @@ export default function Home() {
                   {showAlias ? (
                     <motion.span
                       key="alias"
-                      initial={{ opacity: 0, scale: 0.8, rotateZ: -15 }}
-                      animate={{ opacity: 1, scale: 1, rotateZ: 0 }}
-                      exit={{ opacity: 0, scale: 0.8, rotateZ: 15 }}
-                      transition={{ duration: 0.4, type: "spring", stiffness: 150, damping: 12 }}
-                      className="inline-block font-mono text-[#7fb07f] group-hover:text-[#9fff9f]"
+                      initial={{ opacity: 0, scale: 0.3, rotateZ: -45, rotateY: 90 }}
+                      animate={{ opacity: 1, scale: 1, rotateZ: 0, rotateY: 0 }}
+                      exit={{ opacity: 0, scale: 0.3, rotateZ: 45, rotateY: -90 }}
+                      transition={{ duration: 0.6, type: "spring", stiffness: 120, damping: 10 }}
+                      className="inline-block font-mono text-[#7fb07f] group-hover:text-[#9fff9f] drop-shadow-lg"
+                      style={{ textShadow: "0 0 20px rgba(127, 176, 127, 0.5)" }}
                     >
                       0xs0m
                     </motion.span>
                   ) : (
                     <motion.span
                       key="name"
-                      initial={{ opacity: 0, scale: 0.8, rotateZ: 15 }}
-                      animate={{ opacity: 1, scale: 1, rotateZ: 0 }}
-                      exit={{ opacity: 0, scale: 0.8, rotateZ: -15 }}
-                      transition={{ duration: 0.4, type: "spring", stiffness: 150, damping: 12 }}
+                      initial={{ opacity: 0, scale: 0.3, rotateZ: 45, rotateY: -90 }}
+                      animate={{ opacity: 1, scale: 1, rotateZ: 0, rotateY: 0 }}
+                      exit={{ opacity: 0, scale: 0.3, rotateZ: -45, rotateY: 90 }}
+                      transition={{ duration: 0.6, type: "spring", stiffness: 120, damping: 10 }}
                       className="inline-block group-hover:text-[#aaa]"
                     >
                       som
@@ -255,18 +256,50 @@ export default function Home() {
               className="group"
             >
               <Link href="/nerdy">
-                <div className="paper-card relative p-7 md:p-9 min-h-[220px] flex flex-col justify-between overflow-hidden hover-wiggle">
+                <motion.div 
+                  className="paper-card relative p-7 md:p-9 min-h-[220px] flex flex-col justify-between overflow-hidden hover-wiggle"
+                  animate={showAlias ? { 
+                    borderColor: "#7fb07f",
+                    boxShadow: "0 0 20px rgba(127, 176, 127, 0.3)"
+                  } : { 
+                    borderColor: "#2a2a2a",
+                    boxShadow: "none"
+                  }}
+                  transition={{ duration: 0.5 }}
+                  style={{ border: "1px solid" }}
+                >
                   <div className="tape-top" />
                   <div>
                     <div className="flex items-center gap-3 mb-3">
-                      <div className="flex h-9 w-9 items-center justify-center border border-[#333]">
-                        <Terminal className="h-4 w-4 text-[#e8e8e8]" />
-                      </div>
-                      <span className="font-mono text-xs text-[#666]">{"> whoami"}</span>
+                      <motion.div 
+                        className="flex h-9 w-9 items-center justify-center border"
+                        animate={showAlias ? { 
+                          borderColor: "#7fb07f",
+                          color: "#7fb07f"
+                        } : { 
+                          borderColor: "#333",
+                          color: "#e8e8e8"
+                        }}
+                        transition={{ duration: 0.5 }}
+                        style={{ border: "1px solid" }}
+                      >
+                        <Terminal className="h-4 w-4" />
+                      </motion.div>
+                      <motion.span 
+                        className="font-mono text-xs"
+                        animate={showAlias ? { color: "#7fb07f" } : { color: "#666" }}
+                        transition={{ duration: 0.5 }}
+                      >
+                        {"> whoami"}
+                      </motion.span>
                     </div>
-                    <h2 className="text-xl md:text-2xl font-bold text-[#e8e8e8] tracking-tight mb-2">
+                    <motion.h2 
+                      className="text-xl md:text-2xl font-bold tracking-tight mb-2"
+                      animate={showAlias ? { color: "#7fb07f" } : { color: "#e8e8e8" }}
+                      transition={{ duration: 0.5 }}
+                    >
                       the nerdy side
-                    </h2>
+                    </motion.h2>
                     <p className="text-sm text-[#aaa] leading-relaxed max-w-xs">
                       {"resume, hacking stuff, certs, all that serious jazz."}
                     </p>
@@ -278,8 +311,18 @@ export default function Home() {
                     <span>go there</span>
                     <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
                   </div>
-                  <div className="absolute bottom-0 left-0 h-[2px] w-0 bg-[#e8e8e8] group-hover:w-full transition-all duration-500" />
-                </div>
+                  <motion.div 
+                    className="absolute bottom-0 left-0 h-[2px] bg-[#e8e8e8] group-hover:w-full transition-all duration-500"
+                    animate={showAlias ? { 
+                      width: "100%",
+                      backgroundColor: "#7fb07f"
+                    } : { 
+                      width: "0%",
+                      backgroundColor: "#e8e8e8"
+                    }}
+                    transition={{ duration: 0.5 }}
+                  />
+                </motion.div>
               </Link>
             </motion.div>
 

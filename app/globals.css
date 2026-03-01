@@ -145,25 +145,13 @@
     mix-blend-mode: screen;
   }
 
-  /* Curved ruled paper -- the magic: a radial gradient that fades ruled lines
-     into a subtle arc, plus perspective on the wrapper to make content "lift" */
+  /* Curved ruled paper -- REMOVED, now solid black */
   .curved-paper-bg {
     position: fixed;
     inset: 0;
     pointer-events: none;
     z-index: 0;
-    background-image:
-      repeating-linear-gradient(
-        to bottom,
-        transparent,
-        transparent 31px,
-        rgba(255,255,255,0.04) 31px,
-        rgba(255,255,255,0.04) 32px
-      );
-    background-size: 100% 32px;
-    /* radial vignette to create the "curved page" illusion */
-    mask-image: radial-gradient(ellipse 90% 80% at 50% 50%, black 50%, transparent 100%);
-    -webkit-mask-image: radial-gradient(ellipse 90% 80% at 50% 50%, black 50%, transparent 100%);
+    background: #000000;
   }
 
   /* Floating content wrapper -- slight perspective lift */
