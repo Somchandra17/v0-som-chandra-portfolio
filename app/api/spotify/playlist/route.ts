@@ -12,7 +12,7 @@ export async function GET() {
     const tracks = (data.items || [])
       .sort(
         (a: { added_at: string }, b: { added_at: string }) =>
-          new Date(b.added_at).getTime() - new Date(a.added_at).getTime()
+          new Date(a.added_at).getTime() - new Date(b.added_at).getTime()
       )
       .map(
         (item: {

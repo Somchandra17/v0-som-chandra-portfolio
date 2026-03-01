@@ -567,17 +567,19 @@ export default function Home() {
             )}
 
             {/* Fallback/supplementary embed */}
-            <div className="paper-card overflow-hidden p-0">
-              <iframe
-                style={{ border: "none", display: "block", borderRadius: 0 }}
-                src="https://open.spotify.com/embed/playlist/7fOEf8vDsrfgMMjU9fNiP1?utm_source=generator&theme=0"
-                width="100%"
-                height="152"
-                allowFullScreen
-                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                loading="lazy"
-                title="Spotify Playlist"
-              />
+            <div className="paper-card p-0 overflow-hidden">
+              <div style={{ overflow: "hidden" }}>
+                <iframe
+                  style={{ border: "none", display: "block", margin: 0, padding: 0 }}
+                  src="https://open.spotify.com/embed/playlist/7fOEf8vDsrfgMMjU9fNiP1?utm_source=generator&theme=0"
+                  width="100%"
+                  height="152"
+                  allowFullScreen
+                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                  loading="lazy"
+                  title="Spotify Playlist"
+                />
+              </div>
             </div>
           </div>
         </motion.div>
