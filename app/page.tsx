@@ -99,6 +99,7 @@ type Artist = {
 
 export default function Home() {
   const [hoverSide, setHoverSide] = useState<"nerdy" | "creative" | null>(null)
+  const [showAlias, setShowAlias] = useState(false)
   const [factIdx, setFactIdx] = useState(0)
   const [heroIdx, setHeroIdx] = useState(0)
 
@@ -158,7 +159,37 @@ export default function Home() {
           </p>
 
           <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight text-[#e8e8e8] leading-[1.15]">
-            <span className="block">{"i'm som."}</span>
+            <span className="block cursor-pointer group" onClick={() => setShowAlias(!showAlias)}>
+              i'm{" "}
+              <span className="relative inline-block">
+                <AnimatePresence mode="wait">
+                  {showAlias ? (
+                    <motion.span
+                      key="alias"
+                      initial={{ opacity: 0, scale: 0.8, rotateZ: -15 }}
+                      animate={{ opacity: 1, scale: 1, rotateZ: 0 }}
+                      exit={{ opacity: 0, scale: 0.8, rotateZ: 15 }}
+                      transition={{ duration: 0.4, type: "spring", stiffness: 150, damping: 12 }}
+                      className="inline-block font-mono text-[#7fb07f] group-hover:text-[#9fff9f]"
+                    >
+                      0xs0m
+                    </motion.span>
+                  ) : (
+                    <motion.span
+                      key="name"
+                      initial={{ opacity: 0, scale: 0.8, rotateZ: 15 }}
+                      animate={{ opacity: 1, scale: 1, rotateZ: 0 }}
+                      exit={{ opacity: 0, scale: 0.8, rotateZ: -15 }}
+                      transition={{ duration: 0.4, type: "spring", stiffness: 150, damping: 12 }}
+                      className="inline-block group-hover:text-[#aaa]"
+                    >
+                      som
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </span>
+              .
+            </span>
           </h1>
 
           {/* Cycling hero tagline */}
@@ -219,8 +250,8 @@ export default function Home() {
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 1 }}
-              onHoverStart={() => setHoverSide("nerdy")}
-              onHoverEnd={() => setHoverSide(null)}
+              onHoverStart={() => { setHoverSide("nerdy"); setShowAlias(true) }}
+              onHoverEnd={() => { setHoverSide(null); setShowAlias(false) }}
               className="group"
             >
               <Link href="/nerdy">
