@@ -338,7 +338,7 @@ export default function NerdyPage() {
           {/* Footer */}
           <footer className="relative z-10 border-t border-[#333]">
             <div className="mx-auto max-w-4xl px-6 py-7 flex items-center justify-between">
-              <p className="font-mono text-xs text-[#666]">som chandra -- 2025</p>
+              <p className="font-mono text-xs text-[#666]">som chandra, 2025</p>
               <p className="font-mono text-xs text-[#555]">{"$ cat resume.txt"}</p>
             </div>
           </footer>

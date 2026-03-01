@@ -19,7 +19,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'Som Chandra | Two Sides, One Person',
   description:
-    'The portfolio of Som Chandra -- cybersecurity engineer by trade, creative by accident. Pick a side.',
+    'The portfolio of Som Chandra; cybersecurity engineer by trade, creative by accident. Pick a side.',
   icons: {
     icon: [
       { url: '/icon-light-32x32.png', media: '(prefers-color-scheme: light)' },
