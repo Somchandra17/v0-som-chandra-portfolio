@@ -161,28 +161,45 @@ export default function Home() {
           <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight text-[#e8e8e8] leading-[1.15]">
             <span className="block cursor-pointer group" onClick={() => setShowAlias(!showAlias)}>
               i'm{" "}
-              <span className="relative inline-block">
+              <span className="relative inline-block origin-bottom">
                 <AnimatePresence mode="wait">
                   {showAlias ? (
                     <motion.span
                       key="alias"
-                      initial={{ opacity: 0, scale: 0.3, rotateZ: -45, rotateY: 90 }}
-                      animate={{ opacity: 1, scale: 1, rotateZ: 0, rotateY: 0 }}
-                      exit={{ opacity: 0, scale: 0.3, rotateZ: 45, rotateY: -90 }}
-                      transition={{ duration: 0.6, type: "spring", stiffness: 120, damping: 10 }}
-                      className="inline-block font-mono text-[#7fb07f] group-hover:text-[#9fff9f] drop-shadow-lg"
-                      style={{ textShadow: "0 0 20px rgba(127, 176, 127, 0.5)" }}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      transition={{ 
+                        duration: 0.8,
+                        type: "spring",
+                        stiffness: 100,
+                        damping: 15,
+                        delay: 0.1
+                      }}
+                      className="inline-block font-mono text-[#7fb07f] group-hover:text-[#9fff9f]"
+                      style={{ 
+                        animation: "hackGlitch 0.8s cubic-bezier(0.77, 0, 0.175, 1), neonPulse 2s ease-in-out infinite",
+                        textShadow: "0 0 10px #7fb07f, 0 0 20px rgba(127, 176, 127, 0.6)"
+                      }}
                     >
                       0xs0m
                     </motion.span>
                   ) : (
                     <motion.span
                       key="name"
-                      initial={{ opacity: 0, scale: 0.3, rotateZ: 45, rotateY: -90 }}
-                      animate={{ opacity: 1, scale: 1, rotateZ: 0, rotateY: 0 }}
-                      exit={{ opacity: 0, scale: 0.3, rotateZ: -45, rotateY: 90 }}
-                      transition={{ duration: 0.6, type: "spring", stiffness: 120, damping: 10 }}
+                      initial={{ opacity: 0, y: -20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 20 }}
+                      transition={{ 
+                        duration: 0.5,
+                        type: "spring",
+                        stiffness: 120,
+                        damping: 12
+                      }}
                       className="inline-block group-hover:text-[#aaa]"
+                      style={{
+                        animation: "dataStream 0.5s ease-out"
+                      }}
                     >
                       som
                     </motion.span>
