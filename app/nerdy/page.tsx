@@ -118,22 +118,6 @@ export default function NerdyPage() {
 
       <PageTransition>
         <div className="relative min-h-screen">
-          {/* Glowing border edges */}
-          <div className="pointer-events-none fixed inset-0 z-50">
-            {/* Top edge */}
-            <div className="absolute top-0 left-0 right-0 h-px neon-edge-h" />
-            {/* Bottom edge */}
-            <div className="absolute bottom-0 left-0 right-0 h-px neon-edge-h" />
-            {/* Left edge */}
-            <div className="absolute top-0 bottom-0 left-0 w-px neon-edge-v" />
-            {/* Right edge */}
-            <div className="absolute top-0 bottom-0 right-0 w-px neon-edge-v" />
-            {/* Corner glows */}
-            <div className="absolute top-0 left-0 w-16 h-16 neon-corner" style={{ animationDelay: "0s" }} />
-            <div className="absolute top-0 right-0 w-16 h-16 neon-corner" style={{ animationDelay: "0.75s" }} />
-            <div className="absolute bottom-0 right-0 w-16 h-16 neon-corner" style={{ animationDelay: "1.5s" }} />
-            <div className="absolute bottom-0 left-0 w-16 h-16 neon-corner" style={{ animationDelay: "2.25s" }} />
-          </div>
 
           {/* -- About -- */}
           <section className="relative z-10 mx-auto max-w-4xl px-6 pt-14 pb-10">

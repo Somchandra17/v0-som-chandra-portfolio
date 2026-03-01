@@ -105,13 +105,13 @@ export default function Home() {
 
   const cycleName = () => {
     setIsHoverLocked(true)
-    setNameMode((prev) => prev === "default" ? "nerdy" : prev === "nerdy" ? "creative" : "default")
+    setNameMode((prev) => prev === "default" ? "nerdy" : prev === "nerdy" ? "default" : "default")
   }
 
   const nameConfig = {
-    default: { text: "Som", color: "#e8e8e8", shadow: "none" },
+    default: { text: "som", color: "#f0c6cf", shadow: "0 0 6px rgba(240, 198, 207, 0.25)" },
     nerdy: { text: "0xs0m", color: "#7fb07f", shadow: "0 0 8px rgba(127, 176, 127, 0.4)" },
-    creative: { text: "som", color: "#f2a0b0", shadow: "0 0 8px rgba(242, 160, 176, 0.4)" },
+    creative: { text: "som", color: "#f0c6cf", shadow: "0 0 6px rgba(240, 198, 207, 0.25)" },
   }
   const [heroIdx, setHeroIdx] = useState(0)
 
