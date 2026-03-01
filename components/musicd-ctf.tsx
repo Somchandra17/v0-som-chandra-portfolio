@@ -14,15 +14,16 @@ export function MusicDCTF() {
   ])
   const terminalRef = useRef<HTMLDivElement>(null)
 
-  // Complete filesystem structure
+  // Visible filesystem -- flag is NOT here, it lives outside the music dir
   const filesystem: Record<string, string | boolean> = {
-    '/home/musicd/README.txt': 'MusicD v0.1 - Music Daemon\nUsage: load <song_name>\nAll tracks are stored in ./songs/\n\nNote: There was a path traversal bug in v0.0 but we fixed it... or did we?',
-    '/home/musicd/daemon.sh': '#!/bin/bash\n# Music daemon loader\nTRACK_PATH="songs/$1"\ncat "$TRACK_PATH"',
+    '/home/musicd/README.txt': 'MusicD v0.1 - Music Daemon\nUsage: load <song_name>\nAll tracks are stored in ./songs/\n\nNote: We patched the path traversal bug from v0.0.\nSongs are sandboxed to /home/musicd/songs/ now.',
+    '/home/musicd/daemon.sh': '#!/bin/bash\n# MusicD v0.1 track loader\nBASE="/home/musicd/songs"\nTRACK_PATH="$BASE/$1"\n# TODO: sanitize input? nah, $1 only takes filenames right?\ncat "$TRACK_PATH"',
     '/home/musicd/songs/paranoid_android.lrc': '[00:00] When you were here before\n[00:15] Couldn\'t look you in the eye\n[00:28] You\'re just like my father too\n[00:42] I\'ll take a quiet life...',
     '/home/musicd/songs/comfortably_numb.lrc': '[00:00] Hello, is there anybody in there?\n[00:15] Just nod if you can hear me\n[00:28] Is there anyone home?\n[00:42] Come on, now...',
-    '/home/musicd/songs/flag': 'som_loves_pencils_and_travel',
-    '/home/musicd/songs': true, // directory
-    '/home/musicd': true, // directory
+    '/home/musicd/songs': true,
+    '/home/musicd': true,
+    // flag is at /flag.txt -- outside musicd's directory entirely
+    '/flag.txt': 'som_loves_pencils_and_travel',
   }
 
   const resolvePath = (p: string, fromDir: string): string => {
@@ -65,11 +66,11 @@ export function MusicDCTF() {
       setHistory([])
       setInput('')
       return
-    } else if (trimmed === 'ls') {
+    } else if (trimmed === 'ls' || trimmed === 'ls -la' || trimmed === 'ls -a') {
       if (currentDir === '/home/musicd') {
         output = 'README.txt   daemon.sh   songs/'
       } else if (currentDir === '/home/musicd/songs') {
-        output = 'paranoid_android.lrc   comfortably_numb.lrc   flag'
+        output = 'paranoid_android.lrc   comfortably_numb.lrc'
       } else {
         output = `ls: cannot access '${currentDir}': No such directory`
       }
@@ -91,10 +92,9 @@ export function MusicDCTF() {
       const fileName = trimmed.replace('cat ', '').trim()
       const filePath = resolvePath(fileName, currentDir)
       
-      // Vulnerable path traversal check - allows ../ access
-      if (filePath === '/home/musicd/songs/flag' || fileName.includes('flag')) {
-        setSolved(true)
-        output = 'som_loves_pencils_and_travel'
+      // cat only works for files within /home/musicd/ -- no traversal here
+      if (filePath === '/flag.txt' || fileName === 'flag.txt' || fileName === '/flag.txt') {
+        output = 'cat: /flag.txt: Permission denied'
       } else if (filesystem[filePath] && typeof filesystem[filePath] === 'string') {
         output = filesystem[filePath] as string
       } else {
@@ -102,16 +102,29 @@ export function MusicDCTF() {
       }
     } else if (trimmed.startsWith('load ')) {
       const songName = trimmed.replace('load ', '').trim()
-      const songPath = resolvePath(`songs/${songName}`, '/home/musicd')
-      
-      if (songPath === '/home/musicd/songs/flag' || songName.includes('flag')) {
-        setSolved(true)
-        output = 'som_loves_pencils_and_travel'
-      } else if (filesystem[songPath] && typeof filesystem[songPath] === 'string') {
-        output = `Now playing: ${songName}\n${(filesystem[songPath] as string).split('\n').slice(0, 3).join('\n')}...`
-      } else {
-        output = `load: ${songName}: file not found`
+      // load prepends songs/ to the input then cats it (see daemon.sh)
+      // This is the vulnerable command -- ../../../flag.txt traverses out
+      const rawPath = 'songs/' + songName
+      const parts = rawPath.split('/')
+      const resolved: string[] = []
+      for (const part of parts) {
+        if (part === '..') resolved.pop()
+        else if (part !== '.' && part !== '') resolved.push(part)
       }
+      const finalPath = '/home/musicd/' + resolved.join('/')
+
+      // Check if traversal reached /flag.txt (which lives at root)
+      if (finalPath === '/flag.txt' || finalPath === '/flag') {
+        setSolved(true)
+        output = '> loading track: ' + songName + '\n> reading from: /home/musicd/' + rawPath + '\n\nsom_loves_pencils_and_travel'
+      } else if (filesystem[finalPath] && typeof filesystem[finalPath] === 'string') {
+        output = `Now playing: ${songName}\n${(filesystem[finalPath] as string).split('\n').slice(0, 3).join('\n')}...`
+      } else {
+        output = `load: ${songName}: track not found in songs/`
+      }
+    } else if (trimmed === 'som_loves_pencils_and_travel') {
+      setSolved(true)
+      output = '> flag accepted.'
     } else {
       output = `bash: ${trimmed}: command not found`
     }
