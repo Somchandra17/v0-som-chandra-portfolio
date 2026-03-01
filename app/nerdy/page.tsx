@@ -127,7 +127,7 @@ export default function NerdyPage() {
                 cybersecurity engineer who breaks things for a living.
               </h2>
               <p className="text-sm text-[#666] mb-5 italic">
-                {"(legally, most of the time. okay fine, always legally. compliance made me add that.)"}
+                {"(legally... mostly)"}
               </p>
               <div className="max-w-2xl space-y-4 text-sm md:text-base text-[#ccc] leading-relaxed margin-line">
                 <p>
