@@ -10,7 +10,7 @@ export function MusicDCTF() {
   const [input, setInput] = useState('')
   const [currentDir, setCurrentDir] = useState('/home/musicd')
   const [history, setHistory] = useState<CommandHistory>([
-    { input: '', output: '> MusicD v0.1 daemon ready\n> Type "help" to see available commands\n> hint: read the source code carefully...' },
+    { input: '', output: '> MusicD v0.1 daemon ready\n> Type "help" to see available commands\n> hint: the flag is hiding at /flag.txt... but how do you get there?' },
   ])
   const [cmdHistory, setCmdHistory] = useState<string[]>([])
   const [historyIndex, setHistoryIndex] = useState(-1)
@@ -442,8 +442,7 @@ som      42  ./daemon.sh`
         >
           <div className="paper-card border border-[#555] p-4 font-mono text-xs bg-[#0a0a0a] space-y-3">
             <p className="text-[#7fb07f]">Now Playing: You found it.</p>
-            <p className="text-[#aaa]">Congrats — you think like an attacker.</p>
-            <p className="text-[#777]">Hit me up: somchandra.infosec@gmail.com</p>
+            <p className="text-[#aaa]">Congrats, you think like an attacker.</p>
             <div className="pt-2 border-t border-[#333]">
               <p className="text-[#666] mb-1">Get the God Playlist:</p>
               <a
