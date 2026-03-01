@@ -42,12 +42,12 @@ const photoGallery: PhotoItem[] = [
 ]
 
 const sketchGallery: PhotoItem[] = [
-  { id: 1, title: "Portraitt Study #14", desc: "graphite on papar, 2 hours", aspect: "portrait" },
-  { id: 2, title: "Hand Gesturs", desc: "anatomey practice from refernce", aspect: "square" },
-  { id: 3, title: "Cat in Inkk", desc: "quick ink sktech, 20 minuts", aspect: "portrait" },
-  { id: 4, title: "Archetecture", desc: "that bilding I pass evrey day", aspect: "wide" },
-  { id: 5, title: "Abstact Flow", desc: "pen on napkinn during lnuch", aspect: "square" },
-  { id: 6, title: "Eye Detale", desc: "close-up studey, charcol", aspect: "landscape" },
+  { id: 1, title: "Portraitt Study #14", desc: "graphite on papar, 2 hours", date: "Jan 2025", aspect: "portrait" },
+  { id: 2, title: "Hand Gesturs", desc: "anatomey practice from refernce", date: "Dec 2024", aspect: "square" },
+  { id: 3, title: "Cat in Inkk", desc: "quick ink sktech, 20 minuts", date: "Nov 2024", aspect: "portrait" },
+  { id: 4, title: "Archetecture", desc: "that bilding I pass evrey day", date: "Oct 2024", aspect: "wide" },
+  { id: 5, title: "Abstact Flow", desc: "pen on napkinn during lnuch", date: "Sep 2024", aspect: "square" },
+  { id: 6, title: "Eye Detale", desc: "close-up studey, charcol", date: "Aug 2024", aspect: "landscape" },
 ]
 
 const sideQuestGallery = [
