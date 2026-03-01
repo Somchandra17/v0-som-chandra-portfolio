@@ -64,3 +64,16 @@ export async function getRecentlyPlayed() {
     },
   })
 }
+
+export async function getPlaylistTracks(playlistId: string) {
+  const { access_token } = await getAccessToken()
+
+  return fetch(
+    `https://api.spotify.com/v1/playlists/${playlistId}/tracks?limit=50&fields=items(added_at,track(name,artists(name),album(name,images),external_urls))`,
+    {
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+      },
+    }
+  )
+}

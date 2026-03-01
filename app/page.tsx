@@ -1,10 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { motion } from "framer-motion"
+import { useState, useEffect, useRef } from "react"
+import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion"
 import Link from "next/link"
 import useSWR from "swr"
-import { Terminal, Pen, Github, Linkedin, Mail, ExternalLink, ArrowRight, ArrowDown, Music, Disc3, Headphones, Users } from "lucide-react"
+import {
+  Terminal, Pen, Github, Linkedin, Mail, ExternalLink,
+  ArrowRight, ArrowDown, Music, Disc3, Headphones, Users, Clock,
+} from "lucide-react"
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
@@ -20,8 +23,8 @@ const funFacts = [
   "or doodling in a notebook",
   "or both at the same time",
   "definitely needs more coffee",
-  "has mass tabs open",
-  "talking to rubber duck",
+  "has mass tabs open. no regrets.",
+  "talking to rubber duck again",
   "googling error for the 47th time",
   "accidentally rm -rf'd something important",
   "forgot to push before leaving",
@@ -30,18 +33,40 @@ const funFacts = [
   "pretending to understand kubernetes",
   "ctrl+z is my best friend",
   "alt-tabbing between terminal and spotify",
-  "wrote a script to automate a 2-minute task. took 3 hours.",
+  "wrote a script to automate a 2-min task. took 3 hours.",
   "sudo make me a sandwich",
   "the bug was a missing semicolon. always is.",
-  "stack overflow is down. panic.",
+  "stack overflow is down. panic mode.",
   "renaming variables for the 5th time today",
-  "coffee machine broken. this is a crisis.",
-  "found a bug. it was a feature.",
+  "coffee machine broken. code red.",
+  "found a bug. turns out it was a feature.",
   "accidentally opened vim. send help.",
   "my code works. I have no idea why.",
   "refactoring code I wrote 2 weeks ago like it's someone else's",
-  "the wifi dropped mid-deploy",
-  "explaining to non-tech friends what I do for a living",
+  "the wifi dropped mid-deploy. classic.",
+  "explaining to friends what I do for a living",
+  "git blame: it was me all along",
+  "wrote tests. they passed. now I'm suspicious.",
+  "copy-pasted from stack overflow. it worked first try. terrifying.",
+  "spent an hour on a bug. it was a typo.",
+  "dark mode everything. my eyes thank me.",
+  "sleep is just a variable I never initialize",
+  "i speak fluent python and broken hindi",
+  "my rubber duck deserves a raise",
+  "404: social life not found",
+  "i hack things legally. mostly.",
+  "drawing things no one asked for since 2005",
+  "i photograph things instead of experiencing them",
+]
+
+const heroLines = [
+  "i break things for a living.",
+  "i draw things nobody asked for.",
+  "i hack stuff. legally. mostly.",
+  "i take photos of random things.",
+  "half nerd, half artist, fully caffeinated.",
+  "cybersecurity by day, doodling by night.",
+  "i have two personalities and one website.",
 ]
 
 type NowPlayingData = {
@@ -61,6 +86,7 @@ type Track = {
   songUrl: string
 }
 
+type PlaylistTrack = Track & { addedAt: string }
 type RecentTrack = Track & { playedAt: string }
 
 type Artist = {
@@ -73,11 +99,18 @@ type Artist = {
 export default function Home() {
   const [hoverSide, setHoverSide] = useState<"nerdy" | "creative" | null>(null)
   const [factIdx, setFactIdx] = useState(0)
+  const [heroIdx, setHeroIdx] = useState(0)
+
+  const heroRef = useRef<HTMLElement>(null)
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] })
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0])
+  const heroY = useTransform(scrollYProgress, [0, 1], [0, -60])
 
   const { data: nowPlaying } = useSWR<NowPlayingData>("/api/spotify/now-playing", fetcher, { refreshInterval: 30000 })
   const { data: topTracksData } = useSWR<{ tracks: Track[] }>("/api/spotify/top-tracks", fetcher)
   const { data: topArtistsData } = useSWR<{ artists: Artist[] }>("/api/spotify/top-artists", fetcher)
   const { data: recentData } = useSWR<{ tracks: RecentTrack[] }>("/api/spotify/recently-played", fetcher)
+  const { data: playlistData } = useSWR<{ tracks: PlaylistTrack[] }>("/api/spotify/playlist", fetcher)
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -86,15 +119,27 @@ export default function Home() {
     return () => clearInterval(interval)
   }, [])
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setHeroIdx((p) => (p + 1) % heroLines.length)
+    }, 3000)
+    return () => clearInterval(interval)
+  }, [])
+
   const topTracks = topTracksData?.tracks || []
   const topArtists = topArtistsData?.artists || []
   const recentTracks = recentData?.tracks || []
+  const playlistTracks = playlistData?.tracks || []
 
   return (
     <main className="relative min-h-screen">
 
       {/* ---- HERO: fills viewport ---- */}
-      <section className="relative z-10 mx-auto max-w-5xl px-6 flex flex-col justify-center min-h-screen">
+      <motion.section
+        ref={heroRef}
+        className="relative z-10 mx-auto max-w-5xl px-6 flex flex-col justify-center min-h-screen"
+        style={{ opacity: heroOpacity, y: heroY }}
+      >
         <motion.div
           className="mb-10 h-px bg-[#e8e8e8]"
           initial={{ width: 0 }}
@@ -113,30 +158,39 @@ export default function Home() {
 
           <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight text-[#e8e8e8] leading-[1.15]">
             <span className="block">{"i'm som."}</span>
-            <span className="block mt-2 text-[#999]">
-              {"i break things "}
-              <span className="text-[#e8e8e8] scribble-underline">{"for work"}</span>
-            </span>
-            <span className="block mt-1 text-[#999]">
-              {"& make things "}
-              <span className="text-[#e8e8e8] scribble-underline">{"for fun"}</span>
-              {"."}
-            </span>
           </h1>
+
+          {/* Cycling hero tagline */}
+          <div className="mt-3 h-10 md:h-12 overflow-hidden">
+            <AnimatePresence mode="wait">
+              <motion.p
+                key={heroIdx}
+                className="text-xl md:text-2xl lg:text-3xl font-bold text-[#777]"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.35 }}
+              >
+                {heroLines[heroIdx]}
+              </motion.p>
+            </AnimatePresence>
+          </div>
 
           {/* Auto-cycling fun fact */}
           <div className="mt-6 h-6 overflow-hidden">
-            <motion.p
-              key={factIdx}
-              className="font-mono text-sm text-[#666]"
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -12 }}
-              transition={{ duration: 0.3 }}
-            >
-              {"// "}
-              {funFacts[factIdx]}
-            </motion.p>
+            <AnimatePresence mode="wait">
+              <motion.p
+                key={factIdx}
+                className="font-mono text-sm text-[#666]"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: 0.3 }}
+              >
+                {"// "}
+                {funFacts[factIdx]}
+              </motion.p>
+            </AnimatePresence>
           </div>
         </motion.div>
 
@@ -238,7 +292,7 @@ export default function Home() {
 
           {/* Hover indicator */}
           <motion.p
-            className="mt-5 font-mono text-xs text-[#555] h-5"
+            className="mt-5 font-mono text-xs text-[#666] h-5"
             animate={{ opacity: hoverSide ? 1 : 0 }}
           >
             {hoverSide === "nerdy"
@@ -261,9 +315,12 @@ export default function Home() {
             <ArrowDown className="h-4 w-4 text-[#666]" />
           </motion.div>
         </motion.div>
-      </section>
+      </motion.section>
 
-      {/* ---- NOW PLAYING (below the fold) ---- */}
+
+      {/* ==== BELOW THE FOLD ==== */}
+
+      {/* ---- NOW PLAYING ---- */}
       {nowPlaying?.isPlaying && (
         <section className="relative z-10 mx-auto max-w-5xl px-6 pb-8">
           <motion.div
@@ -302,40 +359,62 @@ export default function Home() {
         </section>
       )}
 
-      {/* ---- SPOTIFY PLAYLIST EMBED ---- */}
-      <section className="relative z-10 mx-auto max-w-5xl px-6 pb-10">
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.6 }}
-        >
-          <div className="border-t border-[#333] pt-10">
-            <div className="flex items-center gap-3 mb-2">
-              <Music className="h-4 w-4 text-[#999]" />
-              <p className="font-mono text-xs tracking-widest uppercase text-[#999]">
-                the playlist
-              </p>
-            </div>
-            <p className="text-sm text-[#666] mb-6">
-              {"judge me by my music taste. i dare you."}
-            </p>
+      {/* ---- TOP ARTISTS ---- */}
+      {topArtists.length > 0 && (
+        <section className="relative z-10 mx-auto max-w-5xl px-6 pb-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="border-t border-[#333] pt-10">
+              <div className="flex items-center gap-2 mb-2">
+                <Users className="h-4 w-4 text-[#ccc]" />
+                <p className="font-mono text-xs tracking-widest uppercase text-[#ccc]">top artists</p>
+              </div>
+              <p className="text-sm text-[#888] mb-8">{"the people responsible for my personality"}</p>
 
-            <div className="paper-card p-0 overflow-hidden">
-              <iframe
-                style={{ border: "none", display: "block" }}
-                src="https://open.spotify.com/embed/playlist/7fOEf8vDsrfgMMjU9fNiP1?utm_source=generator&theme=0"
-                width="100%"
-                height="352"
-                allowFullScreen
-                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                loading="lazy"
-                title="Spotify Playlist"
-              />
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                {topArtists.map((artist, i) => (
+                  <motion.a
+                    key={artist.url}
+                    href={artist.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="paper-card p-5 flex flex-col items-center text-center hover-bounce group"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.06, duration: 0.35 }}
+                  >
+                    {artist.imageUrl ? (
+                      <img
+                        src={artist.imageUrl}
+                        alt={artist.name}
+                        className="w-20 h-20 object-cover border-2 border-[#333] mb-3 group-hover:border-[#e8e8e8] transition-colors"
+                        style={{ borderRadius: "50%" }}
+                        crossOrigin="anonymous"
+                      />
+                    ) : (
+                      <div
+                        className="w-20 h-20 border-2 border-[#333] bg-[#1a1a1a] mb-3 flex items-center justify-center"
+                        style={{ borderRadius: "50%" }}
+                      >
+                        <Users className="h-8 w-8 text-[#444]" />
+                      </div>
+                    )}
+                    <p className="text-sm font-bold text-[#e8e8e8] group-hover:underline truncate w-full">{artist.name}</p>
+                    {artist.genres.length > 0 && (
+                      <p className="text-xs text-[#888] truncate w-full mt-1">{artist.genres.join(", ")}</p>
+                    )}
+                  </motion.a>
+                ))}
+              </div>
             </div>
-          </div>
-        </motion.div>
-      </section>
+          </motion.div>
+        </section>
+      )}
 
       {/* ---- TOP TRACKS ---- */}
       {topTracks.length > 0 && (
@@ -348,10 +427,10 @@ export default function Home() {
           >
             <div className="border-t border-[#333] pt-10">
               <div className="flex items-center gap-2 mb-2">
-                <Headphones className="h-4 w-4 text-[#999]" />
-                <p className="font-mono text-xs tracking-widest uppercase text-[#999]">all-time faves</p>
+                <Headphones className="h-4 w-4 text-[#ccc]" />
+                <p className="font-mono text-xs tracking-widest uppercase text-[#ccc]">all-time faves</p>
               </div>
-              <p className="text-sm text-[#666] mb-6">{"the songs i've worn out completely"}</p>
+              <p className="text-sm text-[#888] mb-6">{"the songs i've played to death"}</p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {topTracks.slice(0, 10).map((track, i) => (
@@ -366,7 +445,7 @@ export default function Home() {
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.04, duration: 0.3 }}
                   >
-                    <span className="font-mono text-xs text-[#555] w-5 shrink-0">{String(i + 1).padStart(2, "0")}</span>
+                    <span className="font-mono text-xs text-[#666] w-5 shrink-0">{String(i + 1).padStart(2, "0")}</span>
                     {track.albumImageUrl && (
                       <img src={track.albumImageUrl} alt={track.album} className="w-10 h-10 object-cover border border-[#333] shrink-0" crossOrigin="anonymous" />
                     )}
@@ -374,52 +453,6 @@ export default function Home() {
                       <p className="text-sm font-bold text-[#e8e8e8] truncate group-hover:underline">{track.title}</p>
                       <p className="text-xs text-[#aaa] truncate">{track.artist}</p>
                     </div>
-                  </motion.a>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-        </section>
-      )}
-
-      {/* ---- TOP ARTISTS ---- */}
-      {topArtists.length > 0 && (
-        <section className="relative z-10 mx-auto max-w-5xl px-6 pb-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-60px" }}
-            transition={{ duration: 0.5 }}
-          >
-            <div className="border-t border-[#333] pt-10">
-              <div className="flex items-center gap-2 mb-2">
-                <Users className="h-4 w-4 text-[#999]" />
-                <p className="font-mono text-xs tracking-widest uppercase text-[#999]">top artists</p>
-              </div>
-              <p className="text-sm text-[#666] mb-6">{"the people responsible for my personality"}</p>
-
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {topArtists.map((artist, i) => (
-                  <motion.a
-                    key={artist.url}
-                    href={artist.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="paper-card p-4 flex flex-col items-center text-center hover-bounce group"
-                    initial={{ opacity: 0, y: 12 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.05, duration: 0.3 }}
-                  >
-                    {artist.imageUrl ? (
-                      <img src={artist.imageUrl} alt={artist.name} className="w-16 h-16 object-cover border border-[#333] mb-3" style={{ borderRadius: "50%" }} crossOrigin="anonymous" />
-                    ) : (
-                      <div className="w-16 h-16 border border-[#333] bg-[#1a1a1a] mb-3 flex items-center justify-center" style={{ borderRadius: "50%" }}>
-                        <Users className="h-6 w-6 text-[#444]" />
-                      </div>
-                    )}
-                    <p className="text-sm font-bold text-[#e8e8e8] group-hover:underline truncate w-full">{artist.name}</p>
-                    <p className="text-xs text-[#666] truncate w-full mt-0.5">{artist.genres.join(", ")}</p>
                   </motion.a>
                 ))}
               </div>
@@ -439,10 +472,10 @@ export default function Home() {
           >
             <div className="border-t border-[#333] pt-10">
               <div className="flex items-center gap-2 mb-2">
-                <Disc3 className="h-4 w-4 text-[#999]" />
-                <p className="font-mono text-xs tracking-widest uppercase text-[#999]">recently played</p>
+                <Clock className="h-4 w-4 text-[#ccc]" />
+                <p className="font-mono text-xs tracking-widest uppercase text-[#ccc]">recently played</p>
               </div>
-              <p className="text-sm text-[#666] mb-6">{"what was in my ears a minute ago"}</p>
+              <p className="text-sm text-[#888] mb-6">{"what was in my ears a minute ago"}</p>
 
               <div className="space-y-2">
                 {recentTracks.slice(0, 8).map((track, i) => (
@@ -464,7 +497,7 @@ export default function Home() {
                       <p className="text-sm text-[#e8e8e8] truncate group-hover:underline">{track.title}</p>
                       <p className="text-xs text-[#aaa] truncate">{track.artist}</p>
                     </div>
-                    <p className="font-mono text-xs text-[#555] shrink-0">
+                    <p className="font-mono text-xs text-[#666] shrink-0">
                       {new Date(track.playedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                     </p>
                   </motion.a>
@@ -475,6 +508,78 @@ export default function Home() {
         </section>
       )}
 
+      {/* ---- PLAYLIST (from API, sorted recently added) ---- */}
+      <section className="relative z-10 mx-auto max-w-5xl px-6 pb-10">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.6 }}
+        >
+          <div className="border-t border-[#333] pt-10">
+            <div className="flex items-center gap-3 mb-2">
+              <Music className="h-4 w-4 text-[#ccc]" />
+              <p className="font-mono text-xs tracking-widest uppercase text-[#ccc]">
+                the playlist
+              </p>
+            </div>
+            <p className="text-sm text-[#888] mb-6">
+              {"judge me by my music taste. i dare you. sorted by recently added."}
+            </p>
+
+            {/* API-loaded playlist tracks */}
+            {playlistTracks.length > 0 ? (
+              <div className="space-y-2 mb-8 max-h-[480px] overflow-y-auto pr-1 scrollbar-thin">
+                {playlistTracks.map((track, i) => (
+                  <motion.a
+                    key={track.songUrl + track.addedAt}
+                    href={track.songUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="paper-card p-3 flex items-center gap-4 hover-bounce group"
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: Math.min(i * 0.02, 0.4), duration: 0.25 }}
+                  >
+                    <span className="font-mono text-xs text-[#555] w-6 shrink-0 text-right">{i + 1}</span>
+                    {track.albumImageUrl && (
+                      <img
+                        src={track.albumImageUrl}
+                        alt={track.album}
+                        className="w-10 h-10 object-cover border border-[#333] shrink-0"
+                        crossOrigin="anonymous"
+                      />
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-bold text-[#e8e8e8] truncate group-hover:underline">{track.title}</p>
+                      <p className="text-xs text-[#aaa] truncate">{track.artist}</p>
+                    </div>
+                    <p className="font-mono text-xs text-[#555] shrink-0 hidden sm:block">
+                      {new Date(track.addedAt).toLocaleDateString([], { month: "short", day: "numeric" })}
+                    </p>
+                  </motion.a>
+                ))}
+              </div>
+            ) : null}
+
+            {/* Fallback/supplementary embed */}
+            <div className="paper-card overflow-hidden p-0">
+              <iframe
+                style={{ border: "none", display: "block", borderRadius: 0 }}
+                src="https://open.spotify.com/embed/playlist/7fOEf8vDsrfgMMjU9fNiP1?utm_source=generator&theme=0"
+                width="100%"
+                height="152"
+                allowFullScreen
+                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                loading="lazy"
+                title="Spotify Playlist"
+              />
+            </div>
+          </div>
+        </motion.div>
+      </section>
+
       {/* ---- SOCIALS ---- */}
       <section className="relative z-10 mx-auto max-w-5xl px-6 pb-14">
         <motion.div
@@ -484,10 +589,10 @@ export default function Home() {
           viewport={{ once: true, margin: "-40px" }}
           transition={{ duration: 0.5 }}
         >
-          <p className="font-mono text-xs tracking-widest uppercase text-[#999] mb-2">
+          <p className="font-mono text-xs tracking-widest uppercase text-[#ccc] mb-2">
             find me elsewhere
           </p>
-          <p className="text-sm text-[#666] mb-6">
+          <p className="text-sm text-[#888] mb-6">
             {"(i sometimes reply)"}
           </p>
 
@@ -498,7 +603,7 @@ export default function Home() {
                 href={s.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="paper-card flex items-center gap-2.5 px-4 py-2.5 text-sm text-[#aaa] hover:text-[#e8e8e8] transition-colors hover-bounce"
+                className="paper-card flex items-center gap-2.5 px-4 py-2.5 text-sm text-[#bbb] hover:text-[#e8e8e8] transition-colors hover-bounce"
                 initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -515,8 +620,8 @@ export default function Home() {
       {/* ---- FOOTER ---- */}
       <footer className="relative z-10 border-t border-[#333]">
         <div className="mx-auto max-w-5xl px-6 py-7 flex items-center justify-between">
-          <p className="font-mono text-xs text-[#666]">som chandra -- 2025</p>
-          <p className="font-mono text-xs text-[#555]">made with mass of coffee</p>
+          <p className="font-mono text-xs text-[#888]">som chandra -- 2025</p>
+          <p className="font-mono text-xs text-[#666]">made with mass of coffee</p>
         </div>
       </footer>
     </main>
