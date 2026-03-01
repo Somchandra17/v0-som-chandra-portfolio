@@ -68,12 +68,12 @@ const thoughts = [
   {
     title: "Why I sketch at 3 AM",
     date: "Sep 2024",
-    body: "the world is quiter at 3 AM. no notifcations, no stand-ups, no jira ticktes. just a pencil and whatver my brain decideds to put on paper. sometimes its faces. somtimes its shapes that don't mean anythng yet. watercolors can go die tho, i hate that medium with a pasion. give me graphite or give me deth.",
+    body: "there's a specfic kind of silence that only exsits after 2 AM. no slack pings. no \"can you check this tickt.\" no one asking you to \"hop on a quick call.\" just you, a pencil, and whatevr fever dream your brain decidd to commissin tonight.\n\nsometimes it's faces. sometimes it's geometrc nonsense that won't mean anythng until 3 weeks later when i look at it and go \"oh.\" the paper doesn't have acceptnce criteria. there's no definiton of done. you're just moving a stick across a surfce until it feels right and honeslty that's the most free i feel all week.\n\nwatercolors can die tho. i mean it. unpredictble, unforgving, bleeds everywere, dries into somthing completly different from what you painted. sounds like a bug that only reproducs in production. i don't negotite with either. graphite only. i need control over at least one thing in my life.",
   },
   {
     title: "Cameras and terminlas",
     date: "Jun 2024",
-    body: "people ask how i go from staring at burp suite all day to pickng up a camera. both are tools for seeng things more carefuly. a proxy interceps traffic. a lens intercepts light. same disipline. also i don't even own a real camera lmao, its all shot on my phone. but hey, the best camra is the one you have on you right?",
+    body: "i don't do photograpy. let me be clear about that.\n\ni don't wake up on weeknds with a plan to go shoot. i don't have a golden hour calender. i'm not out here doing compositon studies. i just go places — for food, for work, becuase someone dragged me somewere — and sometimes somthing looks intresting and i take my phone out for four secnds and that's it.\n\nthe photo either works or it doesn't. i don't bracket shots. i don't shoot in raw. i move on with my life.\n\nwhat's funny is people assume there's disciplne behind it. there isn't. it's closer to how i notice wierd things in a netwrok response — not becuase i'm looking for it, just becuase something felt off and i paid atention for a secnd. same thing. somthing catches, you captre it, you keep walkng.\n\ni think most people are so busy experiencng a moment that they forget to just look at it. i'm not better at photograpy. i'm just occasionaly present enough to notice when somthing is worth four secnds of my time.",
   },
 ]
 
