@@ -1,9 +1,10 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { PageHeader } from "@/components/page-header"
 import { PageTransition } from "@/components/page-transition"
+import { useCursorMode } from "@/components/cursor-context"
 import { Camera, PenTool, BookOpen, X } from "lucide-react"
 
 /* -- data -- */
@@ -42,7 +43,7 @@ const thoughts = [
   {
     title: "Cameras and terminals",
     date: "Jun 2024",
-    body: "People ask how I go from staring at Burp Suite all day to picking up a camera. I think the answer is simple: both are tools for seeing things more carefully. A proxy intercepts traffic. A lens intercepts light. Same discipline.",
+    body: "People ask how I go from staring at Burp Suite all day to picking up a camera. Both are tools for seeing things more carefully. A proxy intercepts traffic. A lens intercepts light. Same discipline.",
   },
 ]
 
@@ -58,12 +59,18 @@ const fadeUp = {
 export default function CreativePage() {
   const [activeTab, setActiveTab] = useState<Tab>("photos")
   const [lightboxItem, setLightboxItem] = useState<{ title: string; desc: string } | null>(null)
+  const { setMode } = useCursorMode()
+
+  useEffect(() => {
+    setMode("creative")
+    return () => setMode("default")
+  }, [setMode])
 
   const gallery = activeTab === "photos" ? photoGallery : sketchGallery
 
   return (
     <>
-      <PageHeader title="the creative side" subtitle="photos / sketches / thoughts" />
+      <PageHeader title="the unhinged side" subtitle="photos / sketches / late-night scribbles" />
 
       <PageTransition>
         <div className="relative min-h-screen">
@@ -73,17 +80,17 @@ export default function CreativePage() {
             <motion.div {...fadeUp}>
               <p className="font-mono text-xs tracking-widest uppercase text-[#777] mb-3">the other half</p>
               <h2 className="text-2xl md:text-3xl font-bold text-[#e8e8e8] tracking-tight mb-2">
-                {"when i'm not in a terminal, i'm behind a lens."}
+                {"when i'm not hacking, i'm probably holding a camera wrong."}
               </h2>
               <p className="text-sm text-[#555] mb-5 italic">
-                {"(or staring at a blank sketchbook pretending I'll draw something)"}
+                {"(or staring at a blank sketchbook like it owes me money)"}
               </p>
               <div className="max-w-2xl space-y-4 text-sm md:text-base text-[#bbb] leading-relaxed margin-line">
                 <p>
-                  {"Photography and sketching are how I decompress. Street photography mostly -- candid moments, urban textures, the way light hits concrete at weird angles. Sketching happens late at night, usually faces and anatomy studies in graphite or ink."}
+                  {"Street photography mostly -- candid moments, urban textures, the way light hits concrete at weird angles. Sketching happens late at night, usually faces and anatomy studies in graphite or ink. Sometimes I just doodle nonsense and call it art."}
                 </p>
                 <p>
-                  {"None of this is gallery-ready. Think of it as a visual journal of a person who stares at code all day and needs to look at something else occasionally."}
+                  {"None of this is gallery-ready. Think of it as a visual journal of someone who stares at terminals all day and needs to look at literally anything else."}
                 </p>
               </div>
             </motion.div>
@@ -106,7 +113,7 @@ export default function CreativePage() {
                     key={tab.key}
                     onClick={() => setActiveTab(tab.key)}
                     className={`
-                      flex items-center gap-2 px-4 py-2 text-sm font-mono transition-colors border
+                      flex items-center gap-2 px-4 py-2 text-sm font-mono transition-all border
                       ${activeTab === tab.key
                         ? "bg-[#e8e8e8] text-[#0a0a0a] border-[#e8e8e8]"
                         : "bg-transparent text-[#777] border-[#2a2a2a] hover:text-[#e8e8e8] hover:border-[#555]"
@@ -145,9 +152,9 @@ export default function CreativePage() {
                     <div className={`${item.aspect} w-full bg-[#1a1a1a] border-b border-[#2a2a2a] relative overflow-hidden`}>
                       <div className="absolute inset-0 flex items-center justify-center">
                         {activeTab === "photos" ? (
-                          <Camera className="h-8 w-8 text-[#2a2a2a]" />
+                          <Camera className="h-8 w-8 text-[#2a2a2a] group-hover:text-[#444] transition-colors" />
                         ) : (
-                          <PenTool className="h-8 w-8 text-[#2a2a2a]" />
+                          <PenTool className="h-8 w-8 text-[#2a2a2a] group-hover:text-[#444] transition-colors" />
                         )}
                       </div>
                       <div className="absolute inset-0 bg-[#e8e8e8]/0 group-hover:bg-[#e8e8e8]/5 transition-colors duration-300" />
@@ -172,9 +179,9 @@ export default function CreativePage() {
                 <p className="font-mono text-xs tracking-widest uppercase text-[#777]">thoughts</p>
               </div>
               <h2 className="text-2xl md:text-3xl font-bold text-[#e8e8e8] tracking-tight mb-2">
-                random things i wrote down.
+                things i wrote at questionable hours.
               </h2>
-              <p className="text-sm text-[#555] mb-8 italic">{"(at questionable hours)"}</p>
+              <p className="text-sm text-[#555] mb-8 italic">{"(3 AM brain is a different person)"}</p>
             </motion.div>
 
             <div className="space-y-5">
@@ -201,7 +208,7 @@ export default function CreativePage() {
           <footer className="relative z-10 border-t border-[#2a2a2a]">
             <div className="mx-auto max-w-4xl px-6 py-7 flex items-center justify-between">
               <p className="font-mono text-xs text-[#555]">som chandra -- 2025</p>
-              <p className="font-mono text-xs text-[#444]">the creative side</p>
+              <p className="font-mono text-xs text-[#444]">the unhinged side</p>
             </div>
           </footer>
         </div>

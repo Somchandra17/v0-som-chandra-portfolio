@@ -1,53 +1,60 @@
 "use client"
 
+import { useEffect } from "react"
 import { motion } from "framer-motion"
 import { PageHeader } from "@/components/page-header"
 import { PageTransition } from "@/components/page-transition"
-import { ExternalLink, Shield, Terminal, Award, Flag } from "lucide-react"
+import { useCursorMode } from "@/components/cursor-context"
+import { ExternalLink, Shield, Terminal, Award, Flag, Bug } from "lucide-react"
 
-/* -- data -- */
+/* -- data from resume -- */
 
 const experience = [
   {
-    role: "Cybersecurity Engineer",
-    company: "Siemens Healthineers",
-    period: "Jul 2024 -- Present",
-    aside: "(the one where I try not to break medical devices)",
+    role: "Cyber Security Engineer",
+    company: "MoveInSync",
+    period: "Jun 2025 -- Present",
+    location: "Bengaluru, Karnataka",
+    aside: "(the one where I actually get paid to break things)",
     bullets: [
-      "SAST & DAST tooling -- Fortify, SonarQube, BlackDuck, Contrast, Checkmarx",
-      "CI/CD security integration with Azure DevOps & Jenkins",
-      "ISO 62443 / IEC 81001-5-1 compliance for medical devices",
-      "Vulnerability management & risk-based triage across 12+ product lines",
+      "Conducted end-to-end VAPT for multiple applications including gray-box testing, static/dynamic analysis, and false-positive verification",
+      "Designed internal tools: Swagger-UI Vulnerability Finder, Subdomain Takeover Tool, and Endpoint Detection Tool with SQLite sync",
+      "Secured Android app against rooted device exploitation and Frida-based attacks by integrating Google Play Integrity API",
+      "Performed Nessus AMI Scans, applied compliance patches, tuned configurations, and validated results to reduce false positives",
+      "Supported external vendor VAPT (Rudra, Coforge, etc.) by coordinating with stakeholders and validating tickets",
     ],
   },
   {
-    role: "Security Engineer Intern",
-    company: "Siemens Healthineers",
-    period: "Jan 2024 -- Jul 2024",
+    role: "Application Security Intern",
+    company: "MoveInSync",
+    period: "Jan 2025 -- May 2025",
+    location: "Bengaluru, Karnataka",
     aside: "(they liked me enough to keep me)",
     bullets: [
-      "Automated SBOM generation reducing manual effort by 60%",
-      "Performed threat modeling for connected medical device platforms",
+      "Assisted in API and application security testing, performing enumeration, manual validation, and raising tickets",
+      "Initiated tool development for Swagger endpoint enumeration and subdomain takeover checks",
+      "Built foundation skills in reporting, documentation, and collaborating with developers",
     ],
   },
   {
-    role: "Penetration Tester",
-    company: "JETHA Tech",
-    period: "Jun 2023 -- Sep 2023",
-    aside: "(legally breaking into things)",
+    role: "Cyber Security R&D Intern",
+    company: "Securaeon Initiative",
+    period: "Feb 2022 -- Jul 2022",
+    location: "Remote/Kolkata",
+    aside: "(writing walkthroughs at 2 AM)",
     bullets: [
-      "Web & API penetration testing for SaaS clients",
-      "Delivered 15+ security assessment reports with remediation plans",
+      "Created content, walkthroughs, and proof of concepts for development of upcoming products and courses",
     ],
   },
   {
-    role: "Cyber Threat Intelligence Intern",
-    company: "PwC India",
-    period: "Nov 2022 -- Feb 2023",
-    aside: "(browsing the dark web for work, not fun)",
+    role: "Security Researcher",
+    company: "Bugcrowd",
+    period: "Oct 2021 -- Dec 2021",
+    location: "Freelance",
+    aside: "(legally breaking into things for strangers)",
     bullets: [
-      "Dark web monitoring and threat intelligence feeds analysis",
-      "IOC enrichment and MITRE ATT&CK mapping for incident response",
+      "Conducted vulnerability assessments and reported security issues for multiple Open Bug Bounty programs",
+      "Collaborated with internal security teams to ensure timely resolution of reported vulnerabilities",
     ],
   },
 ]
@@ -55,47 +62,50 @@ const experience = [
 const projects = [
   {
     name: "TrashRecon",
-    desc: "Full-scope OSINT & recon framework for bug bounty. Sounds cool, works cooler.",
-    tech: ["Python", "Shodan", "DNS", "OSINT"],
-    link: "https://github.com/0xs0m/TrashRecon",
+    desc: "Comprehensive Python recon framework. Automates 8 phases of info gathering with 15+ security tools including puredns, subfinder, amass, httpx. Containerized with Docker.",
+    tech: ["Python", "Docker", "OSINT", "DNS"],
+    link: "https://github.com/Somchandra17/TrashRecon",
   },
   {
     name: "API-Digger",
-    desc: "Finds API keys and secrets in JS files, APKs, and repos. Basically a metal detector for bad secrets.",
-    tech: ["Python", "Regex", "AST"],
-    link: "https://github.com/0xs0m/API-Digger",
+    desc: "Automated Swagger UI vuln scanner. Finds exposed API docs, detects versions with headless browser automation, multi-threaded for speed. Basically a metal detector for bad endpoints.",
+    tech: ["Python", "Feroxbuster", "Chrome Headless"],
+    link: "https://github.com/Somchandra17/API-Digger",
   },
   {
     name: "RootAppChecker",
-    desc: "Android app that checks if your phone has root-level security problems. Spoiler: it probably does.",
-    tech: ["Kotlin", "Android", "Security"],
-    link: "https://github.com/0xs0m/RootAppChecker",
+    desc: "Android app that detects rooted devices using 7 different methods including native C/JNI checks, Magisk detection, and mount path analysis. Your phone probably fails.",
+    tech: ["Java", "Android", "C/JNI", "Security"],
+    link: "https://github.com/Somchandra17/RootAppChecker",
   },
   {
     name: "PC-Info RCE",
-    desc: "Remote system info gathering for pen-tests. Please only use this legally.",
-    tech: ["Python", "Networking", "RCE"],
-    link: "https://github.com/0xs0m/PC-Info-RCE",
+    desc: "Static NodeJS web page vulnerable to Command Injection through User-Agent for RCE. Complete Boot-To-Root machine with misconfigured cronjob. Educational, please don't be evil.",
+    tech: ["NodeJS", "RCE", "CTF"],
+    link: "https://github.com/Somchandra17/PCinfo-RCE",
   },
 ]
 
 const skills: Record<string, string[]> = {
-  Offensive: ["Burp Suite", "Nmap", "Metasploit", "SQLMap", "Frida", "Ghidra", "Wireshark"],
-  Defensive: ["Splunk", "Fortify", "SonarQube", "BlackDuck", "Checkmarx", "Contrast"],
-  Languages: ["Python", "Bash", "JavaScript", "SQL", "Kotlin", "Go"],
-  Infra: ["AWS", "Azure", "Docker", "Kubernetes", "Jenkins", "Terraform"],
+  "Mobile Security": ["Mobile VAPT", "Root/Jailbreak Detection", "SSL Pinning/Bypass", "Frida", "Google Play Integrity", "MobSF", "ADB"],
+  "Security Testing": ["Burp Suite", "OWASP ZAP", "Nessus", "Nmap", "Metasploit", "Wireshark", "Nikto", "testssl"],
+  "Languages": ["Python", "Bash", "Java", "JavaScript", "Kotlin", "MySQL", "NodeJS"],
+  "DevOps & Cloud": ["Docker", "Kubernetes", "Linux", "Git", "Jenkins", "Azure", "AWS EC2/AMI"],
 }
 
 const certs = [
-  { name: "CompTIA Security+", issuer: "CompTIA", id: "SY0-601" },
-  { name: "eWPTXv2", issuer: "INE Security", id: "Web App Expert" },
+  { name: "CompTIA Security+ (SY0-701)", issuer: "CompTIA", date: "Dec 2024" },
+  { name: "eWPTXv2", issuer: "eLearnSecurity", date: "Jan 2023" },
 ]
 
 const achievements = [
-  "TryHackMe -- Top 1% globally, 200+ rooms completed",
-  "NCIIPC (Govt of India) -- Acknowledged for responsible disclosure",
-  "Hall of Fame -- Multiple bug bounty recognitions",
-  "CTF Player -- Ranked in national-level competitions",
+  "Top 1% on TryHackMe globally",
+  "Hall of Fame -- Mastercard: SSTI escalated to LFI (P1)",
+  "Hall of Fame -- Rakuten: Session Fixation (P2)",
+  "Hall of Fame -- Chaturbate Inc: Stored XSS (P2)",
+  "20+ Acknowledgements from NCIIPC India (auth bypass, XSS, SQLi, ATO)",
+  "5th Place, OWASPLPU CTF 2022",
+  "9th Place, WTFCTF 2022",
 ]
 
 const fadeUp = {
@@ -106,9 +116,16 @@ const fadeUp = {
 }
 
 export default function NerdyPage() {
+  const { setMode } = useCursorMode()
+
+  useEffect(() => {
+    setMode("nerdy")
+    return () => setMode("default")
+  }, [setMode])
+
   return (
     <>
-      <PageHeader title="the nerdy side" subtitle="resume / projects / stuff I know" />
+      <PageHeader title="the nerdy side" subtitle="resume / projects / hacking stuff" />
 
       <PageTransition>
         <div className="relative min-h-screen">
@@ -117,23 +134,22 @@ export default function NerdyPage() {
           <section className="relative z-10 mx-auto max-w-4xl px-6 pt-14 pb-10">
             <motion.div {...fadeUp}>
               <p className="font-mono text-xs tracking-widest uppercase text-[#777] mb-3">about</p>
-              <h2 className="text-2xl md:text-3xl font-bold text-[#e8e8e8] tracking-tight mb-5">
-                security engineer who thinks in attack trees.
+              <h2 className="text-2xl md:text-3xl font-bold text-[#e8e8e8] tracking-tight mb-2">
+                cybersecurity engineer who breaks things for a living.
               </h2>
-              <p className="text-sm text-[#999] mb-4 italic">
-                {"(that sounds way more dramatic than it is)"}
+              <p className="text-sm text-[#555] mb-5 italic">
+                {"(legally, most of the time)"}
               </p>
               <div className="max-w-2xl space-y-4 text-sm md:text-base text-[#bbb] leading-relaxed margin-line">
                 <p>
-                  {"I'm a cybersecurity engineer at Siemens Healthineers. My job is making sure medical device software doesn't accidentally endanger someone on an operating table. No pressure, right?"}
+                  {"B.Tech in CSE (Cybersecurity & Blockchain) from LPU, CGPA 7.73. Currently at MoveInSync in Bengaluru, doing end-to-end VAPT, building internal security tools, and making sure Android apps don't fall apart when someone roots their phone."}
                 </p>
                 <p>
-                  {"Before that I was poking at web apps as a pen tester, crawling dark web forums for threat intel at PwC, and building recon tools in my bedroom at 2 AM. I hold a CompTIA Security+ and eWPTXv2, and I've been thanked by the Indian government for finding things they'd rather I hadn't."}
+                  {"Before this, I was hunting bugs on Bugcrowd, writing walkthroughs at Securaeon, and collecting Hall of Fames from companies that probably wish I hadn't found those vulnerabilities."}
                 </p>
               </div>
             </motion.div>
 
-            {/* Stats */}
             <motion.div
               className="mt-8 flex flex-wrap gap-4"
               initial={{ opacity: 0 }}
@@ -142,10 +158,10 @@ export default function NerdyPage() {
               transition={{ delay: 0.2, duration: 0.5 }}
             >
               {[
-                { num: "200+", label: "TryHackMe rooms" },
-                { num: "15+", label: "Pen-test reports" },
-                { num: "Top 1%", label: "THM global rank" },
-                { num: "4+", label: "Years in security" },
+                { num: "Top 1%", label: "TryHackMe global" },
+                { num: "20+", label: "NCIIPC acks" },
+                { num: "P1", label: "Mastercard HoF" },
+                { num: "4+", label: "years in security" },
               ].map((s) => (
                 <div key={s.label} className="paper-card px-4 py-3 hover-bounce">
                   <p className="text-lg md:text-xl font-bold text-[#e8e8e8]">{s.num}</p>
@@ -161,9 +177,10 @@ export default function NerdyPage() {
           <section className="relative z-10 mx-auto max-w-4xl px-6 py-14">
             <motion.div {...fadeUp}>
               <p className="font-mono text-xs tracking-widest uppercase text-[#777] mb-3">experience</p>
-              <h2 className="text-2xl md:text-3xl font-bold text-[#e8e8e8] tracking-tight mb-8">
-                {"where i've worked."}
+              <h2 className="text-2xl md:text-3xl font-bold text-[#e8e8e8] tracking-tight mb-2">
+                {"places that let me in."}
               </h2>
+              <p className="text-sm text-[#555] mb-8 italic">{"(on purpose, I mean)"}</p>
             </motion.div>
 
             <div className="space-y-6">
@@ -181,7 +198,7 @@ export default function NerdyPage() {
                   <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-1 mb-3">
                     <div>
                       <h3 className="text-lg font-bold text-[#e8e8e8]">{job.role}</h3>
-                      <p className="text-sm text-[#999]">{job.company}</p>
+                      <p className="text-sm text-[#999]">{job.company} <span className="text-[#555]">-- {job.location}</span></p>
                       <p className="text-xs text-[#555] italic mt-0.5">{job.aside}</p>
                     </div>
                     <p className="font-mono text-xs text-[#777] shrink-0">{job.period}</p>
@@ -207,9 +224,9 @@ export default function NerdyPage() {
             <motion.div {...fadeUp}>
               <p className="font-mono text-xs tracking-widest uppercase text-[#777] mb-3">projects</p>
               <h2 className="text-2xl md:text-3xl font-bold text-[#e8e8e8] tracking-tight mb-2">
-                things i built.
+                things i built at 2 AM.
               </h2>
-              <p className="text-sm text-[#555] mb-8 italic">{"(at 2 AM, fueled by questionable decisions)"}</p>
+              <p className="text-sm text-[#555] mb-8 italic">{"(fueled by questionable decisions and instant noodles)"}</p>
             </motion.div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -219,7 +236,7 @@ export default function NerdyPage() {
                   href={p.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group paper-card p-5 flex flex-col justify-between min-h-[180px] hover-bounce"
+                  className="group paper-card p-5 flex flex-col justify-between min-h-[200px] hover-bounce"
                   initial={{ opacity: 0, y: 16 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-40px" }}
@@ -233,10 +250,9 @@ export default function NerdyPage() {
                     </div>
                     <p className="text-sm text-[#999] leading-relaxed">{p.desc}</p>
                   </div>
-
                   <div className="flex flex-wrap gap-2 mt-3">
                     {p.tech.map((t) => (
-                      <span key={t} className="font-mono text-xs px-2 py-1 border border-[#2a2a2a] text-[#777]">
+                      <span key={t} className="font-mono text-xs px-2 py-1 border border-[#2a2a2a] text-[#777] group-hover:border-[#555] transition-colors">
                         {t}
                       </span>
                     ))}
@@ -253,9 +269,9 @@ export default function NerdyPage() {
             <motion.div {...fadeUp}>
               <p className="font-mono text-xs tracking-widest uppercase text-[#777] mb-3">skills</p>
               <h2 className="text-2xl md:text-3xl font-bold text-[#e8e8e8] tracking-tight mb-2">
-                what i know.
+                my toolbox.
               </h2>
-              <p className="text-sm text-[#555] mb-8 italic">{"(or at least what I claim to know)"}</p>
+              <p className="text-sm text-[#555] mb-8 italic">{"(or at least what I claim to know on LinkedIn)"}</p>
             </motion.div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -276,7 +292,7 @@ export default function NerdyPage() {
                     {items.map((item) => (
                       <span
                         key={item}
-                        className="text-sm px-3 py-1.5 border border-[#2a2a2a] text-[#bbb] hover:bg-[#e8e8e8] hover:text-[#0a0a0a] transition-colors cursor-default"
+                        className="text-sm px-3 py-1.5 border border-[#2a2a2a] text-[#bbb] hover:bg-[#e8e8e8] hover:text-[#0a0a0a] hover:border-[#e8e8e8] transition-colors cursor-default"
                       >
                         {item}
                       </span>
@@ -302,7 +318,7 @@ export default function NerdyPage() {
                     <div key={c.name} className="paper-card p-4 hover-bounce">
                       <p className="font-bold text-[#e8e8e8]">{c.name}</p>
                       <p className="text-xs text-[#999] mt-0.5">{c.issuer}</p>
-                      <p className="font-mono text-xs text-[#777] mt-0.5">{c.id}</p>
+                      <p className="font-mono text-xs text-[#777] mt-0.5">{c.date}</p>
                     </div>
                   ))}
                 </div>
@@ -310,8 +326,8 @@ export default function NerdyPage() {
 
               <motion.div {...fadeUp}>
                 <div className="flex items-center gap-2 mb-5">
-                  <Award className="h-4 w-4 text-[#777]" />
-                  <p className="font-mono text-xs tracking-widest uppercase text-[#777]">achievements</p>
+                  <Bug className="h-4 w-4 text-[#777]" />
+                  <p className="font-mono text-xs tracking-widest uppercase text-[#777]">hall of fame & achievements</p>
                 </div>
                 <div className="space-y-2.5">
                   {achievements.map((a, i) => (
@@ -321,7 +337,7 @@ export default function NerdyPage() {
                         initial={{ opacity: 0, x: -8 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
-                        transition={{ delay: i * 0.08, duration: 0.35 }}
+                        transition={{ delay: i * 0.06, duration: 0.35 }}
                       >
                         {a}
                       </motion.span>
@@ -336,7 +352,7 @@ export default function NerdyPage() {
           <footer className="relative z-10 border-t border-[#2a2a2a]">
             <div className="mx-auto max-w-4xl px-6 py-7 flex items-center justify-between">
               <p className="font-mono text-xs text-[#555]">som chandra -- 2025</p>
-              <p className="font-mono text-xs text-[#444]">the nerdy side</p>
+              <p className="font-mono text-xs text-[#444]">{"$ cat resume.txt"}</p>
             </div>
           </footer>
         </div>
