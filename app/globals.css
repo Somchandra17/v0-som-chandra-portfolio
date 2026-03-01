@@ -280,12 +280,10 @@
     background: #000000;
   }
 
-  /* Floating content wrapper -- slight perspective lift */
+  /* Floating content wrapper */
   .float-content {
     position: relative;
     z-index: 10;
-    transform: perspective(1200px) rotateX(0.4deg);
-    transform-origin: center top;
   }
 
   /* Margin line */
