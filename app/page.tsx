@@ -132,11 +132,14 @@ export default function Home() {
                     the nerdy side
                   </h2>
                   <p className="text-sm text-[#999] leading-relaxed max-w-xs">
-                    {"where I pretend to be a serious professional. resume, hacking stuff, security things."}
+                    {"resume, hacking stuff, security things. the professional act."}
+                  </p>
+                  <p className="mt-3 text-xs font-mono text-[#555] group-hover:text-[#e8e8e8] transition-colors italic">
+                    {"psst -- wanna hire me?"}
                   </p>
                 </div>
 
-                <div className="mt-6 flex items-center gap-2 text-sm font-mono text-[#555] group-hover:text-[#e8e8e8] transition-colors">
+                <div className="mt-4 flex items-center gap-2 text-sm font-mono text-[#555] group-hover:text-[#e8e8e8] transition-colors">
                   <span>go there</span>
                   <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
                 </div>
@@ -168,10 +171,13 @@ export default function Home() {
                   </div>
 
                   <h2 className="text-xl md:text-2xl font-bold text-[#e8e8e8] tracking-tight mb-2">
-                    the creative side
+                    the unhinged side
                   </h2>
                   <p className="text-sm text-[#999] leading-relaxed max-w-xs">
                     {"photos, sketches, late-night thoughts. the stuff that doesn't go on a resume."}
+                  </p>
+                  <p className="mt-3 text-xs font-mono text-[#555] group-hover:text-[#e8e8e8] transition-colors italic">
+                    {"aka the fun one"}
                   </p>
                 </div>
 
@@ -192,9 +198,9 @@ export default function Home() {
           animate={{ opacity: hoverSide ? 1 : 0 }}
         >
           {hoverSide === "nerdy"
-            ? "careful, there's a lot of acronyms in there"
+            ? "yes there's a resume in there. yes you can hire me."
             : hoverSide === "creative"
-            ? "warning: may contain bad sketches"
+            ? "warning: the unhinged side may contain bad sketches and worse opinions"
             : ""}
         </motion.p>
       </section>
