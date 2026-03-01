@@ -14,6 +14,7 @@ export async function GET() {
         (a: { added_at: string }, b: { added_at: string }) =>
           new Date(a.added_at).getTime() - new Date(b.added_at).getTime()
       )
+      .reverse()
       .map(
         (item: {
           added_at: string

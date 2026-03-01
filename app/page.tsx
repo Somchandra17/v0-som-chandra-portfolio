@@ -567,10 +567,10 @@ export default function Home() {
             )}
 
             {/* Fallback/supplementary embed */}
-            <div className="paper-card p-0 overflow-hidden">
-              <div style={{ overflow: "hidden" }}>
+            <div className="paper-card overflow-hidden border border-[#2a2a2a]" style={{ borderRadius: "2px" }}>
+              <div style={{ overflow: "hidden", borderRadius: "2px" }}>
                 <iframe
-                  style={{ border: "none", display: "block", margin: 0, padding: 0 }}
+                  style={{ border: "none", display: "block", margin: 0, padding: 0, borderRadius: "2px" }}
                   src="https://open.spotify.com/embed/playlist/7fOEf8vDsrfgMMjU9fNiP1?utm_source=generator&theme=0"
                   width="100%"
                   height="152"
