@@ -4,66 +4,87 @@ import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { PageHeader } from "@/components/page-header"
 import { PageTransition } from "@/components/page-transition"
-import { Camera, PenTool, BookOpen, X } from "lucide-react"
+import { Camera, PenTool, BookOpen, X, Compass, Guitar } from "lucide-react"
+
+type Tab = "photos" | "sketches" | "sidequests"
 
 const photoGallery = [
-  { id: 1, title: "Urban Geometry", desc: "Lines and shadows in concrete jungles", location: "Mumbai, IN", date: "Dec 2024", aspect: "aspect-[4/5]" },
-  { id: 2, title: "Golden Hour", desc: "That fifteen-minute window where everything glows", location: "Goa, IN", date: "Nov 2024", aspect: "aspect-[3/4]" },
-  { id: 3, title: "Strangers", desc: "Faces in transit, stories untold", location: "Delhi, IN", date: "Oct 2024", aspect: "aspect-square" },
-  { id: 4, title: "After Rain", desc: "Wet streets reflecting neon", location: "Bangalore, IN", date: "Sep 2024", aspect: "aspect-[4/5]" },
-  { id: 5, title: "Solitude", desc: "A bench, a tree, nobody around", location: "Himachal, IN", date: "Aug 2024", aspect: "aspect-[3/4]" },
-  { id: 6, title: "Rust & Decay", desc: "Beauty in what is being forgotten", location: "Kolkata, IN", date: "Jul 2024", aspect: "aspect-square" },
-  { id: 7, title: "Night Walk", desc: "Long exposures at 2 AM", location: "Pune, IN", date: "Jun 2024", aspect: "aspect-[4/5]" },
-  { id: 8, title: "Rooftop View", desc: "The city from above", location: "Jaipur, IN", date: "May 2024", aspect: "aspect-[3/4]" },
+  { id: 1, title: "Urban Geometrey", desc: "lines and shadwos in concrete jungels", location: "Mumbai, IN", date: "Dec 2024", aspect: "aspect-[4/5]" },
+  { id: 2, title: "Golden Hour", desc: "that fiften-minute window where evrything glows", location: "Goa, IN", date: "Nov 2024", aspect: "aspect-[3/4]" },
+  { id: 3, title: "Strangerss", desc: "faces in transit, storeis untold", location: "Delhi, IN", date: "Oct 2024", aspect: "aspect-square" },
+  { id: 4, title: "After Rainn", desc: "wet streets reflecitng neon", location: "Bangalore, IN", date: "Sep 2024", aspect: "aspect-[4/5]" },
+  { id: 5, title: "Solitudee", desc: "a bench, a tree, nobdoy around", location: "Himachal, IN", date: "Aug 2024", aspect: "aspect-[3/4]" },
+  { id: 6, title: "Rust & Dacay", desc: "beuaty in what is being forgoten", location: "Kolkata, IN", date: "Jul 2024", aspect: "aspect-square" },
+  { id: 7, title: "Night Walkk", desc: "long exposurs at 2 AM", location: "Pune, IN", date: "Jun 2024", aspect: "aspect-[4/5]" },
+  { id: 8, title: "Rooftop Veiw", desc: "the city from abvoe", location: "Jaipur, IN", date: "May 2024", aspect: "aspect-[3/4]" },
 ]
 
 const sketchGallery = [
-  { id: 1, title: "Portrait Study #14", desc: "Graphite on paper, 2 hours", aspect: "aspect-[3/4]" },
-  { id: 2, title: "Hand Gestures", desc: "Anatomy practice from reference", aspect: "aspect-square" },
-  { id: 3, title: "Cat in Ink", desc: "Quick ink sketch, 20 minutes", aspect: "aspect-[4/5]" },
-  { id: 4, title: "Architecture", desc: "That building I pass every day", aspect: "aspect-[3/4]" },
-  { id: 5, title: "Abstract Flow", desc: "Pen on napkin during lunch", aspect: "aspect-square" },
-  { id: 6, title: "Eye Detail", desc: "Close-up study, charcoal", aspect: "aspect-[4/5]" },
+  { id: 1, title: "Portraitt Study #14", desc: "graphite on papar, 2 hours", aspect: "aspect-[3/4]" },
+  { id: 2, title: "Hand Gesturs", desc: "anatomey practice from refernce", aspect: "aspect-square" },
+  { id: 3, title: "Cat in Inkk", desc: "quick ink sktech, 20 minuts", aspect: "aspect-[4/5]" },
+  { id: 4, title: "Archetecture", desc: "that bilding I pass evrey day", aspect: "aspect-[3/4]" },
+  { id: 5, title: "Abstact Flow", desc: "pen on napkinn during lnuch", aspect: "aspect-square" },
+  { id: 6, title: "Eye Detale", desc: "close-up studey, charcol", aspect: "aspect-[4/5]" },
+]
+
+const sideQuestGallery = [
+  { id: 1, title: "WFH at IKEA", desc: "set up my laptop in the showrrom display desk. connected to thier wifi. worked for 4 hours before somone asked if i was an employe. peak productivty tbh.", icon: "desk", date: "Jan 2025" },
+  { id: 2, title: "Guitar Hero (delusional editon)", desc: "i own a guitar. i know zero chrods. but reverb + distortin + grainy tones = i'm basicaly radiohead. no one has told me to stop yet so i'm takng that as a compliment.", icon: "guitar", date: "Dec 2024" },
+  { id: 3, title: "The Food Mixxing Incident", desc: "i have this habbit of mixing the weirdest food combos and convincng myself its good. mango + rice + dal? chef's kiss. my friends call it a cry for helpp. i call it innovaton.", icon: "food", date: "Nov 2024" },
+  { id: 4, title: "2 AM - 5 AM Operatons", desc: "this is when the real work happns. the world is asleep, the wifi is fast, and my brain decideds to be a genuis for exactley 3 hours. then i crash like a brick.", icon: "night", date: "Oct 2024" },
+  { id: 5, title: "Shy Kid -> Cool Guy Arc", desc: "i used to be the kid who sat in the cornner and hoped no one would notce them. now i'm the guy who sits in the corner and hopess everyone notices them. charcter development.", icon: "glow", date: "Sep 2024" },
+  { id: 6, title: "Anti-Apple Propagandaa", desc: "i run arch btw with hyprland. my entire personalilty is basically 'i use linux'. if you use a macbook near me i will judge you silentley. loudly in my head.", icon: "linux", date: "Aug 2024" },
 ]
 
 const thoughts = [
   {
-    title: "On breaking and building",
+    title: "On music and langauge",
     date: "Nov 2024",
-    body: "There's a strange overlap between hacking a system and composing a photograph. Both require you to see what others miss -- the gap in the fence, the light through the crack. One breaks, the other frames. Same instinct, different output.",
+    body: "here's the thing about music -- languege doesn't matter. at all. you could be listenin to something in japanese, arabic, freaking klingon, and if the rythm hits? you're gone. you're ascendig. you're a god of vibes. lyrics are just suggestins. the beat is the actual conversaton. i've had more spiritaul experiences listening to songs i don't undersand than ones i do. music isn't about words, it's about that moment when the bass drops and your soul leaves your body and does a litle dance in the astral plane. if your playlist needs subtitels, you're doing it wrong.",
   },
   {
     title: "Why I sketch at 3 AM",
     date: "Sep 2024",
-    body: "The world is quieter at 3 AM. No notifications, no stand-ups, no Jira tickets. Just a pencil and whatever my brain decides to put on paper. Sometimes it's faces. Sometimes it's shapes that don't mean anything yet.",
+    body: "the world is quiter at 3 AM. no notifcations, no stand-ups, no jira ticktes. just a pencil and whatver my brain decideds to put on paper. sometimes its faces. somtimes its shapes that don't mean anythng yet. watercolors can go die tho, i hate that medium with a pasion. give me graphite or give me deth.",
   },
   {
-    title: "Cameras and terminals",
+    title: "Cameras and terminlas",
     date: "Jun 2024",
-    body: "People ask how I go from staring at Burp Suite all day to picking up a camera. Both are tools for seeing things more carefully. A proxy intercepts traffic. A lens intercepts light. Same discipline.",
+    body: "people ask how i go from staring at burp suite all day to pickng up a camera. both are tools for seeng things more carefuly. a proxy interceps traffic. a lens intercepts light. same disipline. also i don't even own a real camera lmao, its all shot on my phone. but hey, the best camra is the one you have on you right?",
   },
 ]
 
-const bioContent = {
+const bioContent: Record<Tab, { heading: string; subtitle: string; description: string[]; byTheWay: string }> = {
   photos: {
-    heading: "when i'm not hacking, i'm probably holding a camera wrong.",
-    subtitle: "(or at least that's what my friends tell me)",
+    heading: "when i'm not hacking, i'm probaly holding my phone wrong.",
+    subtitle: "(no i don't own a camera, its all on my phone lol)",
     description: [
-      "Street photography mostly -- candid moments, urban textures, the way light hits concrete at weird angles. I'm obsessed with capturing the everyday, the forgotten corners that people walk past without seeing.",
-      "There's this moment right before you press the shutter where everything aligns -- the light, the composition, the story. That split-second clarity is why I carry a camera everywhere.",
-      "None of this is gallery-ready. Think of it as a visual journal of someone who stares at terminals all day and needs to look at literally anything else.",
+      "street photgraphy mostly -- candid momments, urban textures, the way light hits concete at weird angels. i'm obsesed with capturing the evryday, the forgoten corners that people walk past withot seeing.",
+      "there's this moment right befroe you press the shuttr where everything alines -- the light, the compoistion, the story. that split-secnd clarity is why i carry my " + "phone everywhere.",
+      "none of this is gallrey-ready. think of it as a visual journl of someone who stares at terminlas all day and needs to look at literaly anything else.",
     ],
-    byTheWay: "i'm obsessed with travel: cramped buses, overnight trains with strangers, hiking solo with just a backpack, road trips with close friends, exploring new cities with someone special. literally anywhere, alone or with people i actually like. but family trips? absolutely despise them. too much drama, too many compromises, too little freedom.",
+    byTheWay: "i'm obsesed with travel: cramped busses, overngiht trains with strangers, hiking solo with just a backpak, road trips with close freinds, exploring new citeis with someone specail. literaly anywhere, alone or with people i actually like. but famly trips? absolutley despise them. too much drama, too many compromsis, too little freedm.",
   },
   sketches: {
-    heading: "when i'm not hacking, i'm probably covered in graphite dust.",
-    subtitle: "(and staring at a blank sketchbook like it owes me money)",
+    heading: "when i'm not hacking, i'm probaly covered in graphite dust.",
+    subtitle: "(and staring at a blank sketchbok like it owes me money)",
     description: [
-      "Sketching happens late at night, usually faces and anatomy studies in graphite or ink. There's something meditative about the scratch of pencil on paper, no undo button, no delete key. Just commitment.",
-      "I'm obsessed with pencils — mechanical, graphite, charcoal, anything with a sharp point. They're honest tools. No distractions, no fancy effects. Just you and the paper.",
-      "Sometimes I just doodle nonsense and call it art. Sometimes those nonsense doodles turn into something real. None of this is polished, and I prefer it that way.",
+      "sketchng happens late at night, usally faces and anatomey studies in graphite or ink. there's somthing meditative about the scrach of pencil on paper, no undo buton, no delete key. just commitent.",
+      "i'm obsesed with pencils -- mechancial, graphite, charcol, anything with a sharp piont. they're honest tools. no distracstions, no fancy effetcs. just you and the paper. watercolors can burn tho. i tried once. never agian.",
+      "sometimes i just doodle nonsense and call it art. sometimes those nonsense doodels turn into somthing real. none of this is polishd, and i prefr it that way.",
     ],
-    byTheWay: "the best sketches happen when the world is asleep. 3 AM brain is a different person -- uncensored, experimental, messy. traveling with a sketchbook is freedom. pulling out a pencil in a train, a café, a random street corner and just... creating. that's when the magic happens.",
+    byTheWay: "the best sketchs happen when the world is asleep. 3 AM brain is a diffrnt person -- uncensored, experimetal, messy. traveling with a sketchbok is freedom. pulling out a pencil in a train, a cafe, a random street cornr and just... creating. that's when the magic hapens.",
+  },
+  sidequests: {
+    heading: "when i'm not hacking, i'm probaly doing somethin questionable.",
+    subtitle: "(side quests are the main quest, fite me)",
+    description: [
+      "i live for side quests. the wierder the better. set up an entire workstatoin at ikea? done. tried to learn guitar by just vibeing? ongoing. mixed food combinatons that should be ilegal? daily.",
+      "i spend most of my time between 2 AM and 5 AM. that's when the real stuff happns. the rest of the day is just waitng for the world to shut up so i can actualy think.",
+      "i use arch btw. with hyprland. my entire setup is basicaly a flex. if you use a macbook i will not say anythng but i will think many things.",
+    ],
+    byTheWay: "i was the shyest kid in every room i walked into. now i'm the coolest person in the room (self-certified, no refunds). the charcter developmnt arc is real and i'm livng proof. also i hate apple. like really realy hate apple. that's not a personalilty trait, that's a lifestyle choce.",
   },
 }
 
@@ -77,12 +98,13 @@ const fadeUp = {
 export default function CreativePage() {
   const [activeTab, setActiveTab] = useState<Tab>("photos")
   const [lightboxItem, setLightboxItem] = useState<{ title: string; desc: string } | null>(null)
+  const [showPhone, setShowPhone] = useState(false)
 
-  const gallery = activeTab === "photos" ? photoGallery : sketchGallery
+  const gallery = activeTab === "photos" ? photoGallery : activeTab === "sketches" ? sketchGallery : null
 
   return (
     <>
-      <PageHeader title="the unhinged side" subtitle="photos / sketches / late-night scribbles" />
+      <PageHeader title="the unhinged side" subtitle="photos / sketches / side quests / late-night scribbles" />
 
       <PageTransition>
         <div className="relative min-h-screen">
@@ -104,7 +126,33 @@ export default function CreativePage() {
                     {bioContent[activeTab].heading}
                   </h2>
                   <p className="text-sm text-[#666] mb-5 italic">
-                    {bioContent[activeTab].subtitle}
+                    {activeTab === "photos" ? (
+                      <span>
+                        {"(no i don't own a camera, its all on my "}
+                        <span
+                          className="relative cursor-pointer border-b border-dashed border-[#555] hover:text-[#e8e8e8] transition-colors"
+                          onMouseEnter={() => setShowPhone(true)}
+                          onMouseLeave={() => setShowPhone(false)}
+                        >
+                          phone
+                          <AnimatePresence>
+                            {showPhone && (
+                              <motion.span
+                                initial={{ opacity: 0, y: 4 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: 4 }}
+                                className="absolute left-1/2 -translate-x-1/2 -top-8 bg-[#1a1a1a] border border-[#555] px-2 py-1 text-xs text-[#e8e8e8] whitespace-nowrap font-mono z-20"
+                              >
+                                vivo x300
+                              </motion.span>
+                            )}
+                          </AnimatePresence>
+                        </span>
+                        {" lol)"}
+                      </span>
+                    ) : (
+                      bioContent[activeTab].subtitle
+                    )}
                   </p>
                 </motion.div>
               </AnimatePresence>
@@ -147,15 +195,16 @@ export default function CreativePage() {
 
           <div className="mx-auto max-w-4xl px-6"><div className="h-px bg-[#333]" /></div>
 
-          {/* -- Gallery -- */}
+          {/* -- Gallery / Side Quests -- */}
           <section className="relative z-10 mx-auto max-w-4xl px-6 py-14">
             <motion.div {...fadeUp}>
               <p className="font-mono text-xs tracking-widest uppercase text-[#999] mb-5">gallery</p>
 
-              <div className="flex gap-1 mb-8">
+              <div className="flex flex-wrap gap-1 mb-8">
                 {([
                   { key: "photos" as Tab, label: "Photography", icon: Camera },
                   { key: "sketches" as Tab, label: "Sketches", icon: PenTool },
+                  { key: "sidequests" as Tab, label: "Side Quests", icon: Compass },
                 ]).map((tab) => (
                   <button
                     key={tab.key}
@@ -176,45 +225,84 @@ export default function CreativePage() {
             </motion.div>
 
             <AnimatePresence mode="wait">
-              <motion.div
-                key={activeTab}
-                className="columns-2 md:columns-3 gap-4 space-y-4"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.3 }}
-              >
-                {gallery.map((item, i) => (
-                  <motion.div
-                    key={`${activeTab}-${item.id}`}
-                    className="break-inside-avoid paper-card overflow-hidden cursor-pointer group hover-bounce"
-                    initial={{ opacity: 0, y: 16 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.05, duration: 0.35 }}
-                    onClick={() => setLightboxItem(item)}
-                  >
-                    <div className={`${item.aspect} w-full bg-[#1a1a1a] border-b border-[#333] relative overflow-hidden`}>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        {activeTab === "photos" ? (
-                          <Camera className="h-8 w-8 text-[#333] group-hover:text-[#555] transition-colors" />
-                        ) : (
-                          <PenTool className="h-8 w-8 text-[#333] group-hover:text-[#555] transition-colors" />
+              {activeTab === "sidequests" ? (
+                <motion.div
+                  key="sidequests"
+                  className="space-y-4"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {sideQuestGallery.map((quest, i) => (
+                    <motion.div
+                      key={quest.id}
+                      className="paper-card p-5 md:p-7 hover-bounce"
+                      initial={{ opacity: 0, y: 16 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.06, duration: 0.35 }}
+                    >
+                      <div className="flex items-start justify-between gap-4 mb-3">
+                        <div className="flex items-center gap-3">
+                          <div className="flex h-8 w-8 items-center justify-center border border-[#555] shrink-0">
+                            {quest.icon === "guitar" ? (
+                              <Guitar className="h-4 w-4 text-[#aaa]" />
+                            ) : (
+                              <Compass className="h-4 w-4 text-[#aaa]" />
+                            )}
+                          </div>
+                          <h3 className="text-base md:text-lg font-bold text-[#e8e8e8]">{quest.title}</h3>
+                        </div>
+                        <span className="font-mono text-xs text-[#555] shrink-0">{quest.date}</span>
+                      </div>
+                      <p className="text-sm text-[#ccc] leading-relaxed pl-11">{quest.desc}</p>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              ) : gallery && (
+                <motion.div
+                  key={activeTab}
+                  className="columns-2 md:columns-3 gap-4 space-y-4"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {gallery.map((item, i) => (
+                    <motion.div
+                      key={`${activeTab}-${item.id}`}
+                      className="break-inside-avoid paper-card overflow-hidden cursor-pointer group hover-bounce"
+                      initial={{ opacity: 0, y: 16 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.05, duration: 0.35 }}
+                      onClick={() => setLightboxItem(item)}
+                    >
+                      <div className={`${item.aspect} w-full bg-[#1a1a1a] border-b border-[#333] relative overflow-hidden`}>
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          {activeTab === "photos" ? (
+                            <Camera className="h-8 w-8 text-[#333] group-hover:text-[#555] transition-colors" />
+                          ) : (
+                            <PenTool className="h-8 w-8 text-[#333] group-hover:text-[#555] transition-colors" />
+                          )}
+                        </div>
+                        <div className="absolute inset-0 bg-[#e8e8e8]/0 group-hover:bg-[#e8e8e8]/5 transition-colors duration-300" />
+                      </div>
+                      <div className="p-3">
+                        <p className="text-sm font-bold text-[#e8e8e8]">{item.title}</p>
+                        <p className="text-xs text-[#999] mt-0.5">{item.desc}</p>
+                        {"location" in item && (
+                          <div className="flex items-center justify-between mt-2 text-xs text-[#555]">
+                            <span className="font-mono">{(item as typeof photoGallery[0]).location}</span>
+                            <span className="font-mono">{(item as typeof photoGallery[0]).date}</span>
+                          </div>
                         )}
                       </div>
-                      <div className="absolute inset-0 bg-[#e8e8e8]/0 group-hover:bg-[#e8e8e8]/5 transition-colors duration-300" />
-                    </div>
-                    <div className="p-3">
-                      <p className="text-sm font-bold text-[#e8e8e8]">{item.title}</p>
-                      <p className="text-xs text-[#999] mt-0.5">{item.desc}</p>
-                      <div className="flex items-center justify-between mt-2 text-xs text-[#555]">
-                        <span className="font-mono">{item.location}</span>
-                        <span className="font-mono">{item.date}</span>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </motion.div>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              )}
             </AnimatePresence>
           </section>
 
@@ -228,9 +316,9 @@ export default function CreativePage() {
                 <p className="font-mono text-xs tracking-widest uppercase text-[#999]">thoughts</p>
               </div>
               <h2 className="text-2xl md:text-3xl font-bold text-[#e8e8e8] tracking-tight mb-2">
-                things i wrote at questionable hours.
+                things i wrote at questionble hours.
               </h2>
-              <p className="text-sm text-[#666] mb-8 italic">{"(3 AM brain is a different person)"}</p>
+              <p className="text-sm text-[#666] mb-8 italic">{"(3 AM brain is a diffrnt person)"}</p>
             </motion.div>
 
             <div className="space-y-5">
