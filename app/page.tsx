@@ -100,6 +100,18 @@ export default function Home() {
   const [hoverSide, setHoverSide] = useState<"nerdy" | "creative" | null>(null)
   const [factIdx, setFactIdx] = useState(0)
   const [heroIdx, setHeroIdx] = useState(0)
+  const [flagInput, setFlagInput] = useState("")
+  const [flagUnlocked, setFlagUnlocked] = useState(false)
+  const correctFlag = "som_loves_pencils_and_travel"
+
+  const handleFlagSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (flagInput.trim().toLowerCase() === correctFlag.toLowerCase()) {
+      setFlagUnlocked(true)
+    } else {
+      setFlagInput("")
+    }
+  }
 
   const heroRef = useRef<HTMLElement>(null)
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] })
@@ -517,68 +529,172 @@ export default function Home() {
           transition={{ duration: 0.6 }}
         >
           <div className="border-t border-[#333] pt-10">
-            <div className="flex items-center gap-3 mb-2">
-              <Music className="h-4 w-4 text-[#ccc]" />
-              <p className="font-mono text-xs tracking-widest uppercase text-[#ccc]">
-                the playlist
-              </p>
-            </div>
-            <p className="text-sm text-[#888] mb-6">
-              {"judge me by my music taste. i dare you. sorted by recently added."}
-            </p>
-
-            {/* API-loaded playlist tracks - Recently Added */}
-            {playlistTracks.length > 0 && (
-              <div>
-                <p className="font-mono text-xs text-[#777] mb-2">recently added to my taste</p>
-                <div className="space-y-2 mb-8 max-h-[480px] overflow-y-auto pr-1 scrollbar-thin">
-                  {playlistTracks.map((track, i) => (
-                    <motion.a
-                      key={track.songUrl + track.addedAt}
-                      href={track.songUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="paper-card p-3 flex items-center gap-4 hover-bounce group"
-                      initial={{ opacity: 0 }}
-                      whileInView={{ opacity: 1 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: Math.min(i * 0.02, 0.4), duration: 0.25 }}
-                    >
-                      <span className="font-mono text-xs text-[#555] w-6 shrink-0 text-right">{i + 1}</span>
-                      {track.albumImageUrl && (
-                        <img
-                          src={track.albumImageUrl}
-                          alt={track.album}
-                          className="w-10 h-10 object-cover border border-[#333] shrink-0"
-                          crossOrigin="anonymous"
-                        />
-                      )}
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-bold text-[#e8e8e8] truncate group-hover:underline">{track.title}</p>
-                        <p className="text-xs text-[#aaa] truncate">{track.artist}</p>
-                      </div>
-                      <p className="font-mono text-xs text-[#555] shrink-0 hidden sm:block">
-                        {new Date(track.addedAt).toLocaleDateString([], { month: "short", day: "numeric" })}
-                      </p>
-                    </motion.a>
-                  ))}
+            <div className="flex flex-col lg:flex-row gap-8">
+              {/* CTF Challenge Column */}
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-2">
+                  <Terminal className="h-4 w-4 text-[#ccc]" />
+                  <p className="font-mono text-xs tracking-widest uppercase text-[#ccc]">
+                    unlock the god playlist
+                  </p>
                 </div>
-              </div>
-            )}
+                <p className="text-sm text-[#888] mb-6">
+                  {"crack the puzzle. prove you know me. get the goods."}
+                </p>
 
-            {/* Fallback/supplementary embed */}
-            <div className="paper-card overflow-hidden border border-[#2a2a2a]" style={{ borderRadius: "2px" }}>
-              <div style={{ overflow: "hidden", borderRadius: "2px" }}>
-                <iframe
-                  style={{ border: "none", display: "block", margin: 0, padding: 0, borderRadius: "2px" }}
-                  src="https://open.spotify.com/embed/playlist/7fOEf8vDsrfgMMjU9fNiP1?utm_source=generator&theme=0"
-                  width="100%"
-                  height="152"
-                  allowFullScreen
-                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                  loading="lazy"
-                  title="Spotify Playlist"
-                />
+                {/* Terminal UI */}
+                <div className="paper-card border border-[#555] p-4 space-y-4 font-mono text-xs">
+                  <div className="space-y-2 text-[#aaa]">
+                    <p className="text-[#999]">{"> user@som:~$ cat secret.txt"}</p>
+                    <p className="text-[#777] italic">{"[hidden content. find the flag.]"}</p>
+                  </div>
+
+                  {!flagUnlocked ? (
+                    <form onSubmit={handleFlagSubmit} className="space-y-3">
+                      <div className="flex items-center gap-1">
+                        <span className="text-[#666]">{"$ "}</span>
+                        <input
+                          type="text"
+                          value={flagInput}
+                          onChange={(e) => setFlagInput(e.target.value)}
+                          placeholder="enter flag..."
+                          className="bg-[#0a0a0a] text-[#e8e8e8] placeholder-[#555] outline-none border-b border-[#333] px-1 flex-1 focus:border-[#666] transition-colors"
+                          autoFocus
+                        />
+                      </div>
+                      <button
+                        type="submit"
+                        className="font-mono text-xs px-3 py-1 bg-[#1a1a1a] border border-[#555] text-[#ccc] hover:bg-[#2a2a2a] hover:border-[#999] transition-colors"
+                      >
+                        submit
+                      </button>
+                    </form>
+                  ) : (
+                    <motion.div
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-2 bg-[#1a1a1a] border border-[#555] text-[#7fb07f]"
+                    >
+                      <p className="mb-2">{"> flag accepted!"}</p>
+                      <p className="text-[#555]">{"> unlocking god playlist..."}</p>
+                    </motion.div>
+                  )}
+                </div>
+
+                {/* Unlocked Playlist - God Playlist */}
+                {flagUnlocked && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-6 space-y-4"
+                  >
+                    <div>
+                      <p className="font-mono text-xs text-[#777] mb-3">god playlist unlocked 🔓</p>
+                      <div className="paper-card overflow-hidden border border-[#2a2a2a]" style={{ borderRadius: "2px" }}>
+                        <div style={{ overflow: "hidden", borderRadius: "2px" }}>
+                          <iframe
+                            style={{ border: "none", display: "block", margin: 0, padding: 0, borderRadius: "2px" }}
+                            src="https://open.spotify.com/embed/playlist/7fOEf8vDsrfgMMjU9fNiP1?utm_source=generator&theme=0"
+                            width="100%"
+                            height="152"
+                            allowFullScreen
+                            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                            loading="lazy"
+                            title="God Playlist"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* API-loaded playlist tracks */}
+                    {playlistTracks.length > 0 && (
+                      <div>
+                        <p className="font-mono text-xs text-[#777] mb-2">recently added to my taste</p>
+                        <div className="space-y-2 mb-8 max-h-[480px] overflow-y-auto pr-1 scrollbar-thin">
+                          {playlistTracks.map((track, i) => (
+                            <motion.a
+                              key={track.songUrl + track.addedAt}
+                              href={track.songUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="paper-card p-3 flex items-center gap-4 hover-bounce group"
+                              initial={{ opacity: 0 }}
+                              whileInView={{ opacity: 1 }}
+                              viewport={{ once: true }}
+                              transition={{ delay: Math.min(i * 0.02, 0.4), duration: 0.25 }}
+                            >
+                              <span className="font-mono text-xs text-[#555] w-6 shrink-0 text-right">{i + 1}</span>
+                              {track.albumImageUrl && (
+                                <img
+                                  src={track.albumImageUrl}
+                                  alt={track.album}
+                                  className="w-10 h-10 object-cover border border-[#333] shrink-0"
+                                  crossOrigin="anonymous"
+                                />
+                              )}
+                              <div className="min-w-0 flex-1">
+                                <p className="text-sm font-bold text-[#e8e8e8] truncate group-hover:underline">{track.title}</p>
+                                <p className="text-xs text-[#aaa] truncate">{track.artist}</p>
+                              </div>
+                              <p className="font-mono text-xs text-[#555] shrink-0 hidden sm:block">
+                                {new Date(track.addedAt).toLocaleDateString([], { month: "short", day: "numeric" })}
+                              </p>
+                            </motion.a>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+              </div>
+
+              {/* Trending Artists Column */}
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-2">
+                  <Users className="h-4 w-4 text-[#ccc]" />
+                  <p className="font-mono text-xs tracking-widest uppercase text-[#ccc]">
+                    trending artists
+                  </p>
+                </div>
+                <p className="text-sm text-[#888] mb-6">
+                  {"artists i'm listening to the most right now"}
+                </p>
+
+                {topArtists.length > 0 ? (
+                  <div className="space-y-3">
+                    {topArtists.slice(0, 10).map((artist, i) => (
+                      <motion.a
+                        key={artist.name}
+                        href={artist.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="paper-card p-3 flex items-center gap-3 hover-bounce group"
+                        initial={{ opacity: 0, x: -8 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: i * 0.06, duration: 0.3 }}
+                      >
+                        {artist.image && (
+                          <img
+                            src={artist.image}
+                            alt={artist.name}
+                            className="w-12 h-12 rounded-full object-cover border border-[#555]"
+                            crossOrigin="anonymous"
+                          />
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-bold text-[#e8e8e8] truncate group-hover:underline">{artist.name}</p>
+                          {artist.genres && artist.genres[0] && (
+                            <p className="text-xs text-[#777] truncate capitalize">{artist.genres[0]}</p>
+                          )}
+                        </div>
+                        <span className="font-mono text-xs text-[#555] shrink-0">#{i + 1}</span>
+                      </motion.a>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-[#666] font-mono">loading trending artists...</p>
+                )}
               </div>
             </div>
           </div>
