@@ -103,21 +103,52 @@ export default function Home() {
   const [flagInput, setFlagInput] = useState("")
   const [flagUnlocked, setFlagUnlocked] = useState(false)
   const [showHints, setShowHints] = useState(false)
-  const correctFlag = "som_loves_pencils_and_travel"
-
-  const hints = [
-    "check the creative side bio section carefully...",
-    "what are two things i'm obsessed with?",
-    "combine them with underscores",
+  const [attempts, setAttempts] = useState(0)
+  
+  // Web security challenges
+  const challenges = [
+    { id: 1, name: "SQL Injection", input: "' OR '1'='1", display: "Username: admin' OR '1'='1' -- ", hint: "bypass the login with classic sql injection" },
+    { id: 2, name: "Base64 Decode", input: "c29tX2xvdmVzX3BlbmNpbHNfYW5kX3RyYXZlbA==", display: "encoded: c29tX2xvdmVzX3BlbmNpbHNfYW5kX3RyYXZlbA==", hint: "decode the base64 string" },
+    { id: 3, name: "JWT Header", input: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmbGFnIjoic29tX2xvdmVzX3BlbmNpbHNfYW5kX3RyYXZlbCJ9", display: "JWT: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmbGciOiJzb21fbG92ZXNfcGVuY2lsc19hbmRfdHJhdmVsIn0", hint: "decode the jwt payload and extract the flag" },
   ]
+
+  const [currentChallenge, setCurrentChallenge] = useState(0)
+  const correctFlag = "som_loves_pencils_and_travel"
 
   const handleFlagSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (flagInput.trim().toLowerCase() === correctFlag.toLowerCase()) {
+    setAttempts(attempts + 1)
+
+    const input = flagInput.trim().toLowerCase()
+    
+    // Check if SQL injection was used
+    if (input.includes("' or") || input.includes("'or")) {
       setFlagUnlocked(true)
-    } else {
-      setFlagInput("")
+      return
     }
+    
+    // Check if correct flag was entered
+    if (input === correctFlag) {
+      setFlagUnlocked(true)
+      return
+    }
+
+    // Try base64 decode
+    try {
+      const decoded = Buffer.from(input, 'base64').toString('utf-8')
+      if (decoded === correctFlag) {
+        setFlagUnlocked(true)
+        return
+      }
+    } catch (e) {}
+
+    // Try JWT decode (just check payload)
+    if (input.includes("som_loves_pencils_and_travel")) {
+      setFlagUnlocked(true)
+      return
+    }
+
+    setFlagInput("")
   }
 
   const heroRef = useRef<HTMLElement>(null)
@@ -546,35 +577,44 @@ export default function Home() {
                   </p>
                 </div>
                 <p className="text-sm text-[#888] mb-6">
-                  {"crack the puzzle. prove you know me. get the goods."}
+                  {"you found a vulnerability in my login system. exploit it and get the flag."}
                 </p>
 
-                {/* Terminal UI */}
+                {/* Terminal UI - Security Challenge */}
                 <div className="paper-card border border-[#555] p-4 space-y-4 font-mono text-xs">
                   <div className="space-y-2 text-[#aaa]">
-                    <p className="text-[#999]">{"> user@som:~$ cat secret.txt"}</p>
-                    <p className="text-[#777] italic">{"[hidden content. find the flag.]"}</p>
+                    <p className="text-[#999]">{"> user@som:~$ cat /admin/login.php"}</p>
+                    <div className="bg-[#0a0a0a] p-2 border-l-2 border-[#555] space-y-1 text-[#777]">
+                      <p>{"<?php"}</p>
+                      <p>{"  $user = $_POST['username'];"}</p>
+                      <p>{"  $query = \"SELECT * FROM users WHERE name='\" . $user . \"'\";"}</p>
+                      <p>{"  // execute query..."}</p>
+                      <p>{"?>"}</p>
+                    </div>
                   </div>
 
                   {!flagUnlocked ? (
                     <form onSubmit={handleFlagSubmit} className="space-y-3">
-                      <div className="flex items-center gap-1">
-                        <span className="text-[#666]">{"$ "}</span>
-                        <input
-                          type="text"
-                          value={flagInput}
-                          onChange={(e) => setFlagInput(e.target.value)}
-                          placeholder="enter flag..."
-                          className="bg-[#0a0a0a] text-[#e8e8e8] placeholder-[#555] outline-none border-b border-[#333] px-1 flex-1 focus:border-[#666] transition-colors"
-                          autoFocus
-                        />
+                      <div className="space-y-1">
+                        <p className="text-[#666]">{"> Vulnerable input detected:"}</p>
+                        <div className="flex items-center gap-1">
+                          <span className="text-[#666]">{"username: "}</span>
+                          <input
+                            type="text"
+                            value={flagInput}
+                            onChange={(e) => setFlagInput(e.target.value)}
+                            placeholder="try to bypass..."
+                            className="bg-[#0a0a0a] text-[#e8e8e8] placeholder-[#555] outline-none border-b border-[#333] px-1 flex-1 focus:border-[#7fb07f] transition-colors"
+                            autoFocus
+                          />
+                        </div>
                       </div>
                       <div className="flex gap-2">
                         <button
                           type="submit"
                           className="font-mono text-xs px-3 py-1 bg-[#1a1a1a] border border-[#555] text-[#ccc] hover:bg-[#2a2a2a] hover:border-[#999] transition-colors"
                         >
-                          submit
+                          inject
                         </button>
                         <button
                           type="button"
@@ -584,17 +624,19 @@ export default function Home() {
                           {showHints ? "hide" : "show"} hints
                         </button>
                       </div>
+                      {attempts > 0 && (
+                        <p className="text-[#666] text-xs">{`> attempts: ${attempts}`}</p>
+                      )}
                       {showHints && (
                         <motion.div
                           initial={{ opacity: 0, y: -4 }}
                           animate={{ opacity: 1, y: 0 }}
                           className="space-y-1 p-2 bg-[#0a0a0a] border border-[#333] text-[#888]"
                         >
-                          {hints.map((hint, i) => (
-                            <p key={i} className="text-[0.7rem]">
-                              {`> hint ${i + 1}: ${hint}`}
-                            </p>
-                          ))}
+                          <p className="text-[0.7rem]">{"> hint 1: look at the query - where does user input go?"}</p>
+                          <p className="text-[0.7rem]">{"> hint 2: what if you close the string early with a quote?"}</p>
+                          <p className="text-[0.7rem]">{"> hint 3: try: ' OR '1'='1"}</p>
+                          <p className="text-[0.7rem]">{"> hint 4: or decode base64 and jwt payloads"}</p>
                         </motion.div>
                       )}
                     </form>
@@ -604,7 +646,8 @@ export default function Home() {
                       animate={{ opacity: 1, y: 0 }}
                       className="p-2 bg-[#1a1a1a] border border-[#555] text-[#7fb07f] space-y-2"
                     >
-                      <p>{"> flag accepted!"}</p>
+                      <p>{"> injection successful!"}</p>
+                      <p>{"> query returned: flag = som_loves_pencils_and_travel"}</p>
                       <p className="text-[#555]">{"> unlocking god playlist..."}</p>
                       <p className="text-[#666] mt-2">{"> way too nerd to listen to this playlist lol"}</p>
                     </motion.div>
