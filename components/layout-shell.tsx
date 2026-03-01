@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useCallback, useEffect, type ReactNode } from "react"
-import { AnimatePresence } from "framer-motion"
+import { AnimatePresence, motion } from "framer-motion"
 import { PaperOverlay } from "@/components/grain-overlay"
 import { Loader } from "@/components/loader"
 
@@ -29,13 +29,22 @@ export function LayoutShell({ children }: { children: ReactNode }) {
       <PaperOverlay />
       <div className="curved-paper-bg" aria-hidden />
 
-      <AnimatePresence>
-        {loading && <Loader onComplete={handleLoadComplete} />}
+      <AnimatePresence mode="wait">
+        {loading && <Loader key="loader" onComplete={handleLoadComplete} />}
       </AnimatePresence>
 
-      {!loading && (
-        <div className="float-content">{children}</div>
-      )}
+      <AnimatePresence>
+        {!loading && (
+          <motion.div
+            className="float-content"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            {children}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   )
 }
