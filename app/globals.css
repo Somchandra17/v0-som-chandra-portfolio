@@ -175,6 +175,55 @@
   border: 1px solid rgba(127, 176, 127, 0.2);
 }
 
+.neon-edge-h {
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(127, 176, 127, 0.15) 20%, 
+    rgba(127, 176, 127, 0.4) 50%, 
+    rgba(127, 176, 127, 0.15) 80%, 
+    transparent 100%
+  );
+  animation: edgePulseH 3s ease-in-out infinite;
+}
+
+.neon-edge-v {
+  background: linear-gradient(180deg, 
+    transparent 0%, 
+    rgba(127, 176, 127, 0.15) 20%, 
+    rgba(127, 176, 127, 0.4) 50%, 
+    rgba(127, 176, 127, 0.15) 80%, 
+    transparent 100%
+  );
+  animation: edgePulseV 3s ease-in-out infinite;
+}
+
+.neon-corner {
+  background: radial-gradient(circle at center, rgba(127, 176, 127, 0.3) 0%, transparent 70%);
+  animation: cornerPulse 3s ease-in-out infinite;
+}
+
+@keyframes edgePulseH {
+  0%, 100% {
+    opacity: 0.4;
+    box-shadow: 0 0 8px rgba(127, 176, 127, 0.2);
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 20px rgba(127, 176, 127, 0.5);
+  }
+}
+
+@keyframes edgePulseV {
+  0%, 100% {
+    opacity: 0.4;
+    box-shadow: 0 0 8px rgba(127, 176, 127, 0.2);
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 20px rgba(127, 176, 127, 0.5);
+  }
+}
+
 @keyframes wiggle {
   0%, 100% { transform: rotate(0deg); }
   20% { transform: rotate(-3deg); }

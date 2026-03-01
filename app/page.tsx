@@ -99,8 +99,20 @@ type Artist = {
 
 export default function Home() {
   const [hoverSide, setHoverSide] = useState<"nerdy" | "creative" | null>(null)
-  const [showAlias, setShowAlias] = useState(false)
+  const [nameMode, setNameMode] = useState<"default" | "nerdy" | "creative">("default")
+  const [isHoverLocked, setIsHoverLocked] = useState(false)
   const [factIdx, setFactIdx] = useState(0)
+
+  const cycleName = () => {
+    setIsHoverLocked(true)
+    setNameMode((prev) => prev === "default" ? "nerdy" : prev === "nerdy" ? "creative" : "default")
+  }
+
+  const nameConfig = {
+    default: { text: "Som", color: "#e8e8e8", shadow: "none" },
+    nerdy: { text: "0xs0m", color: "#7fb07f", shadow: "0 0 8px rgba(127, 176, 127, 0.4)" },
+    creative: { text: "som", color: "#f2a0b0", shadow: "0 0 8px rgba(242, 160, 176, 0.4)" },
+  }
   const [heroIdx, setHeroIdx] = useState(0)
 
   const heroRef = useRef<HTMLElement>(null)
@@ -159,53 +171,24 @@ export default function Home() {
           </p>
 
           <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight text-[#e8e8e8] leading-[1.15]">
-            <span className="block cursor-pointer group" onClick={() => setShowAlias(!showAlias)}>
-              i'm{" "}
-              <span className="relative inline-block origin-bottom">
-                <AnimatePresence mode="wait">
-                  {showAlias ? (
-                    <motion.span
-                      key="alias"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
-                      transition={{ 
-                        duration: 0.8,
-                        type: "spring",
-                        stiffness: 100,
-                        damping: 15,
-                        delay: 0.1
-                      }}
-                      className="inline-block font-mono text-[#7fb07f] group-hover:text-[#9fff9f]"
-                      style={{ 
-                        animation: "hackGlitch 0.8s cubic-bezier(0.77, 0, 0.175, 1), neonPulse 2s ease-in-out infinite",
-                        textShadow: "0 0 10px #7fb07f, 0 0 20px rgba(127, 176, 127, 0.6)"
-                      }}
-                    >
-                      0xs0m
-                    </motion.span>
-                  ) : (
-                    <motion.span
-                      key="name"
-                      initial={{ opacity: 0, y: -20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 20 }}
-                      transition={{ 
-                        duration: 0.5,
-                        type: "spring",
-                        stiffness: 120,
-                        damping: 12
-                      }}
-                      className="inline-block group-hover:text-[#aaa]"
-                      style={{
-                        animation: "dataStream 0.5s ease-out"
-                      }}
-                    >
-                      som
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-              </span>
+            <span className="block cursor-pointer" onClick={cycleName}>
+              {"i'm "}
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={nameMode}
+                  initial={{ opacity: 0, filter: "blur(8px)", y: 6 }}
+                  animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
+                  exit={{ opacity: 0, filter: "blur(8px)", y: -6 }}
+                  transition={{ duration: 0.3 }}
+                  className={nameMode === "nerdy" ? "inline-block font-mono" : "inline-block"}
+                  style={{
+                    color: nameConfig[nameMode].color,
+                    textShadow: nameConfig[nameMode].shadow,
+                  }}
+                >
+                  {nameConfig[nameMode].text}
+                </motion.span>
+              </AnimatePresence>
               .
             </span>
           </h1>
@@ -268,14 +251,14 @@ export default function Home() {
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 1 }}
-              onHoverStart={() => { setHoverSide("nerdy"); setShowAlias(true) }}
-              onHoverEnd={() => { setHoverSide(null); setShowAlias(false) }}
+              onHoverStart={() => { setHoverSide("nerdy"); if (!isHoverLocked) setNameMode("nerdy") }}
+              onHoverEnd={() => { setHoverSide(null); if (!isHoverLocked) setNameMode("default") }}
               className="group"
             >
               <Link href="/nerdy">
                 <motion.div 
                   className="paper-card relative p-7 md:p-9 min-h-[220px] flex flex-col justify-between overflow-hidden hover-wiggle"
-                  animate={showAlias ? { 
+                  animate={nameMode === "nerdy" ? { 
                     borderColor: "#7fb07f",
                     boxShadow: "0 0 20px rgba(127, 176, 127, 0.3)"
                   } : { 
@@ -290,7 +273,7 @@ export default function Home() {
                     <div className="flex items-center gap-3 mb-3">
                       <motion.div 
                         className="flex h-9 w-9 items-center justify-center border"
-                        animate={showAlias ? { 
+                        animate={nameMode === "nerdy" ? { 
                           borderColor: "#7fb07f",
                           color: "#7fb07f"
                         } : { 
@@ -304,7 +287,7 @@ export default function Home() {
                       </motion.div>
                       <motion.span 
                         className="font-mono text-xs"
-                        animate={showAlias ? { color: "#7fb07f" } : { color: "#666" }}
+                        animate={nameMode === "nerdy" ? { color: "#7fb07f" } : { color: "#666" }}
                         transition={{ duration: 0.5 }}
                       >
                         {"> whoami"}
@@ -312,7 +295,7 @@ export default function Home() {
                     </div>
                     <motion.h2 
                       className="text-xl md:text-2xl font-bold tracking-tight mb-2"
-                      animate={showAlias ? { color: "#7fb07f" } : { color: "#e8e8e8" }}
+                      animate={nameMode === "nerdy" ? { color: "#7fb07f" } : { color: "#e8e8e8" }}
                       transition={{ duration: 0.5 }}
                     >
                       the nerdy side
@@ -330,7 +313,7 @@ export default function Home() {
                   </div>
                   <motion.div 
                     className="absolute bottom-0 left-0 h-[2px] bg-[#e8e8e8] group-hover:w-full transition-all duration-500"
-                    animate={showAlias ? { 
+                    animate={nameMode === "nerdy" ? { 
                       width: "100%",
                       backgroundColor: "#7fb07f"
                     } : { 
@@ -348,8 +331,8 @@ export default function Home() {
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 1.15 }}
-              onHoverStart={() => setHoverSide("creative")}
-              onHoverEnd={() => setHoverSide(null)}
+              onHoverStart={() => { setHoverSide("creative"); if (!isHoverLocked) setNameMode("creative") }}
+              onHoverEnd={() => { setHoverSide(null); if (!isHoverLocked) setNameMode("default") }}
               className="group"
             >
               <Link href="/creative">
