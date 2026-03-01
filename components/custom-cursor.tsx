@@ -1,69 +1,93 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { motion } from "framer-motion"
 
 export function CustomCursor() {
-  const cursorRef = useRef({ x: 0, y: 0 })
-  const [pos, setPos] = useState({ x: 0, y: 0 })
-  const [isHovering, setIsHovering] = useState(false)
-  const [isVisible, setIsVisible] = useState(false)
+  const dotRef = useRef<HTMLDivElement>(null)
+  const ringRef = useRef<HTMLDivElement>(null)
+  const mouse = useRef({ x: 0, y: 0 })
+  const ring = useRef({ x: 0, y: 0 })
+  const [hovering, setHovering] = useState(false)
+  const [visible, setVisible] = useState(false)
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      cursorRef.current = { x: e.clientX, y: e.clientY }
-      setPos({ x: e.clientX, y: e.clientY })
-      if (!isVisible) setIsVisible(true)
+    if (window.matchMedia("(pointer: coarse)").matches) return
+
+    const onMove = (e: MouseEvent) => {
+      mouse.current = { x: e.clientX, y: e.clientY }
+      if (!visible) setVisible(true)
+    }
+    const onEnter = () => setVisible(true)
+    const onLeave = () => setVisible(false)
+
+    window.addEventListener("mousemove", onMove)
+    document.addEventListener("mouseenter", onEnter)
+    document.addEventListener("mouseleave", onLeave)
+
+    const addHoverListeners = () => {
+      document
+        .querySelectorAll('a, button, [role="button"], input, textarea, [data-hover]')
+        .forEach((el) => {
+          el.addEventListener("mouseenter", () => setHovering(true))
+          el.addEventListener("mouseleave", () => setHovering(false))
+        })
     }
 
-    const handleMouseEnter = () => setIsVisible(true)
-    const handleMouseLeave = () => setIsVisible(false)
-
-    window.addEventListener("mousemove", handleMouseMove)
-    document.addEventListener("mouseenter", handleMouseEnter)
-    document.addEventListener("mouseleave", handleMouseLeave)
-
-    const hoverElements = () => {
-      const interactiveElements = document.querySelectorAll("a, button, [role='button'], input, textarea, [data-hover]")
-      interactiveElements.forEach((el) => {
-        el.addEventListener("mouseenter", () => setIsHovering(true))
-        el.addEventListener("mouseleave", () => setIsHovering(false))
-      })
-    }
-
-    hoverElements()
-    const observer = new MutationObserver(hoverElements)
+    addHoverListeners()
+    const observer = new MutationObserver(addHoverListeners)
     observer.observe(document.body, { childList: true, subtree: true })
 
+    let raf: number
+    const animate = () => {
+      ring.current.x += (mouse.current.x - ring.current.x) * 0.14
+      ring.current.y += (mouse.current.y - ring.current.y) * 0.14
+
+      if (dotRef.current) {
+        dotRef.current.style.transform = `translate(${mouse.current.x - 3}px, ${mouse.current.y - 3}px)`
+      }
+      if (ringRef.current) {
+        ringRef.current.style.transform = `translate(${ring.current.x - 16}px, ${ring.current.y - 16}px)`
+      }
+      raf = requestAnimationFrame(animate)
+    }
+    raf = requestAnimationFrame(animate)
+
     return () => {
-      window.removeEventListener("mousemove", handleMouseMove)
-      document.removeEventListener("mouseenter", handleMouseEnter)
-      document.removeEventListener("mouseleave", handleMouseLeave)
+      window.removeEventListener("mousemove", onMove)
+      document.removeEventListener("mouseenter", onEnter)
+      document.removeEventListener("mouseleave", onLeave)
+      cancelAnimationFrame(raf)
       observer.disconnect()
     }
-  }, [isVisible])
-
-  if (typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches) {
-    return null
-  }
+  }, [visible])
 
   return (
-    <motion.div
-      className="fixed top-0 left-0 z-[9999] pointer-events-none"
-      animate={{
-        x: pos.x - 10,
-        y: pos.y - 10,
-        scale: isHovering ? 1.8 : 1,
-        rotate: isHovering ? 15 : 0,
-        opacity: isVisible ? 1 : 0,
-      }}
-      transition={{ type: "spring", stiffness: 400, damping: 25, mass: 0.5 }}
+    <div
+      className="pointer-events-none fixed inset-0 z-[999] hidden md:block"
+      style={{ opacity: visible ? 1 : 0 }}
     >
-      {/* A little pencil-tip / ink dot */}
-      <svg width="20" height="20" viewBox="0 0 20 20">
-        <circle cx="10" cy="10" r={isHovering ? 8 : 4} fill="#3c3836" opacity="0.6" />
-        <circle cx="10" cy="10" r="2" fill="#cc241d" opacity="0.8" />
-      </svg>
-    </motion.div>
+      <div
+        ref={dotRef}
+        className="absolute top-0 left-0 transition-[width,height] duration-200"
+        style={{
+          width: hovering ? 8 : 5,
+          height: hovering ? 8 : 5,
+          background: "#111",
+          borderRadius: "50%",
+        }}
+      />
+      <div
+        ref={ringRef}
+        className="absolute top-0 left-0 transition-[width,height,border-color] duration-200"
+        style={{
+          width: hovering ? 44 : 32,
+          height: hovering ? 44 : 32,
+          borderRadius: "50%",
+          border: `1.5px solid ${hovering ? "#111" : "#999"}`,
+          marginLeft: hovering ? -6 : 0,
+          marginTop: hovering ? -6 : 0,
+        }}
+      />
+    </div>
   )
 }

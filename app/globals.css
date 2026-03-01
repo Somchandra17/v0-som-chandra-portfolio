@@ -4,57 +4,39 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: #fbf1c7;
-  --foreground: #3c3836;
-  --card: #f2e5bc;
-  --card-foreground: #3c3836;
-  --popover: #f2e5bc;
-  --popover-foreground: #3c3836;
-  --primary: #cc241d;
-  --primary-foreground: #fbf1c7;
-  --secondary: #ebdbb2;
-  --secondary-foreground: #504945;
-  --muted: #ebdbb2;
-  --muted-foreground: #7c6f64;
-  --accent: #d79921;
-  --accent-foreground: #3c3836;
-  --destructive: #cc241d;
-  --destructive-foreground: #fbf1c7;
-  --border: #bdae93;
-  --input: #ebdbb2;
-  --ring: #d65d0e;
-  --chart-1: #cc241d;
-  --chart-2: #98971a;
-  --chart-3: #d79921;
-  --chart-4: #458588;
-  --chart-5: #d65d0e;
-  --radius: 0.25rem;
-  --sidebar: #f2e5bc;
-  --sidebar-foreground: #3c3836;
-  --sidebar-primary: #cc241d;
-  --sidebar-primary-foreground: #fbf1c7;
-  --sidebar-accent: #ebdbb2;
-  --sidebar-accent-foreground: #3c3836;
-  --sidebar-border: #bdae93;
-  --sidebar-ring: #d65d0e;
-
-  --gruvbox-red: #cc241d;
-  --gruvbox-green: #98971a;
-  --gruvbox-yellow: #d79921;
-  --gruvbox-blue: #458588;
-  --gruvbox-orange: #d65d0e;
-  --gruvbox-aqua: #689d6a;
-  --gruvbox-brown: #3c3836;
-  --gruvbox-cream: #fbf1c7;
-  --gruvbox-paper: #f9f5d7;
-  --gruvbox-stain: #d5c4a1;
+  --background: #f5f5f0;
+  --foreground: #111111;
+  --card: #eaeae4;
+  --card-foreground: #111111;
+  --popover: #f5f5f0;
+  --popover-foreground: #111111;
+  --primary: #111111;
+  --primary-foreground: #f5f5f0;
+  --secondary: #e0e0da;
+  --secondary-foreground: #333333;
+  --muted: #d6d6d0;
+  --muted-foreground: #666666;
+  --accent: #e0e0da;
+  --accent-foreground: #111111;
+  --destructive: #444444;
+  --destructive-foreground: #f5f5f0;
+  --border: #c0c0b8;
+  --input: #e0e0da;
+  --ring: #999999;
+  --radius: 0rem;
+  --sidebar: #eaeae4;
+  --sidebar-foreground: #111111;
+  --sidebar-primary: #111111;
+  --sidebar-primary-foreground: #f5f5f0;
+  --sidebar-accent: #e0e0da;
+  --sidebar-accent-foreground: #111111;
+  --sidebar-border: #c0c0b8;
+  --sidebar-ring: #999999;
 }
 
 @theme inline {
-  --font-sans: 'Caveat', cursive;
+  --font-sans: 'Space Grotesk', 'Geist', sans-serif;
   --font-mono: 'Geist Mono', 'Geist Mono Fallback', monospace;
-  --font-display: 'Caveat', cursive;
-  --font-body: 'Space Grotesk', sans-serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -74,15 +56,10 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-sm: 0rem;
+  --radius-md: 0rem;
+  --radius-lg: 0rem;
+  --radius-xl: 0rem;
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -93,31 +70,46 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* ---- Keyframes ---- */
+
 @keyframes wobble {
-  0%, 100% { transform: rotate(-1deg); }
-  50% { transform: rotate(1deg); }
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  33% { transform: translateY(-8px) rotate(1deg); }
-  66% { transform: translateY(4px) rotate(-0.5deg); }
-}
-
-@keyframes scribble-in {
-  from { stroke-dashoffset: 1000; }
-  to { stroke-dashoffset: 0; }
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-0.8deg); }
+  75% { transform: rotate(0.8deg); }
 }
 
 @keyframes tape-wiggle {
-  0%, 100% { transform: rotate(-3deg) scale(1); }
-  50% { transform: rotate(-1deg) scale(1.02); }
+  0%, 100% { transform: translateX(-50%) rotate(-2deg) scaleY(1); }
+  50% { transform: translateX(-50%) rotate(1deg) scaleY(0.97); }
 }
 
-@keyframes coffee-stain-fade {
-  from { opacity: 0; transform: scale(0.8); }
-  to { opacity: 0.12; transform: scale(1); }
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
 }
+
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes ink-spread {
+  0% { transform: scale(0); opacity: 0; }
+  60% { opacity: 0.12; }
+  100% { transform: scale(1); opacity: 0.06; }
+}
+
+@keyframes underline-draw {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes spin-vinyl {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ---- Base ---- */
 
 @layer base {
   * {
@@ -125,86 +117,135 @@
   }
   body {
     @apply bg-background text-foreground;
-    cursor: crosshair;
+    cursor: none;
   }
   html {
     scroll-behavior: smooth;
   }
   ::selection {
-    background: #d79921;
-    color: #3c3836;
+    background: #111111;
+    color: #f5f5f0;
   }
 }
 
+/* ---- Utilities ---- */
+
 @layer utilities {
-  .paper-texture {
-    background-image: 
-      url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='paper'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='5' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23paper)' opacity='0.03'/%3E%3C/svg%3E");
+
+  /* Paper grain fixed overlay */
+  .paper-texture::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 50;
   }
 
+  /* Ruled notebook lines */
   .ruled-lines {
     background-image: repeating-linear-gradient(
+      to bottom,
       transparent,
       transparent 31px,
-      #d5c4a1 31px,
-      #d5c4a1 32px
+      #c0c0b8 31px,
+      #c0c0b8 32px
     );
     background-size: 100% 32px;
   }
 
-  .torn-edge-bottom {
-    mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1200 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,0 L1200,0 L1200,20 Q1150,35 1100,18 Q1050,40 1000,22 Q950,38 900,15 Q850,32 800,20 Q750,40 700,18 Q650,30 600,22 Q550,38 500,16 Q450,35 400,20 Q350,40 300,18 Q250,32 200,22 Q150,38 100,15 Q50,30 0,20 Z' fill='white'/%3E%3C/svg%3E");
-    mask-size: 100% 40px;
-    mask-position: bottom;
-    mask-repeat: no-repeat;
+  /* Margin line */
+  .margin-line {
+    border-left: 2px solid #bbb;
+    padding-left: 1.5rem;
   }
 
-  .coffee-ring {
-    background: radial-gradient(ellipse at center, transparent 45%, #a0845020 50%, #a0845015 55%, transparent 60%);
-  }
-
-  .tape-effect {
-    position: relative;
-  }
-  .tape-effect::before {
+  /* Coffee ring stain -- position with top/right on parent */
+  .coffee-stain::after {
     content: '';
     position: absolute;
-    top: -12px;
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    background: radial-gradient(
+      ellipse at center,
+      transparent 42%,
+      rgba(120, 115, 105, 0.09) 48%,
+      rgba(100, 95, 88, 0.13) 54%,
+      transparent 60%
+    );
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* Tape strip on top of card */
+  .tape-top::before {
+    content: '';
+    position: absolute;
+    top: -10px;
     left: 50%;
-    transform: translateX(-50%) rotate(-3deg);
-    width: 80px;
-    height: 28px;
-    background: linear-gradient(135deg, #d5c4a166 0%, #ebdbb266 100%);
-    border: 1px solid #bdae9333;
-    animation: tape-wiggle 4s ease-in-out infinite;
-    z-index: 10;
+    transform: translateX(-50%) rotate(-2deg);
+    width: 72px;
+    height: 22px;
+    background: rgba(200, 200, 192, 0.55);
+    border: 1px solid rgba(180, 180, 172, 0.35);
+    z-index: 3;
+    pointer-events: none;
+    animation: tape-wiggle 5s ease-in-out infinite;
   }
 
-  .ink-stain {
-    position: relative;
-  }
-  .ink-stain::after {
+  /* Ink splatter dot */
+  .ink-splat::after {
     content: '';
     position: absolute;
-    bottom: -8px;
-    right: -4px;
-    width: 20px;
-    height: 20px;
-    background: radial-gradient(circle, #3c383615 0%, transparent 70%);
-    border-radius: 50% 40% 60% 30%;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse at 35% 35%, rgba(20, 20, 20, 0.09) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 2;
   }
 
-  .doodle-underline {
-    text-decoration: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 8'%3E%3Cpath d='M0,5 Q25,0 50,5 T100,5 T150,5 T200,5' fill='none' stroke='%23cc241d' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+  /* Paper card */
+  .paper-card {
+    background: var(--background);
+    border: 1px solid var(--border);
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease;
+  }
+  .paper-card:hover {
+    box-shadow: 3px 3px 0px var(--border);
+  }
+
+  /* Dashed border */
+  .dashed-border {
+    border: 2px dashed var(--border);
+  }
+
+  /* Draw-underline on hover */
+  .draw-underline {
+    position: relative;
+    display: inline-block;
+  }
+  .draw-underline::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    height: 2px;
+    width: 0;
+    background: var(--foreground);
+    transition: width 0.3s ease;
+  }
+  .draw-underline:hover::after {
+    width: 100%;
+  }
+
+  /* Straight scribble underline (SVG) -- B&W */
+  .scribble-underline {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 6'%3E%3Cpath d='M0,3 Q50,0 100,3 T200,3' fill='none' stroke='%23111' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
     background-repeat: repeat-x;
     background-position: bottom;
-    background-size: 100px 8px;
-    padding-bottom: 6px;
-  }
-
-  .margin-line {
-    border-left: 2px solid #cc241d30;
-    padding-left: 2rem;
+    background-size: 100px 6px;
+    padding-bottom: 4px;
   }
 }

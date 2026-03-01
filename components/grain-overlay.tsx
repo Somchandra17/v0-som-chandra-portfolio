@@ -1,33 +1,52 @@
 "use client"
 
-export function GrainOverlay() {
+export function PaperOverlay() {
   return (
     <>
-      {/* Paper texture overlay */}
-      <div className="fixed inset-0 pointer-events-none z-[90] paper-texture opacity-60" aria-hidden="true" />
-      {/* Big coffee stain top-right */}
+      <div className="paper-texture pointer-events-none fixed inset-0 z-50" aria-hidden />
+
+      {/* Coffee stain top-right */}
       <div
-        className="fixed top-[-40px] right-[-20px] w-[280px] h-[280px] pointer-events-none z-[89] rounded-full opacity-[0.08]"
+        className="pointer-events-none fixed z-[51]"
+        aria-hidden
         style={{
-          background: 'radial-gradient(ellipse at 40% 40%, #8b6914 0%, #a08450 30%, transparent 65%)',
-          transform: 'rotate(15deg)',
+          top: 60,
+          right: 40,
+          width: 130,
+          height: 130,
+          borderRadius: "50%",
+          background:
+            "radial-gradient(ellipse at center, transparent 40%, rgba(120,115,105,0.07) 48%, rgba(100,95,88,0.11) 54%, transparent 62%)",
         }}
-        aria-hidden="true"
       />
-      {/* Small stain bottom-left */}
+
+      {/* Coffee stain bottom-left */}
       <div
-        className="fixed bottom-[15%] left-[8%] w-[150px] h-[130px] pointer-events-none z-[89] rounded-full opacity-[0.06]"
+        className="pointer-events-none fixed z-[51]"
+        aria-hidden
         style={{
-          background: 'radial-gradient(ellipse at 50% 50%, #7c6f64 0%, transparent 60%)',
-          transform: 'rotate(-25deg)',
+          bottom: 100,
+          left: 30,
+          width: 100,
+          height: 100,
+          borderRadius: "50%",
+          background:
+            "radial-gradient(ellipse at center, transparent 38%, rgba(130,125,118,0.06) 46%, rgba(110,105,98,0.1) 52%, transparent 60%)",
         }}
-        aria-hidden="true"
       />
-      {/* Ink splatter */}
+
+      {/* Ink splatter mid-right */}
       <div
-        className="fixed top-[60%] right-[12%] w-[40px] h-[40px] pointer-events-none z-[89] rounded-full opacity-[0.05]"
-        style={{ background: 'radial-gradient(circle, #3c3836 0%, transparent 70%)' }}
-        aria-hidden="true"
+        className="pointer-events-none fixed z-[51]"
+        aria-hidden
+        style={{
+          top: "45%",
+          right: 60,
+          width: 24,
+          height: 24,
+          borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(20,20,20,0.07) 0%, transparent 70%)",
+        }}
       />
     </>
   )
