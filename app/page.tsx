@@ -149,11 +149,11 @@ export default function Home() {
     <main className="relative min-h-screen">
 
       {/* ---- HERO: fills viewport ---- */}
-      <motion.section
-        ref={heroRef}
-        className="relative z-10 mx-auto max-w-5xl px-6 flex flex-col justify-center min-h-screen"
-        style={{ opacity: heroOpacity, y: heroY }}
-      >
+      <section ref={heroRef} className="relative">
+        <motion.div
+          className="relative z-10 mx-auto max-w-5xl px-6 flex flex-col justify-center min-h-screen"
+          style={{ opacity: heroOpacity, y: heroY }}
+        >
         <motion.div
           className="mb-10 h-px bg-[#e8e8e8]"
           initial={{ width: 0 }}
@@ -390,7 +390,8 @@ export default function Home() {
             <ArrowDown className="h-4 w-4 text-[#666]" />
           </motion.div>
         </motion.div>
-      </motion.section>
+        </motion.div>
+      </section>
 
 
       {/* ==== BELOW THE FOLD ==== */}

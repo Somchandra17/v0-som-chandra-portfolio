@@ -8,24 +8,46 @@ import { Camera, PenTool, BookOpen, X, Compass, Guitar } from "lucide-react"
 
 type Tab = "photos" | "sketches" | "sidequests"
 
-const photoGallery = [
-  { id: 1, title: "Urban Geometrey", desc: "lines and shadwos in concrete jungels", location: "Mumbai, IN", date: "Dec 2024", aspect: "aspect-[4/5]" },
-  { id: 2, title: "Golden Hour", desc: "that fiften-minute window where evrything glows", location: "Goa, IN", date: "Nov 2024", aspect: "aspect-[3/4]" },
-  { id: 3, title: "Strangerss", desc: "faces in transit, storeis untold", location: "Delhi, IN", date: "Oct 2024", aspect: "aspect-square" },
-  { id: 4, title: "After Rainn", desc: "wet streets reflecitng neon", location: "Bangalore, IN", date: "Sep 2024", aspect: "aspect-[4/5]" },
-  { id: 5, title: "Solitudee", desc: "a bench, a tree, nobdoy around", location: "Himachal, IN", date: "Aug 2024", aspect: "aspect-[3/4]" },
-  { id: 6, title: "Rust & Dacay", desc: "beuaty in what is being forgoten", location: "Kolkata, IN", date: "Jul 2024", aspect: "aspect-square" },
-  { id: 7, title: "Night Walkk", desc: "long exposurs at 2 AM", location: "Pune, IN", date: "Jun 2024", aspect: "aspect-[4/5]" },
-  { id: 8, title: "Rooftop Veiw", desc: "the city from abvoe", location: "Jaipur, IN", date: "May 2024", aspect: "aspect-[3/4]" },
+// Aspect type for visual variety in the masonry grid
+type AspectType = "portrait" | "landscape" | "square" | "wide"
+
+// Photo and sketch data with predefined aspect ratios for visual variety
+interface PhotoItem {
+  id: number
+  title: string
+  desc: string
+  location?: string
+  date?: string
+  src?: string
+  aspect: AspectType
+}
+
+// Aspect ratio CSS classes for each type
+const aspectClasses: Record<AspectType, string> = {
+  portrait: "aspect-[3/4]",
+  landscape: "aspect-[4/3]",
+  square: "aspect-square",
+  wide: "aspect-[16/9]",
+}
+
+const photoGallery: PhotoItem[] = [
+  { id: 1, title: "Urban Geometrey", desc: "lines and shadwos in concrete jungels", location: "Mumbai, IN", date: "Dec 2024", aspect: "portrait" },
+  { id: 2, title: "Golden Hour", desc: "that fiften-minute window where evrything glows", location: "Goa, IN", date: "Nov 2024", aspect: "wide" },
+  { id: 3, title: "Strangerss", desc: "faces in transit, storeis untold", location: "Delhi, IN", date: "Oct 2024", aspect: "square" },
+  { id: 4, title: "After Rainn", desc: "wet streets reflecitng neon", location: "Bangalore, IN", date: "Sep 2024", aspect: "landscape" },
+  { id: 5, title: "Solitudee", desc: "a bench, a tree, nobdoy around", location: "Himachal, IN", date: "Aug 2024", aspect: "portrait" },
+  { id: 6, title: "Rust & Dacay", desc: "beuaty in what is being forgoten", location: "Kolkata, IN", date: "Jul 2024", aspect: "square" },
+  { id: 7, title: "Night Walkk", desc: "long exposurs at 2 AM", location: "Pune, IN", date: "Jun 2024", aspect: "wide" },
+  { id: 8, title: "Rooftop Veiw", desc: "the city from abvoe", location: "Jaipur, IN", date: "May 2024", aspect: "landscape" },
 ]
 
-const sketchGallery = [
-  { id: 1, title: "Portraitt Study #14", desc: "graphite on papar, 2 hours", aspect: "aspect-[3/4]" },
-  { id: 2, title: "Hand Gesturs", desc: "anatomey practice from refernce", aspect: "aspect-square" },
-  { id: 3, title: "Cat in Inkk", desc: "quick ink sktech, 20 minuts", aspect: "aspect-[4/5]" },
-  { id: 4, title: "Archetecture", desc: "that bilding I pass evrey day", aspect: "aspect-[3/4]" },
-  { id: 5, title: "Abstact Flow", desc: "pen on napkinn during lnuch", aspect: "aspect-square" },
-  { id: 6, title: "Eye Detale", desc: "close-up studey, charcol", aspect: "aspect-[4/5]" },
+const sketchGallery: PhotoItem[] = [
+  { id: 1, title: "Portraitt Study #14", desc: "graphite on papar, 2 hours", aspect: "portrait" },
+  { id: 2, title: "Hand Gesturs", desc: "anatomey practice from refernce", aspect: "square" },
+  { id: 3, title: "Cat in Inkk", desc: "quick ink sktech, 20 minuts", aspect: "portrait" },
+  { id: 4, title: "Archetecture", desc: "that bilding I pass evrey day", aspect: "wide" },
+  { id: 5, title: "Abstact Flow", desc: "pen on napkinn during lnuch", aspect: "square" },
+  { id: 6, title: "Eye Detale", desc: "close-up studey, charcol", aspect: "landscape" },
 ]
 
 const sideQuestGallery = [
@@ -95,9 +117,67 @@ const fadeUp = {
   transition: { duration: 0.5 },
 }
 
+// Photo card component with proper aspect ratio
+function PhotoCard({ 
+  item, 
+  index, 
+  activeTab, 
+  onClick,
+}: { 
+  item: PhotoItem
+  index: number
+  activeTab: Tab
+  onClick: () => void
+}) {
+  const aspectClass = aspectClasses[item.aspect]
+  
+  return (
+    <motion.div
+      className="break-inside-avoid mb-4 paper-card overflow-hidden cursor-pointer group hover-bounce"
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay: index * 0.04, duration: 0.35 }}
+      onClick={onClick}
+    >
+      <div className={`${aspectClass} w-full bg-[#1a1a1a] relative overflow-hidden`}>
+        {item.src ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={item.src}
+            alt={item.title}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#1a1a1a] to-[#252525]">
+            {activeTab === "photos" ? (
+              <Camera className="h-8 w-8 text-[#444] group-hover:text-[#666] transition-colors" />
+            ) : (
+              <PenTool className="h-8 w-8 text-[#444] group-hover:text-[#666] transition-colors" />
+            )}
+          </div>
+        )}
+        <div className="absolute inset-0 bg-[#e8e8e8]/0 group-hover:bg-[#e8e8e8]/5 transition-colors duration-300" />
+      </div>
+      
+      {/* Caption below image */}
+      <div className="p-3 border-t border-[#333]">
+        <p className="text-sm font-bold text-[#e8e8e8]">{item.title}</p>
+        <p className="text-xs text-[#888] mt-1 leading-relaxed">{item.desc}</p>
+        {item.location && (
+          <div className="flex items-center justify-between mt-2 text-xs text-[#555]">
+            <span className="font-mono">{item.location}</span>
+            <span className="font-mono">{item.date}</span>
+          </div>
+        )}
+      </div>
+    </motion.div>
+  )
+}
+
 export default function CreativePage() {
   const [activeTab, setActiveTab] = useState<Tab>("photos")
-  const [lightboxItem, setLightboxItem] = useState<{ title: string; desc: string } | null>(null)
+  const [lightboxItem, setLightboxItem] = useState<PhotoItem | null>(null)
   const [showPhone, setShowPhone] = useState(false)
 
   const gallery = activeTab === "photos" ? photoGallery : activeTab === "sketches" ? sketchGallery : null
@@ -275,43 +355,20 @@ export default function CreativePage() {
               ) : gallery && (
                 <motion.div
                   key={activeTab}
-                  className="columns-2 md:columns-3 gap-4 space-y-4"
+                  className="columns-1 sm:columns-2 lg:columns-3 gap-4"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.3 }}
                 >
                   {gallery.map((item, i) => (
-                    <motion.div
+                    <PhotoCard
                       key={`${activeTab}-${item.id}`}
-                      className="break-inside-avoid paper-card overflow-hidden cursor-pointer group hover-bounce"
-                      initial={{ opacity: 0, y: 16 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: i * 0.05, duration: 0.35 }}
+                      item={item}
+                      index={i}
+                      activeTab={activeTab}
                       onClick={() => setLightboxItem(item)}
-                    >
-                      <div className={`${item.aspect} w-full bg-[#1a1a1a] border-b border-[#333] relative overflow-hidden`}>
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          {activeTab === "photos" ? (
-                            <Camera className="h-8 w-8 text-[#333] group-hover:text-[#555] transition-colors" />
-                          ) : (
-                            <PenTool className="h-8 w-8 text-[#333] group-hover:text-[#555] transition-colors" />
-                          )}
-                        </div>
-                        <div className="absolute inset-0 bg-[#e8e8e8]/0 group-hover:bg-[#e8e8e8]/5 transition-colors duration-300" />
-                      </div>
-                      <div className="p-3">
-                        <p className="text-sm font-bold text-[#e8e8e8]">{item.title}</p>
-                        <p className="text-xs text-[#999] mt-0.5">{item.desc}</p>
-                        {"location" in item && (
-                          <div className="flex items-center justify-between mt-2 text-xs text-[#555]">
-                            <span className="font-mono">{(item as typeof photoGallery[0]).location}</span>
-                            <span className="font-mono">{(item as typeof photoGallery[0]).date}</span>
-                          </div>
-                        )}
-                      </div>
-                    </motion.div>
+                    />
                   ))}
                 </motion.div>
               )}
