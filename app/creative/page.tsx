@@ -7,14 +7,14 @@ import { PageTransition } from "@/components/page-transition"
 import { Camera, PenTool, BookOpen, X } from "lucide-react"
 
 const photoGallery = [
-  { id: 1, title: "Urban Geometry", desc: "Lines and shadows in concrete jungles", aspect: "aspect-[4/5]" },
-  { id: 2, title: "Golden Hour", desc: "That fifteen-minute window where everything glows", aspect: "aspect-[3/4]" },
-  { id: 3, title: "Strangers", desc: "Faces in transit, stories untold", aspect: "aspect-square" },
-  { id: 4, title: "After Rain", desc: "Wet streets reflecting neon", aspect: "aspect-[4/5]" },
-  { id: 5, title: "Solitude", desc: "A bench, a tree, nobody around", aspect: "aspect-[3/4]" },
-  { id: 6, title: "Rust & Decay", desc: "Beauty in what is being forgotten", aspect: "aspect-square" },
-  { id: 7, title: "Night Walk", desc: "Long exposures at 2 AM", aspect: "aspect-[4/5]" },
-  { id: 8, title: "Rooftop View", desc: "The city from above", aspect: "aspect-[3/4]" },
+  { id: 1, title: "Urban Geometry", desc: "Lines and shadows in concrete jungles", location: "Mumbai, IN", date: "Dec 2024", aspect: "aspect-[4/5]" },
+  { id: 2, title: "Golden Hour", desc: "That fifteen-minute window where everything glows", location: "Goa, IN", date: "Nov 2024", aspect: "aspect-[3/4]" },
+  { id: 3, title: "Strangers", desc: "Faces in transit, stories untold", location: "Delhi, IN", date: "Oct 2024", aspect: "aspect-square" },
+  { id: 4, title: "After Rain", desc: "Wet streets reflecting neon", location: "Bangalore, IN", date: "Sep 2024", aspect: "aspect-[4/5]" },
+  { id: 5, title: "Solitude", desc: "A bench, a tree, nobody around", location: "Himachal, IN", date: "Aug 2024", aspect: "aspect-[3/4]" },
+  { id: 6, title: "Rust & Decay", desc: "Beauty in what is being forgotten", location: "Kolkata, IN", date: "Jul 2024", aspect: "aspect-square" },
+  { id: 7, title: "Night Walk", desc: "Long exposures at 2 AM", location: "Pune, IN", date: "Jun 2024", aspect: "aspect-[4/5]" },
+  { id: 8, title: "Rooftop View", desc: "The city from above", location: "Jaipur, IN", date: "May 2024", aspect: "aspect-[3/4]" },
 ]
 
 const sketchGallery = [
@@ -83,6 +83,12 @@ export default function CreativePage() {
                 <p>
                   {"None of this is gallery-ready. Think of it as a visual journal of someone who stares at terminals all day and needs to look at literally anything else."}
                 </p>
+                <div className="border-l-2 border-[#555] pl-4 py-2">
+                  <p className="text-xs font-mono tracking-wider text-[#999] uppercase mb-2">by the way</p>
+                  <p className="text-sm text-[#aaa]">
+                    {"i'm obsessed with pencils — mechanical, graphite, anything with a sharp point. they're honest. no distractions, just you and the paper. also obsessed with travel: cramped buses, overnight trains with strangers, hiking solo with just a backpack, road trips with close friends, exploring new cities with someone special. literally anywhere, alone or with people i actually like. but family trips? absolutely despise them. too much drama, too many compromises, too little freedom."}
+                  </p>
+                </div>
               </div>
             </motion.div>
           </section>
@@ -149,6 +155,10 @@ export default function CreativePage() {
                     <div className="p-3">
                       <p className="text-sm font-bold text-[#e8e8e8]">{item.title}</p>
                       <p className="text-xs text-[#999] mt-0.5">{item.desc}</p>
+                      <div className="flex items-center justify-between mt-2 text-xs text-[#555]">
+                        <span className="font-mono">{item.location}</span>
+                        <span className="font-mono">{item.date}</span>
+                      </div>
                     </div>
                   </motion.div>
                 ))}

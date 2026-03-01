@@ -527,41 +527,44 @@ export default function Home() {
               {"judge me by my music taste. i dare you. sorted by recently added."}
             </p>
 
-            {/* API-loaded playlist tracks */}
-            {playlistTracks.length > 0 ? (
-              <div className="space-y-2 mb-8 max-h-[480px] overflow-y-auto pr-1 scrollbar-thin">
-                {playlistTracks.map((track, i) => (
-                  <motion.a
-                    key={track.songUrl + track.addedAt}
-                    href={track.songUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="paper-card p-3 flex items-center gap-4 hover-bounce group"
-                    initial={{ opacity: 0 }}
-                    whileInView={{ opacity: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: Math.min(i * 0.02, 0.4), duration: 0.25 }}
-                  >
-                    <span className="font-mono text-xs text-[#555] w-6 shrink-0 text-right">{i + 1}</span>
-                    {track.albumImageUrl && (
-                      <img
-                        src={track.albumImageUrl}
-                        alt={track.album}
-                        className="w-10 h-10 object-cover border border-[#333] shrink-0"
-                        crossOrigin="anonymous"
-                      />
-                    )}
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-bold text-[#e8e8e8] truncate group-hover:underline">{track.title}</p>
-                      <p className="text-xs text-[#aaa] truncate">{track.artist}</p>
-                    </div>
-                    <p className="font-mono text-xs text-[#555] shrink-0 hidden sm:block">
-                      {new Date(track.addedAt).toLocaleDateString([], { month: "short", day: "numeric" })}
-                    </p>
-                  </motion.a>
-                ))}
+            {/* API-loaded playlist tracks - Recently Added */}
+            {playlistTracks.length > 0 && (
+              <div>
+                <p className="font-mono text-xs text-[#777] mb-2">recently added to my taste</p>
+                <div className="space-y-2 mb-8 max-h-[480px] overflow-y-auto pr-1 scrollbar-thin">
+                  {playlistTracks.map((track, i) => (
+                    <motion.a
+                      key={track.songUrl + track.addedAt}
+                      href={track.songUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="paper-card p-3 flex items-center gap-4 hover-bounce group"
+                      initial={{ opacity: 0 }}
+                      whileInView={{ opacity: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: Math.min(i * 0.02, 0.4), duration: 0.25 }}
+                    >
+                      <span className="font-mono text-xs text-[#555] w-6 shrink-0 text-right">{i + 1}</span>
+                      {track.albumImageUrl && (
+                        <img
+                          src={track.albumImageUrl}
+                          alt={track.album}
+                          className="w-10 h-10 object-cover border border-[#333] shrink-0"
+                          crossOrigin="anonymous"
+                        />
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-bold text-[#e8e8e8] truncate group-hover:underline">{track.title}</p>
+                        <p className="text-xs text-[#aaa] truncate">{track.artist}</p>
+                      </div>
+                      <p className="font-mono text-xs text-[#555] shrink-0 hidden sm:block">
+                        {new Date(track.addedAt).toLocaleDateString([], { month: "short", day: "numeric" })}
+                      </p>
+                    </motion.a>
+                  ))}
+                </div>
               </div>
-            ) : null}
+            )}
 
             {/* Fallback/supplementary embed */}
             <div className="paper-card overflow-hidden p-0">
