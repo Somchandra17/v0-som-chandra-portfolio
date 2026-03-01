@@ -1,13 +1,9 @@
 "use client"
 
-import { useEffect } from "react"
 import { motion } from "framer-motion"
 import { PageHeader } from "@/components/page-header"
 import { PageTransition } from "@/components/page-transition"
-import { useCursorMode } from "@/components/cursor-context"
-import { ExternalLink, Shield, Terminal, Award, Flag, Bug } from "lucide-react"
-
-/* -- data from resume -- */
+import { ExternalLink, Shield, Terminal, Flag, Bug } from "lucide-react"
 
 const experience = [
   {
@@ -68,19 +64,19 @@ const projects = [
   },
   {
     name: "API-Digger",
-    desc: "Automated Swagger UI vuln scanner. Finds exposed API docs, detects versions with headless browser automation, multi-threaded for speed. Basically a metal detector for bad endpoints.",
+    desc: "Automated Swagger UI vuln scanner. Finds exposed API docs, detects versions with headless browser automation, multi-threaded for speed.",
     tech: ["Python", "Feroxbuster", "Chrome Headless"],
     link: "https://github.com/Somchandra17/API-Digger",
   },
   {
     name: "RootAppChecker",
-    desc: "Android app that detects rooted devices using 7 different methods including native C/JNI checks, Magisk detection, and mount path analysis. Your phone probably fails.",
+    desc: "Android app that detects rooted devices using 7 different methods including native C/JNI checks, Magisk detection, and mount path analysis.",
     tech: ["Java", "Android", "C/JNI", "Security"],
     link: "https://github.com/Somchandra17/RootAppChecker",
   },
   {
     name: "PC-Info RCE",
-    desc: "Static NodeJS web page vulnerable to Command Injection through User-Agent for RCE. Complete Boot-To-Root machine with misconfigured cronjob. Educational, please don't be evil.",
+    desc: "Static NodeJS web page vulnerable to Command Injection through User-Agent for RCE. Complete Boot-To-Root machine with misconfigured cronjob.",
     tech: ["NodeJS", "RCE", "CTF"],
     link: "https://github.com/Somchandra17/PCinfo-RCE",
   },
@@ -116,13 +112,6 @@ const fadeUp = {
 }
 
 export default function NerdyPage() {
-  const { setMode } = useCursorMode()
-
-  useEffect(() => {
-    setMode("nerdy")
-    return () => setMode("default")
-  }, [setMode])
-
   return (
     <>
       <PageHeader title="the nerdy side" subtitle="resume / projects / hacking stuff" />
@@ -133,14 +122,14 @@ export default function NerdyPage() {
           {/* -- About -- */}
           <section className="relative z-10 mx-auto max-w-4xl px-6 pt-14 pb-10">
             <motion.div {...fadeUp}>
-              <p className="font-mono text-xs tracking-widest uppercase text-[#777] mb-3">about</p>
+              <p className="font-mono text-xs tracking-widest uppercase text-[#999] mb-3">about</p>
               <h2 className="text-2xl md:text-3xl font-bold text-[#e8e8e8] tracking-tight mb-2">
                 cybersecurity engineer who breaks things for a living.
               </h2>
-              <p className="text-sm text-[#555] mb-5 italic">
+              <p className="text-sm text-[#666] mb-5 italic">
                 {"(legally, most of the time)"}
               </p>
-              <div className="max-w-2xl space-y-4 text-sm md:text-base text-[#bbb] leading-relaxed margin-line">
+              <div className="max-w-2xl space-y-4 text-sm md:text-base text-[#ccc] leading-relaxed margin-line">
                 <p>
                   {"B.Tech in CSE (Cybersecurity & Blockchain) from LPU, CGPA 7.73. Currently at MoveInSync in Bengaluru, doing end-to-end VAPT, building internal security tools, and making sure Android apps don't fall apart when someone roots their phone."}
                 </p>
@@ -165,22 +154,22 @@ export default function NerdyPage() {
               ].map((s) => (
                 <div key={s.label} className="paper-card px-4 py-3 hover-bounce">
                   <p className="text-lg md:text-xl font-bold text-[#e8e8e8]">{s.num}</p>
-                  <p className="text-xs font-mono text-[#777] mt-0.5">{s.label}</p>
+                  <p className="text-xs font-mono text-[#999] mt-0.5">{s.label}</p>
                 </div>
               ))}
             </motion.div>
           </section>
 
-          <div className="mx-auto max-w-4xl px-6"><div className="h-px bg-[#2a2a2a]" /></div>
+          <div className="mx-auto max-w-4xl px-6"><div className="h-px bg-[#333]" /></div>
 
           {/* -- Experience -- */}
           <section className="relative z-10 mx-auto max-w-4xl px-6 py-14">
             <motion.div {...fadeUp}>
-              <p className="font-mono text-xs tracking-widest uppercase text-[#777] mb-3">experience</p>
+              <p className="font-mono text-xs tracking-widest uppercase text-[#999] mb-3">experience</p>
               <h2 className="text-2xl md:text-3xl font-bold text-[#e8e8e8] tracking-tight mb-2">
                 {"places that let me in."}
               </h2>
-              <p className="text-sm text-[#555] mb-8 italic">{"(on purpose, I mean)"}</p>
+              <p className="text-sm text-[#666] mb-8 italic">{"(on purpose, I mean)"}</p>
             </motion.div>
 
             <div className="space-y-6">
@@ -198,15 +187,15 @@ export default function NerdyPage() {
                   <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-1 mb-3">
                     <div>
                       <h3 className="text-lg font-bold text-[#e8e8e8]">{job.role}</h3>
-                      <p className="text-sm text-[#999]">{job.company} <span className="text-[#555]">-- {job.location}</span></p>
-                      <p className="text-xs text-[#555] italic mt-0.5">{job.aside}</p>
+                      <p className="text-sm text-[#aaa]">{job.company} <span className="text-[#666]">-- {job.location}</span></p>
+                      <p className="text-xs text-[#666] italic mt-0.5">{job.aside}</p>
                     </div>
-                    <p className="font-mono text-xs text-[#777] shrink-0">{job.period}</p>
+                    <p className="font-mono text-xs text-[#999] shrink-0">{job.period}</p>
                   </div>
 
                   <ul className="space-y-1.5">
                     {job.bullets.map((b) => (
-                      <li key={b} className="flex gap-3 text-sm text-[#bbb]">
+                      <li key={b} className="flex gap-3 text-sm text-[#ccc]">
                         <span className="mt-1.5 h-1.5 w-1.5 shrink-0 bg-[#e8e8e8]" style={{ borderRadius: "50%" }} />
                         {b}
                       </li>
@@ -217,16 +206,16 @@ export default function NerdyPage() {
             </div>
           </section>
 
-          <div className="mx-auto max-w-4xl px-6"><div className="h-px bg-[#2a2a2a]" /></div>
+          <div className="mx-auto max-w-4xl px-6"><div className="h-px bg-[#333]" /></div>
 
           {/* -- Projects -- */}
           <section className="relative z-10 mx-auto max-w-4xl px-6 py-14">
             <motion.div {...fadeUp}>
-              <p className="font-mono text-xs tracking-widest uppercase text-[#777] mb-3">projects</p>
+              <p className="font-mono text-xs tracking-widest uppercase text-[#999] mb-3">projects</p>
               <h2 className="text-2xl md:text-3xl font-bold text-[#e8e8e8] tracking-tight mb-2">
                 things i built at 2 AM.
               </h2>
-              <p className="text-sm text-[#555] mb-8 italic">{"(fueled by questionable decisions and instant noodles)"}</p>
+              <p className="text-sm text-[#666] mb-8 italic">{"(fueled by questionable decisions and instant noodles)"}</p>
             </motion.div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -241,18 +230,17 @@ export default function NerdyPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-40px" }}
                   transition={{ delay: i * 0.08, duration: 0.4 }}
-                  data-hover
                 >
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <h3 className="text-lg font-bold text-[#e8e8e8]">{p.name}</h3>
-                      <ExternalLink className="h-3.5 w-3.5 text-[#555] group-hover:text-[#e8e8e8] transition-colors" />
+                      <ExternalLink className="h-3.5 w-3.5 text-[#666] group-hover:text-[#e8e8e8] transition-colors" />
                     </div>
-                    <p className="text-sm text-[#999] leading-relaxed">{p.desc}</p>
+                    <p className="text-sm text-[#aaa] leading-relaxed">{p.desc}</p>
                   </div>
                   <div className="flex flex-wrap gap-2 mt-3">
                     {p.tech.map((t) => (
-                      <span key={t} className="font-mono text-xs px-2 py-1 border border-[#2a2a2a] text-[#777] group-hover:border-[#555] transition-colors">
+                      <span key={t} className="font-mono text-xs px-2 py-1 border border-[#333] text-[#999] group-hover:border-[#666] transition-colors">
                         {t}
                       </span>
                     ))}
@@ -262,16 +250,16 @@ export default function NerdyPage() {
             </div>
           </section>
 
-          <div className="mx-auto max-w-4xl px-6"><div className="h-px bg-[#2a2a2a]" /></div>
+          <div className="mx-auto max-w-4xl px-6"><div className="h-px bg-[#333]" /></div>
 
           {/* -- Skills -- */}
           <section className="relative z-10 mx-auto max-w-4xl px-6 py-14">
             <motion.div {...fadeUp}>
-              <p className="font-mono text-xs tracking-widest uppercase text-[#777] mb-3">skills</p>
+              <p className="font-mono text-xs tracking-widest uppercase text-[#999] mb-3">skills</p>
               <h2 className="text-2xl md:text-3xl font-bold text-[#e8e8e8] tracking-tight mb-2">
                 my toolbox.
               </h2>
-              <p className="text-sm text-[#555] mb-8 italic">{"(or at least what I claim to know on LinkedIn)"}</p>
+              <p className="text-sm text-[#666] mb-8 italic">{"(or at least what I claim on LinkedIn)"}</p>
             </motion.div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -285,14 +273,14 @@ export default function NerdyPage() {
                   transition={{ delay: i * 0.08, duration: 0.4 }}
                 >
                   <div className="flex items-center gap-2 mb-3">
-                    <Terminal className="h-3.5 w-3.5 text-[#777]" />
-                    <h3 className="font-mono text-xs tracking-widest uppercase text-[#777]">{category}</h3>
+                    <Terminal className="h-3.5 w-3.5 text-[#999]" />
+                    <h3 className="font-mono text-xs tracking-widest uppercase text-[#999]">{category}</h3>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {items.map((item) => (
                       <span
                         key={item}
-                        className="text-sm px-3 py-1.5 border border-[#2a2a2a] text-[#bbb] hover:bg-[#e8e8e8] hover:text-[#0a0a0a] hover:border-[#e8e8e8] transition-colors cursor-default"
+                        className="text-sm px-3 py-1.5 border border-[#333] text-[#ccc] hover:bg-[#e8e8e8] hover:text-[#0a0a0a] hover:border-[#e8e8e8] transition-colors cursor-default"
                       >
                         {item}
                       </span>
@@ -303,22 +291,22 @@ export default function NerdyPage() {
             </div>
           </section>
 
-          <div className="mx-auto max-w-4xl px-6"><div className="h-px bg-[#2a2a2a]" /></div>
+          <div className="mx-auto max-w-4xl px-6"><div className="h-px bg-[#333]" /></div>
 
           {/* -- Certs & Achievements -- */}
           <section className="relative z-10 mx-auto max-w-4xl px-6 py-14">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
               <motion.div {...fadeUp}>
                 <div className="flex items-center gap-2 mb-5">
-                  <Shield className="h-4 w-4 text-[#777]" />
-                  <p className="font-mono text-xs tracking-widest uppercase text-[#777]">certifications</p>
+                  <Shield className="h-4 w-4 text-[#999]" />
+                  <p className="font-mono text-xs tracking-widest uppercase text-[#999]">certifications</p>
                 </div>
                 <div className="space-y-3">
                   {certs.map((c) => (
                     <div key={c.name} className="paper-card p-4 hover-bounce">
                       <p className="font-bold text-[#e8e8e8]">{c.name}</p>
-                      <p className="text-xs text-[#999] mt-0.5">{c.issuer}</p>
-                      <p className="font-mono text-xs text-[#777] mt-0.5">{c.date}</p>
+                      <p className="text-xs text-[#aaa] mt-0.5">{c.issuer}</p>
+                      <p className="font-mono text-xs text-[#999] mt-0.5">{c.date}</p>
                     </div>
                   ))}
                 </div>
@@ -326,13 +314,13 @@ export default function NerdyPage() {
 
               <motion.div {...fadeUp}>
                 <div className="flex items-center gap-2 mb-5">
-                  <Bug className="h-4 w-4 text-[#777]" />
-                  <p className="font-mono text-xs tracking-widest uppercase text-[#777]">hall of fame & achievements</p>
+                  <Bug className="h-4 w-4 text-[#999]" />
+                  <p className="font-mono text-xs tracking-widest uppercase text-[#999]">hall of fame & achievements</p>
                 </div>
                 <div className="space-y-2.5">
                   {achievements.map((a, i) => (
-                    <div key={a} className="flex items-start gap-3 text-sm text-[#bbb]">
-                      <Flag className="h-3 w-3 mt-1.5 shrink-0 text-[#777]" />
+                    <div key={a} className="flex items-start gap-3 text-sm text-[#ccc]">
+                      <Flag className="h-3 w-3 mt-1.5 shrink-0 text-[#999]" />
                       <motion.span
                         initial={{ opacity: 0, x: -8 }}
                         whileInView={{ opacity: 1, x: 0 }}
@@ -349,10 +337,10 @@ export default function NerdyPage() {
           </section>
 
           {/* Footer */}
-          <footer className="relative z-10 border-t border-[#2a2a2a]">
+          <footer className="relative z-10 border-t border-[#333]">
             <div className="mx-auto max-w-4xl px-6 py-7 flex items-center justify-between">
-              <p className="font-mono text-xs text-[#555]">som chandra -- 2025</p>
-              <p className="font-mono text-xs text-[#444]">{"$ cat resume.txt"}</p>
+              <p className="font-mono text-xs text-[#666]">som chandra -- 2025</p>
+              <p className="font-mono text-xs text-[#555]">{"$ cat resume.txt"}</p>
             </div>
           </footer>
         </div>

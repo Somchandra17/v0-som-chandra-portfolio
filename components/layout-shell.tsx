@@ -2,8 +2,6 @@
 
 import { useState, useCallback, useEffect, type ReactNode } from "react"
 import { AnimatePresence } from "framer-motion"
-import { CursorProvider } from "@/components/cursor-context"
-import { CustomCursor } from "@/components/custom-cursor"
 import { PaperOverlay } from "@/components/grain-overlay"
 import { Loader } from "@/components/loader"
 
@@ -27,8 +25,7 @@ export function LayoutShell({ children }: { children: ReactNode }) {
   if (!checked) return null
 
   return (
-    <CursorProvider>
-      <CustomCursor />
+    <>
       <PaperOverlay />
       <div className="curved-paper-bg" aria-hidden />
 
@@ -39,6 +36,6 @@ export function LayoutShell({ children }: { children: ReactNode }) {
       {!loading && (
         <div className="float-content">{children}</div>
       )}
-    </CursorProvider>
+    </>
   )
 }

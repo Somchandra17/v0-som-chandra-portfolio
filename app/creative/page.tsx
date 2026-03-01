@@ -1,13 +1,10 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { PageHeader } from "@/components/page-header"
 import { PageTransition } from "@/components/page-transition"
-import { useCursorMode } from "@/components/cursor-context"
 import { Camera, PenTool, BookOpen, X } from "lucide-react"
-
-/* -- data -- */
 
 const photoGallery = [
   { id: 1, title: "Urban Geometry", desc: "Lines and shadows in concrete jungles", aspect: "aspect-[4/5]" },
@@ -59,12 +56,6 @@ const fadeUp = {
 export default function CreativePage() {
   const [activeTab, setActiveTab] = useState<Tab>("photos")
   const [lightboxItem, setLightboxItem] = useState<{ title: string; desc: string } | null>(null)
-  const { setMode } = useCursorMode()
-
-  useEffect(() => {
-    setMode("creative")
-    return () => setMode("default")
-  }, [setMode])
 
   const gallery = activeTab === "photos" ? photoGallery : sketchGallery
 
@@ -78,14 +69,14 @@ export default function CreativePage() {
           {/* -- Bio -- */}
           <section className="relative z-10 mx-auto max-w-4xl px-6 pt-14 pb-10">
             <motion.div {...fadeUp}>
-              <p className="font-mono text-xs tracking-widest uppercase text-[#777] mb-3">the other half</p>
+              <p className="font-mono text-xs tracking-widest uppercase text-[#999] mb-3">the other half</p>
               <h2 className="text-2xl md:text-3xl font-bold text-[#e8e8e8] tracking-tight mb-2">
                 {"when i'm not hacking, i'm probably holding a camera wrong."}
               </h2>
-              <p className="text-sm text-[#555] mb-5 italic">
+              <p className="text-sm text-[#666] mb-5 italic">
                 {"(or staring at a blank sketchbook like it owes me money)"}
               </p>
-              <div className="max-w-2xl space-y-4 text-sm md:text-base text-[#bbb] leading-relaxed margin-line">
+              <div className="max-w-2xl space-y-4 text-sm md:text-base text-[#ccc] leading-relaxed margin-line">
                 <p>
                   {"Street photography mostly -- candid moments, urban textures, the way light hits concrete at weird angles. Sketching happens late at night, usually faces and anatomy studies in graphite or ink. Sometimes I just doodle nonsense and call it art."}
                 </p>
@@ -96,14 +87,13 @@ export default function CreativePage() {
             </motion.div>
           </section>
 
-          <div className="mx-auto max-w-4xl px-6"><div className="h-px bg-[#2a2a2a]" /></div>
+          <div className="mx-auto max-w-4xl px-6"><div className="h-px bg-[#333]" /></div>
 
           {/* -- Gallery -- */}
           <section className="relative z-10 mx-auto max-w-4xl px-6 py-14">
             <motion.div {...fadeUp}>
-              <p className="font-mono text-xs tracking-widest uppercase text-[#777] mb-5">gallery</p>
+              <p className="font-mono text-xs tracking-widest uppercase text-[#999] mb-5">gallery</p>
 
-              {/* Tabs */}
               <div className="flex gap-1 mb-8">
                 {([
                   { key: "photos" as Tab, label: "Photography", icon: Camera },
@@ -116,10 +106,9 @@ export default function CreativePage() {
                       flex items-center gap-2 px-4 py-2 text-sm font-mono transition-all border
                       ${activeTab === tab.key
                         ? "bg-[#e8e8e8] text-[#0a0a0a] border-[#e8e8e8]"
-                        : "bg-transparent text-[#777] border-[#2a2a2a] hover:text-[#e8e8e8] hover:border-[#555]"
+                        : "bg-transparent text-[#999] border-[#333] hover:text-[#e8e8e8] hover:border-[#666]"
                       }
                     `}
-                    data-hover
                   >
                     <tab.icon className="h-3.5 w-3.5" />
                     {tab.label}
@@ -128,7 +117,6 @@ export default function CreativePage() {
               </div>
             </motion.div>
 
-            {/* Masonry Grid */}
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeTab}
@@ -147,21 +135,20 @@ export default function CreativePage() {
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.05, duration: 0.35 }}
                     onClick={() => setLightboxItem(item)}
-                    data-hover
                   >
-                    <div className={`${item.aspect} w-full bg-[#1a1a1a] border-b border-[#2a2a2a] relative overflow-hidden`}>
+                    <div className={`${item.aspect} w-full bg-[#1a1a1a] border-b border-[#333] relative overflow-hidden`}>
                       <div className="absolute inset-0 flex items-center justify-center">
                         {activeTab === "photos" ? (
-                          <Camera className="h-8 w-8 text-[#2a2a2a] group-hover:text-[#444] transition-colors" />
+                          <Camera className="h-8 w-8 text-[#333] group-hover:text-[#555] transition-colors" />
                         ) : (
-                          <PenTool className="h-8 w-8 text-[#2a2a2a] group-hover:text-[#444] transition-colors" />
+                          <PenTool className="h-8 w-8 text-[#333] group-hover:text-[#555] transition-colors" />
                         )}
                       </div>
                       <div className="absolute inset-0 bg-[#e8e8e8]/0 group-hover:bg-[#e8e8e8]/5 transition-colors duration-300" />
                     </div>
                     <div className="p-3">
                       <p className="text-sm font-bold text-[#e8e8e8]">{item.title}</p>
-                      <p className="text-xs text-[#777] mt-0.5">{item.desc}</p>
+                      <p className="text-xs text-[#999] mt-0.5">{item.desc}</p>
                     </div>
                   </motion.div>
                 ))}
@@ -169,19 +156,19 @@ export default function CreativePage() {
             </AnimatePresence>
           </section>
 
-          <div className="mx-auto max-w-4xl px-6"><div className="h-px bg-[#2a2a2a]" /></div>
+          <div className="mx-auto max-w-4xl px-6"><div className="h-px bg-[#333]" /></div>
 
           {/* -- Thoughts -- */}
           <section className="relative z-10 mx-auto max-w-4xl px-6 py-14">
             <motion.div {...fadeUp}>
               <div className="flex items-center gap-2 mb-2">
-                <BookOpen className="h-4 w-4 text-[#777]" />
-                <p className="font-mono text-xs tracking-widest uppercase text-[#777]">thoughts</p>
+                <BookOpen className="h-4 w-4 text-[#999]" />
+                <p className="font-mono text-xs tracking-widest uppercase text-[#999]">thoughts</p>
               </div>
               <h2 className="text-2xl md:text-3xl font-bold text-[#e8e8e8] tracking-tight mb-2">
                 things i wrote at questionable hours.
               </h2>
-              <p className="text-sm text-[#555] mb-8 italic">{"(3 AM brain is a different person)"}</p>
+              <p className="text-sm text-[#666] mb-8 italic">{"(3 AM brain is a different person)"}</p>
             </motion.div>
 
             <div className="space-y-5">
@@ -196,19 +183,19 @@ export default function CreativePage() {
                 >
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="text-lg font-bold text-[#e8e8e8]">{t.title}</h3>
-                    <span className="font-mono text-xs text-[#777]">{t.date}</span>
+                    <span className="font-mono text-xs text-[#999]">{t.date}</span>
                   </div>
-                  <p className="text-sm text-[#bbb] leading-relaxed">{t.body}</p>
+                  <p className="text-sm text-[#ccc] leading-relaxed">{t.body}</p>
                 </motion.article>
               ))}
             </div>
           </section>
 
           {/* Footer */}
-          <footer className="relative z-10 border-t border-[#2a2a2a]">
+          <footer className="relative z-10 border-t border-[#333]">
             <div className="mx-auto max-w-4xl px-6 py-7 flex items-center justify-between">
-              <p className="font-mono text-xs text-[#555]">som chandra -- 2025</p>
-              <p className="font-mono text-xs text-[#444]">the unhinged side</p>
+              <p className="font-mono text-xs text-[#666]">som chandra -- 2025</p>
+              <p className="font-mono text-xs text-[#555]">the unhinged side</p>
             </div>
           </footer>
         </div>
@@ -225,7 +212,7 @@ export default function CreativePage() {
             onClick={() => setLightboxItem(null)}
           >
             <motion.div
-              className="relative bg-[#111] border border-[#2a2a2a] max-w-lg w-full"
+              className="relative bg-[#111] border border-[#333] max-w-lg w-full"
               initial={{ scale: 0.92, y: 16 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.92, y: 16 }}
@@ -235,21 +222,20 @@ export default function CreativePage() {
               <button
                 onClick={() => setLightboxItem(null)}
                 className="absolute top-3 right-3 p-1 hover:bg-[#1a1a1a] transition-colors"
-                data-hover
               >
-                <X className="h-5 w-5 text-[#777]" />
+                <X className="h-5 w-5 text-[#999]" />
               </button>
 
-              <div className="aspect-[4/3] w-full bg-[#1a1a1a] flex items-center justify-center border-b border-[#2a2a2a]">
+              <div className="aspect-[4/3] w-full bg-[#1a1a1a] flex items-center justify-center border-b border-[#333]">
                 <div className="text-center">
-                  <Camera className="h-12 w-12 text-[#2a2a2a] mx-auto mb-2" />
-                  <p className="font-mono text-xs text-[#555]">image placeholder</p>
+                  <Camera className="h-12 w-12 text-[#333] mx-auto mb-2" />
+                  <p className="font-mono text-xs text-[#666]">image placeholder</p>
                 </div>
               </div>
 
               <div className="p-5">
                 <h3 className="text-lg font-bold text-[#e8e8e8]">{lightboxItem.title}</h3>
-                <p className="text-sm text-[#999] mt-1">{lightboxItem.desc}</p>
+                <p className="text-sm text-[#aaa] mt-1">{lightboxItem.desc}</p>
               </div>
             </motion.div>
           </motion.div>
