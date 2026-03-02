@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, type ReactNode } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { PageHeader } from "@/components/page-header"
 import { PageTransition } from "@/components/page-transition"
@@ -153,56 +153,142 @@ function splitIntoSections(items: PhotoItem[]): GallerySection[] {
   return sections.filter((section) => section.items.length > 0)
 }
 
+const intentionalTypos = new Map<string, { correct: string; roast: string }>([
+  ["becus", { correct: "because", roast: "bruh u typed becus again like always lol" }],
+  ["shoudl", { correct: "should", roast: "fingers too lazy to hit d huh" }],
+  ["hones", { correct: "honest", roast: "ya i cant even spell honest properly lmao" }],
+  ["totaly", { correct: "totally", roast: "u missed the l again u legend" }],
+  ["perfec", { correct: "perfect", roast: "museum perfec? more like museum fail lol" }],
+  ["journalin", { correct: "journaling", roast: "visual journalin from a guy who forgets how to spell journaling" }],
+  ["definately", { correct: "definitely", roast: "definately the word u murder every time" }],
+  ["questionble", { correct: "questionble", roast: "bruh u typed questionble again like u cant even question ur own spelling lmao" }],
+  ["befor", { correct: "before", roast: "music works befor language... ya u missed the e king" }],
+  ["xactly", { correct: "exactly", roast: "xactly where it is trying to go... u got the x but forgot the e lol" }],
+  ["alwys", { correct: "always", roast: "not alwys first... bro u missed the a" }],
+  ["sumtimes", { correct: "sometimes", roast: "sumtimes the voice is jus another instrumnt" }],
+  ["instrumnt", { correct: "instrument", roast: "voice is jus another instrumnt... missing 2 letters my guy" }],
+  ["intrestin", { correct: "interesting", roast: "this sounds intrestin to me every single time i fail spelling" }],
+  ["evry", { correct: "every", roast: "evry single time... u missed the e again" }],
+  ["occaisionaly", { correct: "occasionally", roast: "i still replay tracks occaisionaly... triple kill on this word" }],
+  ["finaly", { correct: "finally", roast: "my brain finaly stops switching tabs" }],
+  ["seprate", { correct: "separate", roast: "keep rough studies on seprate pages" }],
+  ["tommorow", { correct: "tomorrow", roast: "tiny notes to tommorow me" }],
+  ["acheive", { correct: "achieve", roast: "i can actualy acheive flow here" }],
+  ["calender", { correct: "calendar", roast: "strict photo calender" }],
+  ["anomolies", { correct: "anomalies", roast: "tiny anomolies from security work" }],
+  ["wierd", { correct: "weird", roast: "its a wierd crossover... or wait weired? idk i confuse both lol" }],
+  ["weired", { correct: "weird", roast: "its a wierd crossover... or wait weired? idk i confuse both lol" }],
+  ["usefull", { correct: "useful", roast: "truely usefull... double l king" }],
+  ["freinds", { correct: "friends", roast: "my freinds think i overthink" }],
+  ["thier", { correct: "their", roast: "yeah thier probly right" }],
+  ["probly", { correct: "probably", roast: "thier probly right... u missed the a" }],
+  ["becums", { correct: "becomes", roast: "sumtimes that becums the shot" }],
+  ["starin", { correct: "staring", roast: "bruh u typed starin twice like u cant even look at the word properly lol" }],
+  ["sketchin", { correct: "sketching", roast: "sketchin is where i slow down... ya fingers gave up again king" }],
+  ["hoppin", { correct: "hopping", roast: "stop tab hoppin in my head... missing the g cus im lazy af" }],
+  ["jus", { correct: "just", roast: "sometimes jus shapes... classic me missing the t" }],
+  ["r", { correct: "are", roast: "side quests r secretly... i cant even spell are right anymore" }],
+  ["usualy", { correct: "usually", roast: "i usualy recieve... missed the l like always" }],
+  ["recieve", { correct: "receive", roast: "i usualy recieve one useful idea... ya i murder this word every single time" }],
+  ["becuase", { correct: "because", roast: "i keep the messy pages too becuase... cus spelling because is too hard for me" }],
+  ["lil", { correct: "little", roast: "a lil chaotic... i even shorten little wrong lol" }],
+  ["experimnts", { correct: "experiments", roast: "most experimnts happen... missing half the letters as usual" }],
+  ["cooperats", { correct: "cooperates", roast: "my brain cooperats... ya even my brain spells wrong at 3 am" }],
+  ["tweakin", { correct: "tweaking", roast: "keep tweakin setups... fingers gave up on the g again" }],
+  ["hesitent", { correct: "hesitant", roast: "jus less hesitent... i even spell hesitant wrong while talking about being less hesitant lol" }],
+])
+
+const typoPattern = new RegExp(`\\b(${Array.from(intentionalTypos.keys()).join("|")})\\b`, "gi")
+
+function IntentionalTypo({
+  wrong,
+  correct,
+  roast,
+}: {
+  wrong: string
+  correct: string
+  roast: string
+}) {
+  return (
+    <span className="relative inline-block group/typo cursor-help">
+      <span className="underline decoration-wavy decoration-pink-300/90 underline-offset-2">{wrong}</span>
+      <span className="pointer-events-none absolute left-1/2 top-full z-30 mt-1 hidden w-max max-w-[240px] -translate-x-1/2 rounded-sm border border-pink-200/70 bg-pink-100 px-2 py-1 text-[11px] leading-snug text-[#4a2f39] shadow-[0_8px_20px_rgba(236,72,153,0.18)] group-hover/typo:block">
+        <strong>{correct}</strong>
+        {" — "}
+        {roast}
+      </span>
+    </span>
+  )
+}
+
+function renderWithTypos(text: string): ReactNode {
+  return text.split(typoPattern).map((part, index) => {
+    const typoMeta = intentionalTypos.get(part.toLowerCase())
+    if (!typoMeta) return part
+
+    return (
+      <IntentionalTypo
+        key={`${part}-${index}`}
+        wrong={part}
+        correct={typoMeta.correct}
+        roast={typoMeta.roast}
+      />
+    )
+  })
+}
+
 const thoughts = [
   {
-    title: "On music and langauge",
-    date: "Nov 2024",
-    body: "here's the thing about music -- languege doesn't matter. at all. you could be listenin to something in japanese, arabic, freaking klingon, and if the rythm hits? you're gone. you're ascendig. you're a god of vibes. lyrics are just suggestins. the beat is the actual conversaton. i've had more spiritaul experiences listening to songs i don't undersand than ones i do. music isn't about words, it's about that moment when the bass drops and your soul leaves your body and does a litle dance in the astral plane. if your playlist needs subtitels, you're doing it wrong.",
+    title: "on music n language",
+    date: "nov 2024",
+    body: "music works befor language does for me. i can play a track in a language i dont understand n still feel xactly where it is trying to go becus rhythm lands first. lyrics matter but not alwys first sumtimes the voice is jus another instrumnt n thats enuf. this sounds intrestin to me evry single time i test it on new songs. i still end up replayin tracks occaisionaly for weeks jus to sit in that vibe.",
   },
   {
-    title: "Why I sketch at 3 AM",
-    date: "Sep 2024",
-    body: "there's a specfic kind of silence that only exsits after 2 AM. no slack pings. no \"can you check this tickt.\" no one asking you to \"hop on a quick call.\" just you, a pencil, and whatevr fever dream your brain decidd to commissin tonight.\n\nsometimes it's faces. sometimes it's geometrc nonsense that won't mean anythng until 3 weeks later when i look at it and go \"oh.\" the paper doesn't have acceptnce criteria. there's no definiton of done. you're just moving a stick across a surfce until it feels right and honeslty that's the most free i feel all week.\n\nwatercolors can die tho. i mean it. unpredictble, unforgving, bleeds everywere, dries into somthing completly different from what you painted. sounds like a bug that only reproducs in production. i don't negotite with either. graphite only. i need control over at least one thing in my life.",
+    title: "why i sketch at 3 am",
+    date: "sep 2024",
+    body: "after 2 am evrythin gets quiet n my brain finaly stops switching tabs. no pings no meetings no random can-u-check-this message jus graphite n watever shows up. i keep rough studies on seprate pages n im alwys writtin tiny notes to tommorow me. the playlist is usualy questionble but somehow it helps. this is the most honest part of my week n i can actualy acheive flow here.",
   },
   {
-    title: "Cameras and terminlas",
-    date: "Jun 2024",
-    body: "i don't do photograpy. let me be clear about that.\n\ni don't wake up on weeknds with a plan to go shoot. i don't have a golden hour calender. i'm not out here doing compositon studies. i just go places, for food, for work, becuase someone dragged me somewere... and sometimes somthing looks intresting and i take my phone out for four secnds and that's it.\n\nthe photo either works or it doesn't. i don't bracket shots. i don't shoot in raw. i move on with my life.\n\nwhat's funny is people assume there's disciplne behind it. there isn't. it's closer to how i notice wierd things in a netwrok response; not becuase i'm looking for it, just becuase something felt off and i paid atention for a secnd. same thing. somthing catches, you captre it, you keep walkng.\n\ni think most people are so busy experiencng a moment that they forget to just look at it. i'm not better at photograpy. i'm just occasionaly present enough to notice when somthing is worth four secnds of my time.",
+    title: "cameras n terminals",
+    date: "jun 2024",
+    body: "i dont go out with a strict photo calender or any big plan. im jus movin thru normal life n if a frame shows up i grab it n keep commin. security work made me notice tiny anomolies n that same instinct shows up in photos its a wierd crossover but truely useful. my freinds think i overthink lil details n yeah thier probly right. i jus look one sec longer than most ppl n sumtimes that becums the shot. strangers still like me tho even if im dumb af n weired n confuse weired with wiredd all the time idk why lol",
   },
 ]
 
 const bioContent: Record<Tab, { heading: string; subtitle: string; description: string[]; byTheWay: string }> = {
   photos: {
-    heading: "when i'm not hacking, i'm probaly holding my phone wrong.",
-    subtitle: "(no i don't own a camera, its all on my phone lol)",
+    heading: "when im not starin at screens im probly holdin my phone wrong.",
+    subtitle: "(no i dont own a camera its all on my phone lol ya im that broke n lazy)",
     description: [
-      "no camera. never ownd one. probaly never will. this is all shot on the thing i use to doom scroll at 2am and argue with strangers on the internt. ₹80,000 mirrorles camera stays on the wishlist next to \"fix sleep scheduel\" and \"drink more water.\"",
-      "i don't go out to shoot. i just go places, for food, becuase someone texted me, becuase i was bored, becuase the city exsits... and sometimes somthing looks intresting and i take my phone out for four secnds. that's the whole procss. there's no plan. there's no golden hour alrm.",
-      "what i end up capturng is just whatevr caught my eye long enough to make me stop walkng. wierd light on a wall. a moment happning in the backgrond that nobdoy else noticed. the evryday stuff that's been sitting there the whole time waitng for somone to give it four secnds of atention.",
-      "there's this split secnd right before you tap the shuttr where evrything just *locks in* and you know. that feelling is why my phone never dies peacfuly of old age.",
-      "none of this is gallrey-ready. think of it as visual notes from somone who stares at terminlas all day and occasionaly needs proof that the world outsde exists.",
+      "i dont reely do planned photo walks most frames happen between normal life stuff n random detours.",
+      "i take the shot becus something catches for one second light reflections faces tiny moments then it is gone.",
+      "i dont over process much i shoudl probably do more edits but raw vibes feel more honest to me.",
+      "i keep folders by mood more than place n yeah it sounds totaly chaotic but it helps me find shots faster.",
+      "none of this is museum perfec it is more like visual journalin from someone who stares at terminals all day.",
     ],
-    byTheWay: "also i have a problm and it's called travl. cramped busses. overngiht trains where you don't know your seat neighbr but somehow end up sharng their food by hour three. hiking solo with one backpak and the audacty to think that's enough. road trips where somone's aux cord privleges get revoked forty minuts in. new citeis with people you actualy want to be stuck in an airport with. i'll go anywere. alone, with freinds, with one person i actualy like... doesn't mattr. the plan can fall apart completley. i will still have a better time than i would siting still. famly trips tho? diffrent conversaton entireley. too much group poling on where to eat. too many compromsis. somone always wants to leave early. somone else always wants to stay too long. the itineary is eleven pages and we still spend four hours deciding lnuch. i love my famly. i would not travl with them again.",
+    byTheWay: "travel is still my reset button trains buses tea stalls airport delays all of it. i can improvise around bad plans but i definately cannot survive rigid group itineraries for long half the good stories happen when plans break.",
   },
   sketches: {
-    heading: "when i'm not hacking, i'm probaly covered in graphite dust.",
-    subtitle: "(and staring at a blank sketchbok like it owes me money)",
+    heading: "when im not starin at screens im usually covered in graphite dust.",
+    subtitle: "(and starin at a blank sketchbook like it owes me money lol)",
     description: [
-      "sketchng happens late at night, usally faces and anatomey studies in graphite or ink. there's somthing meditative about the scrach of pencil on paper, no undo buton, no delete key. just commitent.",
-      "i'm obsesed with pencils -- mechancial, graphite, charcol, anything with a sharp piont. they're honest tools. no distracstions, no fancy effetcs. just you and the paper. watercolors can burn tho. i tried once. never agian.",
-      "sometimes i just doodle nonsense and call it art. sometimes those nonsense doodels turn into somthing real. none of this is polishd, and i prefr it that way.",
+      "sketchin is where i slow down n stop tab hoppin in my head.",
+      "mostly faces hands n rough anatomy in graphite sometimes jus shapes till the page feels right.",
+      "some nights r ten minute warmups n some go for hours if i stay with it i usualy recieve one useful idea.",
+      "i keep the messy pages too becuase those teach me more than polished ones.",
     ],
-    byTheWay: "the best sketchs happen when the world is asleep. 3 AM brain is a diffrnt person -- uncensored, experimetal, messy. traveling with a sketchbok is freedom. pulling out a pencil in a train, a cafe, a random street cornr and just... creating. that's when the magic hapens.",
+    byTheWay: "best sketch sessions happen late when the world goes quiet 3 am brain is fast honest n a lil chaotic in a useful way.",
   },
   sidequests: {
-    heading: "when i'm not hacking, i'm probaly doing somethin questionable.",
-    subtitle: "(side quests are the main quest, fite me)",
+    heading: "when im not starin at screens im probly doing something questionble.",
+    subtitle: "(side quests r secretly the main quest)",
     description: [
-      "i live for side quests. the wierder the better. set up an entire workstatoin at ikea? done. tried to learn guitar by just vibeing? ongoing. mixed food combinatons that should be ilegal? daily.",
-      "i spend most of my time between 2 AM and 5 AM. that's when the real stuff happns. the rest of the day is just waitng for the world to shut up so i can actualy think.",
-      "i use arch btw. with hyprland. my entire setup is basicaly a flex. if you use a macbook i will not say anythng but i will think many things.",
+      "i live for side quests the stranger they r the better the story later.",
+      "most experimnts happen between 2 am n 5 am when the internet is quiet n my brain cooperats.",
+      "i still run linux daily n keep tweakin setups i shoudl probly leave alone.",
+      "some ideas fail instantly n some turn into projects both r useful n kinda fun.",
     ],
-    byTheWay: "i was the shyest kid in every room i walked into. now i'm the coolest person in the room (self-certified, no refunds). the charcter developmnt arc is real and i'm livng proof. also i hate apple. like really realy hate apple. that's not a personalilty trait, that's a lifestyle choce.",
+    byTheWay: "i used to be the quiet kid in evry room now i talk more build more n ship faster same person jus less hesitent.",
   },
 }
 
@@ -282,7 +368,6 @@ function PhotoCard({
 export default function CreativePage() {
   const [activeTab, setActiveTab] = useState<Tab>("photos")
   const [lightboxItem, setLightboxItem] = useState<PhotoItem | null>(null)
-  const [showPhone, setShowPhone] = useState(false)
 
   useEffect(() => {
     if (!lightboxItem) return
@@ -320,7 +405,7 @@ export default function CreativePage() {
               transition={{ delay: 0.5, duration: 0.8 }}
               className="font-mono text-[0.65rem] text-[#1a1a1a] italic text-right bg-pink-200/80 px-3 py-1.5 rounded-sm inline-block float-right"
             >
-              {"* yes, the spelling mistakes are intentional. mostly. okay fine, some aren't. bear with me."}
+              {"* some typos are intentional. hover the squiggles for the fix + a tiny roast."}
             </motion.p>
             <div className="clear-both" />
           </div>
@@ -339,36 +424,10 @@ export default function CreativePage() {
                   transition={{ duration: 0.25 }}
                 >
                   <h2 className="text-2xl md:text-3xl font-bold text-[#e8e8e8] tracking-tight mb-2">
-                    {bioContent[activeTab].heading}
+                    {renderWithTypos(bioContent[activeTab].heading)}
                   </h2>
                   <p className="text-sm text-[#666] mb-5 italic">
-                    {activeTab === "photos" ? (
-                      <span>
-                        {"(no i don't own a camera, its all on my "}
-                        <span
-                          className="relative cursor-pointer border-b border-dashed border-[#555] hover:text-[#e8e8e8] transition-colors"
-                          onMouseEnter={() => setShowPhone(true)}
-                          onMouseLeave={() => setShowPhone(false)}
-                        >
-                          phone
-                          <AnimatePresence>
-                            {showPhone && (
-                              <motion.span
-                                initial={{ opacity: 0, y: 4 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: 4 }}
-                                className="absolute left-1/2 -translate-x-1/2 -top-8 bg-[#1a1a1a] border border-[#555] px-2 py-1 text-xs text-[#e8e8e8] whitespace-nowrap font-mono z-20"
-                              >
-                                vivo x300
-                              </motion.span>
-                            )}
-                          </AnimatePresence>
-                        </span>
-                        {" lol)"}
-                      </span>
-                    ) : (
-                      bioContent[activeTab].subtitle
-                    )}
+                    {renderWithTypos(bioContent[activeTab].subtitle)}
                   </p>
                 </motion.div>
               </AnimatePresence>
@@ -389,7 +448,7 @@ export default function CreativePage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.08, duration: 0.3 }}
                     >
-                      {para}
+                      {renderWithTypos(para)}
                     </motion.p>
                   ))}
 
@@ -401,7 +460,7 @@ export default function CreativePage() {
                   >
                     <p className="text-xs font-mono tracking-wider text-[#999] uppercase mb-2">by the way</p>
                     <p className="text-sm text-[#aaa]">
-                      {bioContent[activeTab].byTheWay}
+                      {renderWithTypos(bioContent[activeTab].byTheWay)}
                     </p>
                   </motion.div>
                 </motion.div>
@@ -486,9 +545,9 @@ export default function CreativePage() {
                 <p className="font-mono text-xs tracking-widest uppercase text-[#999]">thoughts</p>
               </div>
               <h2 className="text-2xl md:text-3xl font-bold text-[#e8e8e8] tracking-tight mb-2">
-                things i wrote at questionble hours.
+                {renderWithTypos("things i wrote at questionble hours.")}
               </h2>
-              <p className="text-sm text-[#666] mb-8 italic">{"(3 AM brain is a diffrnt person)"}</p>
+              <p className="text-sm text-[#666] mb-8 italic">{renderWithTypos("(3 am brain is a diffrent person)")}</p>
             </motion.div>
 
             <div className="space-y-5">
@@ -502,10 +561,10 @@ export default function CreativePage() {
                   transition={{ delay: i * 0.08, duration: 0.45 }}
                 >
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-lg font-bold text-[#e8e8e8]">{t.title}</h3>
+                    <h3 className="text-lg font-bold text-[#e8e8e8]">{renderWithTypos(t.title)}</h3>
                     <span className="font-mono text-xs text-[#999]">{t.date}</span>
                   </div>
-                  <p className="text-sm text-[#ccc] leading-relaxed">{t.body}</p>
+                  <p className="text-sm text-[#ccc] leading-relaxed">{renderWithTypos(t.body)}</p>
                 </motion.article>
               ))}
             </div>
@@ -516,6 +575,12 @@ export default function CreativePage() {
             <div className="mx-auto max-w-4xl px-6 py-7 flex items-center justify-between">
               <p className="font-mono text-xs text-[#666]">som chandra -- 2025</p>
               <p className="font-mono text-xs text-[#555]">the unhinged side</p>
+            </div>
+            <div className="mx-auto max-w-4xl px-6 pb-7">
+              <p className="font-mono text-[0.65rem] text-[#1a1a1a] italic text-right bg-pink-200/80 px-3 py-1.5 rounded-sm inline-block float-right">
+                {'* those roast was from Grok i know it sucks lol ai "'}
+              </p>
+              <div className="clear-both" />
             </div>
           </footer>
         </div>
