@@ -1,17 +1,14 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { PageHeader } from "@/components/page-header"
 import { PageTransition } from "@/components/page-transition"
-import { Camera, PenTool, BookOpen, X, Compass, Guitar } from "lucide-react"
+import { Camera, PenTool, BookOpen, X, Compass } from "lucide-react"
 
 type Tab = "photos" | "sketches" | "sidequests"
 
-// Aspect type for visual variety in the masonry grid
-type AspectType = "portrait" | "landscape" | "square" | "wide"
-
-// Photo and sketch data with predefined aspect ratios for visual variety
+// Gallery item data for all creative tabs
 interface PhotoItem {
   id: number
   title: string
@@ -19,45 +16,142 @@ interface PhotoItem {
   location?: string
   date?: string
   src?: string
-  aspect: AspectType
 }
 
-// Aspect ratio CSS classes for each type
-const aspectClasses: Record<AspectType, string> = {
-  portrait: "aspect-[3/4]",
-  landscape: "aspect-[4/3]",
-  square: "aspect-square",
-  wide: "aspect-[16/9]",
+interface GallerySection {
+  heading: string
+  items: PhotoItem[]
 }
 
-const photoGallery: PhotoItem[] = [
-  { id: 1, title: "Urban Geometrey", desc: "lines and shadwos in concrete jungels", location: "Mumbai, IN", date: "Dec 2024", aspect: "portrait" },
-  { id: 2, title: "Golden Hour", desc: "that fiften-minute window where evrything glows", location: "Goa, IN", date: "Nov 2024", aspect: "wide" },
-  { id: 3, title: "Strangerss", desc: "faces in transit, storeis untold", location: "Delhi, IN", date: "Oct 2024", aspect: "square" },
-  { id: 4, title: "After Rainn", desc: "wet streets reflecitng neon", location: "Bangalore, IN", date: "Sep 2024", aspect: "landscape" },
-  { id: 5, title: "Solitudee", desc: "a bench, a tree, nobdoy around", location: "Himachal, IN", date: "Aug 2024", aspect: "portrait" },
-  { id: 6, title: "Rust & Dacay", desc: "beuaty in what is being forgoten", location: "Kolkata, IN", date: "Jul 2024", aspect: "square" },
-  { id: 7, title: "Night Walkk", desc: "long exposurs at 2 AM", location: "Pune, IN", date: "Jun 2024", aspect: "wide" },
-  { id: 8, title: "Rooftop Veiw", desc: "the city from abvoe", location: "Jaipur, IN", date: "May 2024", aspect: "landscape" },
-]
+const fileNamesByFolder = {
+  clicks: [
+    "somchandra17-20230113_110905-1140111110.jpg",
+    "somchandra17-20230121_043011-4162564923.jpg",
+    "somchandra17-20230121_122921-4001274092.webp",
+    "somchandra17-20230122_002019-1849427257.jpg",
+    "somchandra17-20230122_170855-2310111991.jpg",
+    "somchandra17-20230122_170855-2310111992.jpg",
+    "somchandra17-20230122_170855-2310111993.jpg",
+    "somchandra17-20230129_201707-3909732442.jpg",
+    "somchandra17-20230129_201707-3909732443.jpg",
+    "somchandra17-20230713_062021-1942073438.jpg",
+    "somchandra17-20231010_113819-907259677.jpg",
+    "somchandra17-20231014_183523-104227912.jpg",
+    "somchandra17-20231014_183523-104227914.jpg",
+    "somchandra17-20231108_025058-3567566177.webp",
+    "somchandra17-20250826_070017-672230852.webp",
+    "somchandra17-20260114_051140-1222039426.webp",
+    "somchandra17-20260126_065720-3096167035.webp",
+    "somchandra17-20260126_065720-3096167036.webp",
+    "somchandra17-20260126_065720-792613016.webp",
+    "somchandra17-20260126_065720-792613019.webp",
+    "somchandra17-20260209_020645-3220369136.webp",
+    "somchandra17-20260223_185930-813132418.webp",
+    "somchandra17-20260223_190621-813132420.webp",
+    "somchandra17-20260223_190641-813132421.webp",
+    "somchandra17-20260223_190648-813132422.webp",
+    "somchandra17__2023-01-21T065921.000Z.webp",
+  ],
+  sketch: [
+    "somchandra17-20220711_143837-3108937688.webp",
+    "somchandra17-20220714_035534-3108937689.webp",
+    "somchandra17-20220721_013323-3108937690.webp",
+    "somchandra17-20220807_040233-3108937691.webp",
+    "somchandra17-20220807_040355-3108937692.webp",
+    "somchandra17-20220807_040910-3108937693.webp",
+    "somchandra17-20220807_040943-3108937694.webp",
+    "somchandra17-20230806_030929-1887787864.webp",
+    "somchandra17-20230924_221828-1887787865.jpg",
+    "somchandra17-20230929_230349-1887787866.jpg",
+    "somchandra17-20231125_010718-1887787867.webp",
+  ],
+  sidequest: [
+    "somchandra17-20230729_183650-1664266765.webp",
+    "somchandra17-20240701_154239-1664266771.webp",
+    "somchandra17-20250701_123739-1664266801.webp",
+    "somchandra17-20250826_070017-672230848.webp",
+    "somchandra17-20250826_070017-672230851.webp",
+    "somchandra17-20250826_070017-672230854.webp",
+    "somchandra17-20250905_203302-1664266827.webp",
+    "somchandra17-20250913_045156-1664266829.webp",
+  ],
+} as const
 
-const sketchGallery: PhotoItem[] = [
-  { id: 1, title: "Portraitt Study #14", desc: "graphite on papar, 2 hours", date: "Jan 2025", aspect: "portrait" },
-  { id: 2, title: "Hand Gesturs", desc: "anatomey practice from refernce", date: "Dec 2024", aspect: "square" },
-  { id: 3, title: "Cat in Inkk", desc: "quick ink sktech, 20 minuts", date: "Nov 2024", aspect: "portrait" },
-  { id: 4, title: "Archetecture", desc: "that bilding I pass evrey day", date: "Oct 2024", aspect: "wide" },
-  { id: 5, title: "Abstact Flow", desc: "pen on napkinn during lnuch", date: "Sep 2024", aspect: "square" },
-  { id: 6, title: "Eye Detale", desc: "close-up studey, charcol", date: "Aug 2024", aspect: "landscape" },
-]
+const folderLocation: Record<keyof typeof fileNamesByFolder, string> = {
+  clicks: "clicks",
+  sketch: "sketch",
+  sidequest: "sidequest",
+}
 
-const sideQuestGallery = [
-  { id: 1, title: "WFH at IKEA", desc: "set up my laptop in the showrrom display desk. connected to thier wifi. worked for 4 hours before somone asked if i was an employe. peak productivty tbh.", icon: "desk", date: "Jan 2025" },
-  { id: 2, title: "Guitar Hero (delusional editon)", desc: "i own a guitar. i know zero chrods. but reverb + distortin + grainy tones = i'm basicaly radiohead. no one has told me to stop yet so i'm takng that as a compliment.", icon: "guitar", date: "Dec 2024" },
-  { id: 3, title: "The Food Mixxing Incident", desc: "i have this habbit of mixing the weirdest food combos and convincng myself its good. mango + rice + dal? chef's kiss. my friends call it a cry for helpp. i call it innovaton.", icon: "food", date: "Nov 2024" },
-  { id: 4, title: "2 AM - 5 AM Operatons", desc: "this is when the real work happns. the world is asleep, the wifi is fast, and my brain decideds to be a genuis for exactley 3 hours. then i crash like a brick.", icon: "night", date: "Oct 2024" },
-  { id: 5, title: "Shy Kid -> Cool Guy Arc", desc: "i used to be the kid who sat in the cornner and hoped no one would notce them. now i'm the guy who sits in the corner and hopess everyone notices them. charcter development.", icon: "glow", date: "Sep 2024" },
-  { id: 6, title: "Anti-Apple Propagandaa", desc: "i run arch btw with hyprland. my entire personalilty is basically 'i use linux'. if you use a macbook near me i will judge you silentley. loudly in my head.", icon: "linux", date: "Aug 2024" },
-]
+const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+function getDateFromFileName(fileName: string): string {
+  const compactMatch = fileName.match(/(\d{4})(\d{2})(\d{2})_/)
+  if (compactMatch) {
+    const year = Number.parseInt(compactMatch[1], 10)
+    const month = Number.parseInt(compactMatch[2], 10)
+    const day = Number.parseInt(compactMatch[3], 10)
+    if (month >= 1 && month <= 12) {
+      return `${monthNames[month - 1]} ${day}, ${year}`
+    }
+  }
+
+  const isoMatch = fileName.match(/(\d{4})-(\d{2})-(\d{2})T/)
+  if (isoMatch) {
+    const year = Number.parseInt(isoMatch[1], 10)
+    const month = Number.parseInt(isoMatch[2], 10)
+    const day = Number.parseInt(isoMatch[3], 10)
+    if (month >= 1 && month <= 12) {
+      return `${monthNames[month - 1]} ${day}, ${year}`
+    }
+  }
+
+  return "Unknown date"
+}
+
+function createGalleryFromFolder(
+  folder: keyof typeof fileNamesByFolder,
+  title: string
+): PhotoItem[] {
+  return fileNamesByFolder[folder].map((fileName, index) => ({
+    id: index + 1,
+    title,
+    desc: "dummy caption",
+    location: folderLocation[folder],
+    date: getDateFromFileName(fileName),
+    src: `/creative/pictures/${folder}/${fileName}`,
+  }))
+}
+
+const photoGallery = createGalleryFromFolder("clicks", "clicks")
+const sketchGallery = createGalleryFromFolder("sketch", "sketch")
+const sidequestGallery = createGalleryFromFolder("sidequest", "sidequest")
+
+const commonSubHeadings = ["late captures", "quiet chaos", "fragments", "random finds"]
+
+function getStableBucket(value: string, bucketCount: number): number {
+  let hash = 0
+  for (let i = 0; i < value.length; i += 1) {
+    hash = (hash << 5) - hash + value.charCodeAt(i)
+    hash |= 0
+  }
+  return Math.abs(hash) % bucketCount
+}
+
+function splitIntoSections(items: PhotoItem[]): GallerySection[] {
+  const sections: GallerySection[] = commonSubHeadings.map((heading) => ({
+    heading,
+    items: [],
+  }))
+
+  items.forEach((item) => {
+    const key = item.src ?? `${item.id}-${item.title}`
+    const bucket = getStableBucket(key, sections.length)
+    sections[bucket].items.push(item)
+  })
+
+  return sections.filter((section) => section.items.length > 0)
+}
 
 const thoughts = [
   {
@@ -131,8 +225,6 @@ function PhotoCard({
   activeTab: Tab
   onClick: () => void
 }) {
-  const aspectClass = aspectClasses[item.aspect]
-  
   return (
     <motion.div
       className="break-inside-avoid mb-4 paper-card overflow-hidden cursor-pointer group hover-bounce"
@@ -142,13 +234,13 @@ function PhotoCard({
       transition={{ delay: index * 0.04, duration: 0.35 }}
       onClick={onClick}
     >
-      <div className={`${aspectClass} w-full bg-[#1a1a1a] relative overflow-hidden`}>
+      <div className="w-full bg-[#1a1a1a] relative overflow-hidden">
         {item.src ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={item.src}
             alt={item.title}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="block w-full h-auto transition-transform duration-500 group-hover:scale-[1.02]"
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#1a1a1a] to-[#252525]">
@@ -159,19 +251,29 @@ function PhotoCard({
             )}
           </div>
         )}
-        <div className="absolute inset-0 bg-[#e8e8e8]/0 group-hover:bg-[#e8e8e8]/5 transition-colors duration-300" />
-      </div>
-      
-      {/* Caption below image */}
-      <div className="p-3 border-t border-[#333]">
-        <p className="text-sm font-bold text-[#e8e8e8]">{item.title}</p>
-        <p className="text-xs text-[#888] mt-1 leading-relaxed">{item.desc}</p>
-        {item.location && (
-          <div className="flex items-center justify-between mt-2 text-xs text-[#555]">
-            <span className="font-mono">{item.location}</span>
-            <span className="font-mono">{item.date}</span>
+        <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <div className="absolute inset-0 bg-gradient-to-t from-[#050505]/90 via-[#050505]/50 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 p-3">
+            {item.src ? (
+              <a
+                href={item.src}
+                target="_blank"
+                rel="noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="pointer-events-auto text-sm font-bold text-[#e8e8e8] underline-offset-2 hover:underline"
+              >
+                {item.title}
+              </a>
+            ) : (
+              <p className="text-sm font-bold text-[#e8e8e8]">{item.title}</p>
+            )}
+            <p className="text-xs text-[#cfcfcf] mt-1 leading-relaxed">{item.desc}</p>
+            <div className="flex items-center justify-between mt-2 text-xs text-[#b8b8b8]">
+              <span className="font-mono">{item.location ?? "Unknown location"}</span>
+              <span className="font-mono">{item.date ?? "Unknown date"}</span>
+            </div>
           </div>
-        )}
+        </div>
       </div>
     </motion.div>
   )
@@ -182,7 +284,26 @@ export default function CreativePage() {
   const [lightboxItem, setLightboxItem] = useState<PhotoItem | null>(null)
   const [showPhone, setShowPhone] = useState(false)
 
-  const gallery = activeTab === "photos" ? photoGallery : activeTab === "sketches" ? sketchGallery : null
+  useEffect(() => {
+    if (!lightboxItem) return
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setLightboxItem(null)
+      }
+    }
+
+    window.addEventListener("keydown", onKeyDown)
+    return () => window.removeEventListener("keydown", onKeyDown)
+  }, [lightboxItem])
+
+  const gallery =
+    activeTab === "photos"
+      ? photoGallery
+      : activeTab === "sketches"
+        ? sketchGallery
+        : sidequestGallery
+  const groupedGallery = splitIntoSections(gallery)
 
   return (
     <>
@@ -320,58 +441,35 @@ export default function CreativePage() {
             </motion.div>
 
             <AnimatePresence mode="wait">
-              {activeTab === "sidequests" ? (
-                <motion.div
-                  key="sidequests"
-                  className="space-y-4"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {sideQuestGallery.map((quest, i) => (
-                    <motion.div
-                      key={quest.id}
-                      className="paper-card p-5 md:p-7 hover-bounce"
-                      initial={{ opacity: 0, y: 16 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: i * 0.06, duration: 0.35 }}
-                    >
-                      <div className="flex items-start justify-between gap-4 mb-3">
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-8 w-8 items-center justify-center border border-[#555] shrink-0">
-                            {quest.icon === "guitar" ? (
-                              <Guitar className="h-4 w-4 text-[#aaa]" />
-                            ) : (
-                              <Compass className="h-4 w-4 text-[#aaa]" />
-                            )}
-                          </div>
-                          <h3 className="text-base md:text-lg font-bold text-[#e8e8e8]">{quest.title}</h3>
-                        </div>
-                        <span className="font-mono text-xs text-[#555] shrink-0">{quest.date}</span>
-                      </div>
-                      <p className="text-sm text-[#ccc] leading-relaxed pl-11">{quest.desc}</p>
-                    </motion.div>
-                  ))}
-                </motion.div>
-              ) : gallery && (
+              {groupedGallery && (
                 <motion.div
                   key={activeTab}
-                  className="columns-1 sm:columns-2 lg:columns-3 gap-4"
+                  className="space-y-10"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.3 }}
                 >
-                  {gallery.map((item, i) => (
-                    <PhotoCard
-                      key={`${activeTab}-${item.id}`}
-                      item={item}
-                      index={i}
-                      activeTab={activeTab}
-                      onClick={() => setLightboxItem(item)}
-                    />
+                  {groupedGallery.map((section, sectionIndex) => (
+                    <div key={`${activeTab}-${section.heading}`}>
+                      <div className="mb-4 flex items-center gap-3">
+                        <span className="h-px w-10 bg-[#3f3f3f]" />
+                        <p className="inline-flex items-center border border-[#383838] bg-[#0d0d0d]/70 px-2.5 py-1 font-mono text-[0.62rem] tracking-[0.18em] uppercase text-[#a8a8a8]">
+                          {section.heading}
+                        </p>
+                      </div>
+                      <div className="columns-1 sm:columns-2 lg:columns-3 gap-4">
+                        {section.items.map((item, i) => (
+                          <PhotoCard
+                            key={`${activeTab}-${section.heading}-${item.id}`}
+                            item={item}
+                            index={sectionIndex * 100 + i}
+                            activeTab={activeTab}
+                            onClick={() => setLightboxItem(item)}
+                          />
+                        ))}
+                      </div>
+                    </div>
                   ))}
                 </motion.div>
               )}
@@ -427,39 +525,46 @@ export default function CreativePage() {
       <AnimatePresence>
         {lightboxItem && (
           <motion.div
-            className="fixed inset-0 z-[300] flex items-center justify-center bg-[#000]/85 backdrop-blur-sm p-6"
+            className="fixed inset-0 z-[300] bg-[#000]/92 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setLightboxItem(null)}
           >
-            <motion.div
-              className="relative bg-[#111] border border-[#333] max-w-lg w-full"
-              initial={{ scale: 0.92, y: 16 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.92, y: 16 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              onClick={(e) => e.stopPropagation()}
+            <button
+              onClick={() => setLightboxItem(null)}
+              className="absolute top-4 right-4 z-10 rounded-sm border border-[#3a3a3a] bg-[#111]/80 p-2 hover:bg-[#1a1a1a] transition-colors"
             >
-              <button
-                onClick={() => setLightboxItem(null)}
-                className="absolute top-3 right-3 p-1 hover:bg-[#1a1a1a] transition-colors"
-              >
-                <X className="h-5 w-5 text-[#999]" />
-              </button>
+              <X className="h-5 w-5 text-[#d5d5d5]" />
+            </button>
 
-              <div className="aspect-[4/3] w-full bg-[#1a1a1a] flex items-center justify-center border-b border-[#333]">
-                <div className="text-center">
+            <motion.div
+              className="absolute inset-0 flex items-center justify-center p-3 md:p-6"
+              initial={{ scale: 0.98, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.98, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              {lightboxItem.src ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={lightboxItem.src}
+                  alt={lightboxItem.title}
+                  className="block max-w-[calc(100vw-1.5rem)] max-h-[calc(100vh-7.5rem)] w-auto h-auto object-contain"
+                  onClick={(e) => e.stopPropagation()}
+                />
+              ) : (
+                <div className="text-center" onClick={(e) => e.stopPropagation()}>
                   <Camera className="h-12 w-12 text-[#333] mx-auto mb-2" />
                   <p className="font-mono text-xs text-[#666]">image placeholder</p>
                 </div>
-              </div>
-
-              <div className="p-5">
-                <h3 className="text-lg font-bold text-[#e8e8e8]">{lightboxItem.title}</h3>
-                <p className="text-sm text-[#aaa] mt-1">{lightboxItem.desc}</p>
-              </div>
+              )}
             </motion.div>
+
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#000]/85 to-transparent px-4 py-5 md:px-6">
+              <h3 className="text-lg font-bold text-[#e8e8e8]">{lightboxItem.title}</h3>
+              <p className="text-sm text-[#bdbdbd] mt-1">{lightboxItem.desc}</p>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

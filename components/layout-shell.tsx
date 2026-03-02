@@ -1,13 +1,21 @@
 "use client"
 
 import { useState, useCallback, useEffect, type ReactNode } from "react"
+import { usePathname } from "next/navigation"
 import { AnimatePresence, motion } from "framer-motion"
 import { PaperOverlay } from "@/components/grain-overlay"
 import { Loader } from "@/components/loader"
 
 export function LayoutShell({ children }: { children: ReactNode }) {
+  const pathname = usePathname()
   const [loading, setLoading] = useState(true)
   const [checked, setChecked] = useState(false)
+
+  useEffect(() => {
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual"
+    }
+  }, [])
 
   useEffect(() => {
     // Detect hard refresh (reload) vs soft navigation
@@ -29,6 +37,11 @@ export function LayoutShell({ children }: { children: ReactNode }) {
       setChecked(true)
     }
   }, [])
+
+  useEffect(() => {
+    if (!checked || loading) return
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" })
+  }, [pathname, checked, loading])
 
   const handleLoadComplete = useCallback(() => {
     sessionStorage.setItem("som-loaded", "1")

@@ -1,8 +1,9 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, type MouseEvent } from "react"
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import useSWR from "swr"
 import { MusicDCTF } from "@/components/musicd-ctf"
 import {
@@ -98,14 +99,37 @@ type Artist = {
 }
 
 export default function Home() {
+  const router = useRouter()
   const [hoverSide, setHoverSide] = useState<"nerdy" | "creative" | null>(null)
   const [nameMode, setNameMode] = useState<"default" | "nerdy" | "creative">("default")
   const [isHoverLocked, setIsHoverLocked] = useState(false)
+  const [isNerdyRouting, setIsNerdyRouting] = useState(false)
   const [factIdx, setFactIdx] = useState(0)
 
   const cycleName = () => {
+    sessionStorage.setItem("som-name-clicked", "1")
     setIsHoverLocked(true)
     setNameMode((prev) => prev === "default" ? "nerdy" : prev === "nerdy" ? "default" : "default")
+  }
+
+  const handleNerdyOpen = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (isNerdyRouting) {
+      event.preventDefault()
+      return
+    }
+
+    const hasClickedName = sessionStorage.getItem("som-name-clicked") === "1"
+    if (hasClickedName) return
+
+    event.preventDefault()
+    setIsNerdyRouting(true)
+    setHoverSide("nerdy")
+    setIsHoverLocked(true)
+    setNameMode("nerdy")
+
+    window.setTimeout(() => {
+      router.push("/nerdy")
+    }, 420)
   }
 
   const nameConfig = {
@@ -255,7 +279,7 @@ export default function Home() {
               onHoverEnd={() => { setHoverSide(null); if (!isHoverLocked) setNameMode("default") }}
               className="group"
             >
-              <Link href="/nerdy">
+              <Link href="/nerdy" onClick={handleNerdyOpen}>
                 <motion.div 
                   className="paper-card relative p-7 md:p-9 min-h-[220px] flex flex-col justify-between overflow-hidden hover-wiggle"
                   animate={nameMode === "nerdy" ? { 
