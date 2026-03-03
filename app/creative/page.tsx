@@ -206,7 +206,40 @@ export default function CreativePage() {
 
               <div className="flex flex-col lg:flex-row lg:gap-10 min-h-[420px]">
                 {/* Left side: nav items with image reveal */}
-                <div className="relative flex flex-col justify-center gap-2 lg:w-[45%] shrink-0">
+                <div className="relative flex flex-col justify-center gap-0 lg:w-[45%] shrink-0">
+                  {/* Floating image reveal -- shared, positioned relative to nav container */}
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={activeSection}
+                      className="pointer-events-none absolute -top-4 right-0 flex gap-3 z-20"
+                      initial={{ opacity: 0, scale: 0.8, y: 10 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.8, y: -10 }}
+                      transition={{ duration: 0.35, ease: "easeOut" }}
+                    >
+                      {active.images.map((src, i) => (
+                        <motion.div
+                          key={i}
+                          className="w-20 h-20 md:w-24 md:h-24 overflow-hidden border border-[#333] shadow-2xl"
+                          initial={{ opacity: 0, rotate: 0 }}
+                          animate={{
+                            opacity: 0.9,
+                            rotate: i === 0 ? -6 : 5,
+                          }}
+                          transition={{ duration: 0.3, delay: i * 0.08 }}
+                          style={{ boxShadow: "0 8px 30px rgba(0,0,0,0.5)" }}
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={src}
+                            alt={`${active.label} preview ${i + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </motion.div>
+                      ))}
+                    </motion.div>
+                  </AnimatePresence>
+
                   {sections.map((section) => {
                     const isActive = activeSection === section.key
                     return (
@@ -222,7 +255,7 @@ export default function CreativePage() {
                         }}
                         className="group relative block"
                       >
-                        <div className="flex items-center gap-4 py-4 px-2">
+                        <div className="flex items-center gap-4 py-5 px-2">
                           <motion.h2
                             className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight"
                             animate={{ color: isActive ? "#e8e8e8" : "#444" }}
@@ -237,38 +270,6 @@ export default function CreativePage() {
                             <ArrowRight className="h-5 w-5 text-[#f0c6cf]" />
                           </motion.div>
                         </div>
-
-                        {/* Hover image reveal -- floats over the text */}
-                        <motion.div
-                          className="pointer-events-none absolute right-0 top-1/2 -translate-y-1/2 flex gap-2 z-20"
-                          initial={false}
-                          animate={{
-                            opacity: isActive ? 1 : 0,
-                            scale: isActive ? 1 : 0.85,
-                            x: isActive ? 0 : 20,
-                          }}
-                          transition={{ duration: 0.35, ease: "easeOut" }}
-                        >
-                          {section.images.map((src, i) => (
-                            <motion.div
-                              key={i}
-                              className="w-16 h-16 md:w-20 md:h-20 overflow-hidden border border-[#333] shadow-xl"
-                              initial={false}
-                              animate={{
-                                opacity: isActive ? 0.9 : 0,
-                                rotate: i === 0 ? -4 : 3,
-                              }}
-                              transition={{ duration: 0.3, delay: i * 0.06 }}
-                            >
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img
-                                src={src}
-                                alt={`${section.label} preview ${i + 1}`}
-                                className="w-full h-full object-cover"
-                              />
-                            </motion.div>
-                          ))}
-                        </motion.div>
 
                         {/* Active indicator line */}
                         <motion.div
