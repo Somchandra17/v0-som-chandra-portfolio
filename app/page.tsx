@@ -1,8 +1,9 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, type MouseEvent } from "react"
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import useSWR from "swr"
 import { MusicDCTF } from "@/components/musicd-ctf"
 import {
@@ -11,6 +12,24 @@ import {
 } from "lucide-react"
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
+
+function getRelativePlayedText(playedAt?: string): string | null {
+  if (!playedAt) return null
+  const playedDate = new Date(playedAt)
+  if (Number.isNaN(playedDate.getTime())) return null
+
+  const diffSeconds = Math.round((playedDate.getTime() - Date.now()) / 1000)
+  const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" })
+
+  const diffMinutes = Math.round(diffSeconds / 60)
+  if (Math.abs(diffMinutes) < 60) return rtf.format(diffMinutes, "minute")
+
+  const diffHours = Math.round(diffMinutes / 60)
+  if (Math.abs(diffHours) < 24) return rtf.format(diffHours, "hour")
+
+  const diffDays = Math.round(diffHours / 24)
+  return rtf.format(diffDays, "day")
+}
 
 const socials = [
   { label: "GitHub", href: "https://github.com/somchandra17", icon: Github },
@@ -72,6 +91,9 @@ const heroLines = [
 
 type NowPlayingData = {
   isPlaying: boolean
+  isCurrentlyPlaying?: boolean
+  mode?: "now_playing" | "last_played"
+  playedAt?: string
   title?: string
   artist?: string
   album?: string
@@ -98,14 +120,37 @@ type Artist = {
 }
 
 export default function Home() {
+  const router = useRouter()
   const [hoverSide, setHoverSide] = useState<"nerdy" | "creative" | null>(null)
   const [nameMode, setNameMode] = useState<"default" | "nerdy" | "creative">("default")
   const [isHoverLocked, setIsHoverLocked] = useState(false)
+  const [isNerdyRouting, setIsNerdyRouting] = useState(false)
   const [factIdx, setFactIdx] = useState(0)
 
   const cycleName = () => {
+    sessionStorage.setItem("som-name-clicked", "1")
     setIsHoverLocked(true)
     setNameMode((prev) => prev === "default" ? "nerdy" : prev === "nerdy" ? "default" : "default")
+  }
+
+  const handleNerdyOpen = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (isNerdyRouting) {
+      event.preventDefault()
+      return
+    }
+
+    const hasClickedName = sessionStorage.getItem("som-name-clicked") === "1"
+    if (hasClickedName) return
+
+    event.preventDefault()
+    setIsNerdyRouting(true)
+    setHoverSide("nerdy")
+    setIsHoverLocked(true)
+    setNameMode("nerdy")
+
+    window.setTimeout(() => {
+      router.push("/nerdy")
+    }, 420)
   }
 
   const nameConfig = {
@@ -144,21 +189,23 @@ export default function Home() {
   const topArtists = topArtistsData?.artists || []
   const recentTracks = recentData?.tracks || []
   const playlistTracks = playlistData?.tracks || []
+  const isNowPlaying = nowPlaying?.mode === "now_playing"
+  const relativePlayed = getRelativePlayedText(nowPlaying?.playedAt)
 
   return (
     <main className="relative min-h-screen">
 
       {/* ---- HERO: fills viewport ---- */}
-      <motion.section
-        ref={heroRef}
-        className="relative z-10 mx-auto max-w-5xl px-6 flex flex-col justify-center min-h-screen"
-        style={{ opacity: heroOpacity, y: heroY }}
-      >
+      <section ref={heroRef} className="relative">
+        <motion.div
+          className="relative z-10 mx-auto max-w-5xl px-6 flex flex-col justify-center min-h-screen"
+          style={{ opacity: heroOpacity, y: heroY }}
+        >
         <motion.div
           className="mb-10 h-px bg-[#e8e8e8]"
-          initial={{ width: 0 }}
-          animate={{ width: "100%" }}
-          transition={{ duration: 1, ease: "easeOut", delay: 0.1 }}
+          initial={{ width: 0, opacity: 0 }}
+          animate={{ width: "100%", opacity: 1 }}
+          transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
         />
 
         <motion.div
@@ -176,10 +223,10 @@ export default function Home() {
               <AnimatePresence mode="wait">
                 <motion.span
                   key={nameMode}
-                  initial={{ opacity: 0, filter: "blur(8px)", y: 6 }}
-                  animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
-                  exit={{ opacity: 0, filter: "blur(8px)", y: -6 }}
-                  transition={{ duration: 0.3 }}
+                  initial={{ opacity: 0, filter: "blur(12px)", y: 8, scale: 0.95 }}
+                  animate={{ opacity: 1, filter: "blur(0px)", y: 0, scale: 1 }}
+                  exit={{ opacity: 0, filter: "blur(8px)", y: -8, scale: 1.02 }}
+                  transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
                   className={nameMode === "nerdy" ? "inline-block font-mono" : "inline-block"}
                   style={{
                     color: nameConfig[nameMode].color,
@@ -199,10 +246,10 @@ export default function Home() {
               <motion.p
                 key={heroIdx}
                 className="text-xl md:text-2xl lg:text-3xl font-bold text-[#777]"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.35 }}
+                initial={{ opacity: 0, y: 24, filter: "blur(4px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                exit={{ opacity: 0, y: -20, filter: "blur(2px)" }}
+                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
               >
                 {heroLines[heroIdx]}
               </motion.p>
@@ -215,10 +262,10 @@ export default function Home() {
               <motion.p
                 key={factIdx}
                 className="font-mono text-sm text-[#666]"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -12 }}
-                transition={{ duration: 0.3 }}
+                initial={{ opacity: 0, y: 14, x: -4 }}
+                animate={{ opacity: 1, y: 0, x: 0 }}
+                exit={{ opacity: 0, y: -10, x: 4 }}
+                transition={{ duration: 0.28, ease: "easeOut" }}
               >
                 {"// "}
                 {funFacts[factIdx]}
@@ -255,7 +302,7 @@ export default function Home() {
               onHoverEnd={() => { setHoverSide(null); if (!isHoverLocked) setNameMode("default") }}
               className="group"
             >
-              <Link href="/nerdy">
+              <Link href="/nerdy" onClick={handleNerdyOpen}>
                 <motion.div 
                   className="paper-card relative p-7 md:p-9 min-h-[220px] flex flex-col justify-between overflow-hidden hover-wiggle"
                   animate={nameMode === "nerdy" ? { 
@@ -381,16 +428,20 @@ export default function Home() {
         {/* Scroll hint */}
         <motion.div
           className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.5 }}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.5, duration: 0.6, ease: "easeOut" }}
         >
           <p className="font-mono text-xs text-[#666]">scroll for vibes</p>
-          <motion.div animate={{ y: [0, 6, 0] }} transition={{ duration: 1.5, repeat: Infinity }}>
+          <motion.div 
+            animate={{ y: [0, 8, 0] }} 
+            transition={{ duration: 1.8, repeat: Infinity, ease: [0.45, 0, 0.55, 1] }}
+          >
             <ArrowDown className="h-4 w-4 text-[#666]" />
           </motion.div>
         </motion.div>
-      </motion.section>
+        </motion.div>
+      </section>
 
 
       {/* ==== BELOW THE FOLD ==== */}
@@ -406,8 +457,21 @@ export default function Home() {
           >
             <div className="border-t border-[#333] pt-10">
               <div className="flex items-center gap-2 mb-4">
-                <Disc3 className="h-4 w-4 text-[#1DB954] animate-spin" style={{ animationDuration: "3s" }} />
-                <p className="font-mono text-xs tracking-widest uppercase text-[#1DB954]">now playing</p>
+                <Disc3
+                  className={`h-4 w-4 ${isNowPlaying ? "animate-spin text-[#1DB954]" : "text-[#767676]"}`}
+                  style={{ animationDuration: "3s" }}
+                />
+                <p className={`font-mono text-xs tracking-widest uppercase ${isNowPlaying ? "text-[#1DB954]" : "text-[#8a8a8a]"}`}>
+                  {isNowPlaying ? "now playing" : "last played song"}
+                </p>
+                {!isNowPlaying && (
+                  <span className="border border-[#3a3a3a] bg-[#141414] px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.14em] text-[#8b8b8b]">
+                    afk
+                  </span>
+                )}
+                {!isNowPlaying && relativePlayed && (
+                  <span className="font-mono text-[10px] text-[#6f6f6f]">({relativePlayed})</span>
+                )}
               </div>
               <a
                 href={nowPlaying.songUrl}
@@ -637,7 +701,7 @@ export default function Home() {
       {/* ---- FOOTER ---- */}
       <footer className="relative z-10 border-t border-[#333]">
         <div className="mx-auto max-w-5xl px-6 py-7 flex items-center justify-between">
-          <p className="font-mono text-xs text-[#888]">som chandra -- 2025</p>
+          <p className="font-mono text-xs text-[#888]">som chandra, 2025</p>
           <p className="font-mono text-xs text-[#666]">made with mass of coffee</p>
         </div>
       </footer>

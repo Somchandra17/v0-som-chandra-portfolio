@@ -56,21 +56,21 @@ export function Loader({ onComplete }: { onComplete: () => void }) {
             <motion.div
               className="w-3 h-3 rounded-full bg-[#f0c6cf] mb-8"
               animate={{
-                scale: [1, 1.5, 1],
-                opacity: [0.5, 1, 0.5],
+                scale: [1, 1.4, 1],
+                opacity: [0.6, 1, 0.6],
               }}
-              transition={{ duration: 1.2, repeat: Infinity }}
-              style={{ boxShadow: "0 0 15px rgba(240, 198, 207, 0.5)" }}
+              transition={{ duration: 1.4, repeat: Infinity, ease: [0.45, 0, 0.55, 1] }}
+              style={{ boxShadow: "0 0 20px rgba(240, 198, 207, 0.6)" }}
             />
 
             {/* Message */}
             <AnimatePresence mode="wait">
               <motion.p
                 key={msgIndex}
-                initial={{ opacity: 0, y: 8, filter: "blur(4px)" }}
-                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                exit={{ opacity: 0, y: -8, filter: "blur(4px)" }}
-                transition={{ duration: 0.25 }}
+                initial={{ opacity: 0, y: 10, filter: "blur(6px)", scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)", scale: 1 }}
+                exit={{ opacity: 0, y: -8, filter: "blur(4px)", scale: 0.98 }}
+                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                 className="font-mono text-sm text-[#e8e8e8]"
               >
                 {messages[msgIndex]}
@@ -101,24 +101,24 @@ export function Loader({ onComplete }: { onComplete: () => void }) {
           <motion.div
             key="name"
             className="flex flex-col items-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.4 }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.05 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
           >
             {/* Name reveal */}
             <motion.h1
               className="text-5xl md:text-7xl font-bold text-[#e8e8e8] tracking-tight"
-              initial={{ opacity: 0, letterSpacing: "0.5em" }}
-              animate={{ opacity: 1, letterSpacing: "0em" }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
+              initial={{ opacity: 0, letterSpacing: "0.4em", filter: "blur(8px)" }}
+              animate={{ opacity: 1, letterSpacing: "-0.02em", filter: "blur(0px)" }}
+              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
             >
               {"som"}
               <motion.span
                 className="text-[#f0c6cf]"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.4 }}
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.35, duration: 0.3, ease: [0.34, 1.56, 0.64, 1] }}
               >
                 .
               </motion.span>
@@ -126,9 +126,9 @@ export function Loader({ onComplete }: { onComplete: () => void }) {
 
             <motion.p
               className="font-mono text-xs text-[#555] mt-3"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.4 }}
             >
               hacker / photographer / overthinker
             </motion.p>

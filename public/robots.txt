@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+Disallow: /draft/
+
+# old side quests i completed at 2-5am (htb writeups while brain was on fire)
+# paper - https://somchandra17.gitbook.io/writeups-1/readme/hack-the-box/paper
+# routerspace - https://somchandra17.gitbook.io/writeups-1/readme/hack-the-box/router-space
+# late - https://somchandra17.gitbook.io/writeups-1/readme/hack-the-box/late
+
+# same missions on medium n systemweakness cus i like spamming my own links lol
+# medium - https://medium.com/@Somchandra17
+# late full - https://systemweakness.com/late-hackthebox-walkthrough-40b66a11061a
+# routerspace - https://systemweakness.com/routerspace-hackthebox-walkthrough-fe922d80a2a4
+# paper - https://systemweakness.com/paper-hack-the-box-writeup-245d0d7f9143
+
+# still run linux daily n tweak stuff i shoudl leave alone
+# u found my old htb side quests

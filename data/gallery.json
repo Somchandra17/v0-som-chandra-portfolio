@@ -1,0 +1,1689 @@
+[
+  {
+    "id": 1,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/1.jpg",
+    "location": "Lucknow, IN",
+    "date": "Aug 2026",
+    "caption": "demo caption"
+  },
+  {
+    "id": 2,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/2.jpg",
+    "location": "Varanasi, IN",
+    "date": "Mar 2025",
+    "caption": "demo caption"
+  },
+  {
+    "id": 3,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/3.jpg",
+    "location": "Kolkata, IN",
+    "date": "Oct 2024",
+    "caption": "demo caption"
+  },
+  {
+    "id": 4,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/4.jpg",
+    "location": "Jaipur, IN",
+    "date": "May 2023",
+    "caption": "demo caption"
+  },
+  {
+    "id": 5,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/5.jpg",
+    "location": "Pune, IN",
+    "date": "Dec 2026",
+    "caption": "demo caption"
+  },
+  {
+    "id": 6,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/6.jpg",
+    "location": "Bengaluru, IN",
+    "date": "Jul 2025",
+    "caption": "demo caption"
+  },
+  {
+    "id": 7,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/7.jpg",
+    "location": "Mumbai, IN",
+    "date": "Feb 2024",
+    "caption": "demo caption"
+  },
+  {
+    "id": 8,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/8.jpg",
+    "location": "Noida, IN",
+    "date": "Sep 2023",
+    "caption": "demo caption"
+  },
+  {
+    "id": 9,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/9.jpg",
+    "location": "Hyderabad, IN",
+    "date": "Apr 2026",
+    "caption": "demo caption"
+  },
+  {
+    "id": 10,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/10.jpg",
+    "location": "Delhi, IN",
+    "date": "Nov 2025",
+    "caption": "demo caption"
+  },
+  {
+    "id": 11,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/11.jpg",
+    "location": "Lucknow, IN",
+    "date": "Jun 2024",
+    "caption": "demo caption"
+  },
+  {
+    "id": 12,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/12.jpg",
+    "location": "Varanasi, IN",
+    "date": "Jan 2023",
+    "caption": "demo caption"
+  },
+  {
+    "id": 13,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/13.jpg",
+    "location": "Kolkata, IN",
+    "date": "Aug 2026",
+    "caption": "demo caption"
+  },
+  {
+    "id": 14,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/14.jpg",
+    "location": "Jaipur, IN",
+    "date": "Mar 2025",
+    "caption": "demo caption"
+  },
+  {
+    "id": 15,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/15.jpg",
+    "location": "Pune, IN",
+    "date": "Oct 2024",
+    "caption": "demo caption"
+  },
+  {
+    "id": 16,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/16.jpg",
+    "location": "Bengaluru, IN",
+    "date": "May 2023",
+    "caption": "demo caption"
+  },
+  {
+    "id": 17,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/17.jpg",
+    "location": "Mumbai, IN",
+    "date": "Dec 2026",
+    "caption": "demo caption"
+  },
+  {
+    "id": 18,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/18.jpg",
+    "location": "Noida, IN",
+    "date": "Jul 2025",
+    "caption": "demo caption"
+  },
+  {
+    "id": 19,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/19.jpg",
+    "location": "Hyderabad, IN",
+    "date": "Feb 2024",
+    "caption": "demo caption"
+  },
+  {
+    "id": 20,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/20.jpg",
+    "location": "Delhi, IN",
+    "date": "Sep 2023",
+    "caption": "demo caption"
+  },
+  {
+    "id": 21,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/21.jpg",
+    "location": "Lucknow, IN",
+    "date": "Apr 2026",
+    "caption": "demo caption"
+  },
+  {
+    "id": 22,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/22.jpg",
+    "location": "Varanasi, IN",
+    "date": "Nov 2025",
+    "caption": "demo caption"
+  },
+  {
+    "id": 23,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/23.jpg",
+    "location": "Kolkata, IN",
+    "date": "Jun 2024",
+    "caption": "demo caption"
+  },
+  {
+    "id": 24,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/24.jpg",
+    "location": "Jaipur, IN",
+    "date": "Jan 2023",
+    "caption": "demo caption"
+  },
+  {
+    "id": 25,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/25.jpg",
+    "location": "Pune, IN",
+    "date": "Aug 2026",
+    "caption": "demo caption"
+  },
+  {
+    "id": 26,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/26.jpg",
+    "location": "Bengaluru, IN",
+    "date": "Mar 2025",
+    "caption": "demo caption"
+  },
+  {
+    "id": 27,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/27.jpg",
+    "location": "Mumbai, IN",
+    "date": "Oct 2024",
+    "caption": "demo caption"
+  },
+  {
+    "id": 28,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/28.jpg",
+    "location": "Noida, IN",
+    "date": "May 2023",
+    "caption": "demo caption"
+  },
+  {
+    "id": 29,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/29.jpg",
+    "location": "Hyderabad, IN",
+    "date": "Dec 2026",
+    "caption": "demo caption"
+  },
+  {
+    "id": 30,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/30.jpg",
+    "location": "Delhi, IN",
+    "date": "Jul 2025",
+    "caption": "demo caption"
+  },
+  {
+    "id": 31,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/31.jpg",
+    "location": "Lucknow, IN",
+    "date": "Feb 2024",
+    "caption": "demo caption"
+  },
+  {
+    "id": 32,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/32.jpg",
+    "location": "Varanasi, IN",
+    "date": "Sep 2023",
+    "caption": "demo caption"
+  },
+  {
+    "id": 33,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/33.jpg",
+    "location": "Kolkata, IN",
+    "date": "Apr 2026",
+    "caption": "demo caption"
+  },
+  {
+    "id": 34,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/34.jpg",
+    "location": "Jaipur, IN",
+    "date": "Nov 2025",
+    "caption": "demo caption"
+  },
+  {
+    "id": 35,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/35.jpg",
+    "location": "Pune, IN",
+    "date": "Jun 2024",
+    "caption": "demo caption"
+  },
+  {
+    "id": 36,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/36.jpg",
+    "location": "Bengaluru, IN",
+    "date": "Jan 2023",
+    "caption": "demo caption"
+  },
+  {
+    "id": 37,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/37.jpg",
+    "location": "Mumbai, IN",
+    "date": "Aug 2026",
+    "caption": "demo caption"
+  },
+  {
+    "id": 38,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/38.jpg",
+    "location": "Noida, IN",
+    "date": "Mar 2025",
+    "caption": "demo caption"
+  },
+  {
+    "id": 39,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/39.jpg",
+    "location": "Hyderabad, IN",
+    "date": "Oct 2024",
+    "caption": "demo caption"
+  },
+  {
+    "id": 40,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/40.jpg",
+    "location": "Delhi, IN",
+    "date": "May 2023",
+    "caption": "demo caption"
+  },
+  {
+    "id": 41,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/41.jpg",
+    "location": "Lucknow, IN",
+    "date": "Dec 2026",
+    "caption": "demo caption"
+  },
+  {
+    "id": 42,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/42.jpg",
+    "location": "Varanasi, IN",
+    "date": "Jul 2025",
+    "caption": "demo caption"
+  },
+  {
+    "id": 43,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/43.jpg",
+    "location": "Kolkata, IN",
+    "date": "Feb 2024",
+    "caption": "demo caption"
+  },
+  {
+    "id": 44,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/44.jpg",
+    "location": "Jaipur, IN",
+    "date": "Sep 2023",
+    "caption": "demo caption"
+  },
+  {
+    "id": 45,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/45.jpg",
+    "location": "Pune, IN",
+    "date": "Apr 2026",
+    "caption": "demo caption"
+  },
+  {
+    "id": 46,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/46.jpg",
+    "location": "Bengaluru, IN",
+    "date": "Nov 2025",
+    "caption": "demo caption"
+  },
+  {
+    "id": 47,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/47.jpg",
+    "location": "Mumbai, IN",
+    "date": "Jun 2024",
+    "caption": "demo caption"
+  },
+  {
+    "id": 48,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/48.jpg",
+    "location": "Noida, IN",
+    "date": "Jan 2023",
+    "caption": "demo caption"
+  },
+  {
+    "id": 49,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/49.jpg",
+    "location": "Hyderabad, IN",
+    "date": "Aug 2026",
+    "caption": "demo caption"
+  },
+  {
+    "id": 50,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/50.jpg",
+    "location": "Delhi, IN",
+    "date": "Mar 2025",
+    "caption": "demo caption"
+  },
+  {
+    "id": 51,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/51.jpg",
+    "location": "Lucknow, IN",
+    "date": "Oct 2024",
+    "caption": "demo caption"
+  },
+  {
+    "id": 52,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/52.jpg",
+    "location": "Varanasi, IN",
+    "date": "May 2023",
+    "caption": "demo caption"
+  },
+  {
+    "id": 53,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/53.jpg",
+    "location": "Kolkata, IN",
+    "date": "Dec 2026",
+    "caption": "demo caption"
+  },
+  {
+    "id": 54,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/54.jpg",
+    "location": "Jaipur, IN",
+    "date": "Jul 2025",
+    "caption": "demo caption"
+  },
+  {
+    "id": 55,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/55.jpg",
+    "location": "Pune, IN",
+    "date": "Feb 2024",
+    "caption": "demo caption"
+  },
+  {
+    "id": 56,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/56.jpg",
+    "location": "Bengaluru, IN",
+    "date": "Sep 2023",
+    "caption": "demo caption"
+  },
+  {
+    "id": 57,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/57.jpg",
+    "location": "Mumbai, IN",
+    "date": "Apr 2026",
+    "caption": "demo caption"
+  },
+  {
+    "id": 58,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/58.jpg",
+    "location": "Noida, IN",
+    "date": "Nov 2025",
+    "caption": "demo caption"
+  },
+  {
+    "id": 59,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/59.jpg",
+    "location": "Hyderabad, IN",
+    "date": "Jun 2024",
+    "caption": "demo caption"
+  },
+  {
+    "id": 60,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/60.jpg",
+    "location": "Delhi, IN",
+    "date": "Jan 2023",
+    "caption": "demo caption"
+  },
+  {
+    "id": 61,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/61.jpg",
+    "location": "Lucknow, IN",
+    "date": "Aug 2026",
+    "caption": "demo caption"
+  },
+  {
+    "id": 62,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/62.jpg",
+    "location": "Varanasi, IN",
+    "date": "Mar 2025",
+    "caption": "demo caption"
+  },
+  {
+    "id": 63,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/63.jpg",
+    "location": "Kolkata, IN",
+    "date": "Oct 2024",
+    "caption": "demo caption"
+  },
+  {
+    "id": 64,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/64.jpg",
+    "location": "Jaipur, IN",
+    "date": "May 2023",
+    "caption": "demo caption"
+  },
+  {
+    "id": 65,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/65.jpg",
+    "location": "Pune, IN",
+    "date": "Dec 2026",
+    "caption": "demo caption"
+  },
+  {
+    "id": 66,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/66.jpg",
+    "location": "Bengaluru, IN",
+    "date": "Jul 2025",
+    "caption": "demo caption"
+  },
+  {
+    "id": 67,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/67.jpg",
+    "location": "Mumbai, IN",
+    "date": "Feb 2024",
+    "caption": "demo caption"
+  },
+  {
+    "id": 68,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/68.jpg",
+    "location": "Noida, IN",
+    "date": "Sep 2023",
+    "caption": "demo caption"
+  },
+  {
+    "id": 69,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/69.jpg",
+    "location": "Hyderabad, IN",
+    "date": "Apr 2026",
+    "caption": "demo caption"
+  },
+  {
+    "id": 70,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/70.jpg",
+    "location": "Delhi, IN",
+    "date": "Nov 2025",
+    "caption": "demo caption"
+  },
+  {
+    "id": 71,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/71.jpg",
+    "location": "Lucknow, IN",
+    "date": "Jun 2024",
+    "caption": "demo caption"
+  },
+  {
+    "id": 72,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/72.jpg",
+    "location": "Varanasi, IN",
+    "date": "Jan 2023",
+    "caption": "demo caption"
+  },
+  {
+    "id": 73,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/73.jpg",
+    "location": "Kolkata, IN",
+    "date": "Aug 2026",
+    "caption": "demo caption"
+  },
+  {
+    "id": 74,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/74.jpg",
+    "location": "Jaipur, IN",
+    "date": "Mar 2025",
+    "caption": "demo caption"
+  },
+  {
+    "id": 75,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/75.jpg",
+    "location": "Pune, IN",
+    "date": "Oct 2024",
+    "caption": "demo caption"
+  },
+  {
+    "id": 76,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/76.jpg",
+    "location": "Bengaluru, IN",
+    "date": "May 2023",
+    "caption": "demo caption"
+  },
+  {
+    "id": 77,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/77.jpg",
+    "location": "Mumbai, IN",
+    "date": "Dec 2026",
+    "caption": "demo caption"
+  },
+  {
+    "id": 78,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/78.jpg",
+    "location": "Noida, IN",
+    "date": "Jul 2025",
+    "caption": "demo caption"
+  },
+  {
+    "id": 79,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/79.jpg",
+    "location": "Hyderabad, IN",
+    "date": "Feb 2024",
+    "caption": "demo caption"
+  },
+  {
+    "id": 80,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/80.jpg",
+    "location": "Delhi, IN",
+    "date": "Sep 2023",
+    "caption": "demo caption"
+  },
+  {
+    "id": 81,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/81.jpg",
+    "location": "Lucknow, IN",
+    "date": "Apr 2026",
+    "caption": "demo caption"
+  },
+  {
+    "id": 82,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/82.jpg",
+    "location": "Varanasi, IN",
+    "date": "Nov 2025",
+    "caption": "demo caption"
+  },
+  {
+    "id": 83,
+    "type": "photography",
+    "image": "/creative/pictures/clicks/83.jpg",
+    "location": "Kolkata, IN",
+    "date": "Jun 2024",
+    "caption": "demo caption"
+  },
+  {
+    "id": 84,
+    "type": "doodling",
+    "image": "/creative/pictures/sketch/somchandra17-20220711_143837-3108937688.webp",
+    "caption": "demo caption bug big "
+  },
+  {
+    "id": 85,
+    "type": "doodling",
+    "image": "/creative/pictures/sketch/somchandra17-20220714_035534-3108937689.webp",
+    "caption": "demo caption"
+  },
+  {
+    "id": 86,
+    "type": "doodling",
+    "image": "/creative/pictures/sketch/somchandra17-20220721_013323-3108937690.webp",
+    "caption": "demo caption"
+  },
+  {
+    "id": 87,
+    "type": "doodling",
+    "image": "/creative/pictures/sketch/somchandra17-20220807_040233-3108937691.webp",
+    "caption": "demo caption"
+  },
+  {
+    "id": 88,
+    "type": "doodling",
+    "image": "/creative/pictures/sketch/somchandra17-20220807_040355-3108937692.webp",
+    "caption": "demo caption"
+  },
+  {
+    "id": 89,
+    "type": "doodling",
+    "image": "/creative/pictures/sketch/somchandra17-20220807_040910-3108937693.webp",
+    "caption": "demo caption"
+  },
+  {
+    "id": 90,
+    "type": "doodling",
+    "image": "/creative/pictures/sketch/somchandra17-20220807_040943-3108937694.webp",
+    "caption": "demo caption"
+  },
+  {
+    "id": 91,
+    "type": "doodling",
+    "image": "/creative/pictures/sketch/somchandra17-20230806_030929-1887787864.webp",
+    "caption": "demo caption"
+  },
+  {
+    "id": 92,
+    "type": "doodling",
+    "image": "/creative/pictures/sketch/somchandra17-20230924_221828-1887787865.jpg",
+    "caption": "demo caption"
+  },
+  {
+    "id": 93,
+    "type": "doodling",
+    "image": "/creative/pictures/sketch/somchandra17-20230929_230349-1887787866.jpg",
+    "caption": "demo caption"
+  },
+  {
+    "id": 94,
+    "type": "doodling",
+    "image": "/creative/pictures/sketch/somchandra17-20231125_010718-1887787867.webp",
+    "caption": "demo caption"
+  },
+  {
+    "id": 95,
+    "type": "visual-detours",
+    "photos": [
+      "/creative/pictures/sidequest/1.jpeg",
+      "/creative/pictures/sidequest/2.jpg",
+      "/creative/pictures/sidequest/3.jpg"
+    ],
+    "location": "Pune, IN",
+    "date": "Jun 2024",
+    "caption": "demo shared backstory 01. these frames belong to the same moment."
+  },
+  {
+    "id": 96,
+    "type": "visual-detours",
+    "photos": [
+      "/creative/pictures/sidequest/4.jpg",
+      "/creative/pictures/sidequest/5.jpg",
+      "/creative/pictures/sidequest/6.jpg"
+    ],
+    "location": "Bengaluru, IN",
+    "date": "Jan 2023",
+    "caption": "demo shared backstory 02. these frames belong to the same moment."
+  },
+  {
+    "id": 97,
+    "type": "visual-detours",
+    "photos": [
+      "/creative/pictures/sidequest/7.jpg",
+      "/creative/pictures/sidequest/8.jpg",
+      "/creative/pictures/sidequest/9.jpg"
+    ],
+    "location": "Mumbai, IN",
+    "date": "Aug 2026",
+    "caption": "demo shared backstory 03. these frames belong to the same moment."
+  },
+  {
+    "id": 98,
+    "type": "visual-detours",
+    "photos": [
+      "/creative/pictures/sidequest/10.jpg",
+      "/creative/pictures/sidequest/11.jpg",
+      "/creative/pictures/sidequest/12.jpg"
+    ],
+    "location": "Noida, IN",
+    "date": "Mar 2025",
+    "caption": "demo shared backstory 04. these frames belong to the same moment."
+  },
+  {
+    "id": 99,
+    "type": "visual-detours",
+    "photos": [
+      "/creative/pictures/sidequest/13.jpg",
+      "/creative/pictures/sidequest/14.jpg",
+      "/creative/pictures/sidequest/15.jpg"
+    ],
+    "location": "Hyderabad, IN",
+    "date": "Oct 2024",
+    "caption": "demo shared backstory 05. these frames belong to the same moment."
+  },
+  {
+    "id": 100,
+    "type": "visual-detours",
+    "photos": [
+      "/creative/pictures/sidequest/16.jpg",
+      "/creative/pictures/sidequest/17.jpg",
+      "/creative/pictures/sidequest/18.jpg"
+    ],
+    "location": "Delhi, IN",
+    "date": "May 2023",
+    "caption": "demo shared backstory 06. these frames belong to the same moment."
+  },
+  {
+    "id": 101,
+    "type": "visual-detours",
+    "photos": [
+      "/creative/pictures/sidequest/19.jpg",
+      "/creative/pictures/sidequest/20.jpg",
+      "/creative/pictures/sidequest/21.jpg"
+    ],
+    "location": "Lucknow, IN",
+    "date": "Dec 2026",
+    "caption": "demo shared backstory 07. these frames belong to the same moment."
+  },
+  {
+    "id": 102,
+    "type": "visual-detours",
+    "photos": [
+      "/creative/pictures/sidequest/22.jpg",
+      "/creative/pictures/sidequest/23.jpg",
+      "/creative/pictures/sidequest/24.jpg"
+    ],
+    "location": "Varanasi, IN",
+    "date": "Jul 2025",
+    "caption": "demo shared backstory 08. these frames belong to the same moment."
+  },
+  {
+    "id": 103,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/25.jpg",
+    "location": "Kolkata, IN",
+    "date": "Feb 2024",
+    "caption": "demo caption 1"
+  },
+  {
+    "id": 104,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/26.jpg",
+    "location": "Jaipur, IN",
+    "date": "Sep 2023",
+    "caption": "demo caption 2"
+  },
+  {
+    "id": 105,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/27.jpg",
+    "location": "Pune, IN",
+    "date": "Apr 2026",
+    "caption": "demo caption 3"
+  },
+  {
+    "id": 106,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/28.jpg",
+    "location": "Bengaluru, IN",
+    "date": "Nov 2025",
+    "caption": "demo caption 4"
+  },
+  {
+    "id": 107,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/29.jpg",
+    "location": "Mumbai, IN",
+    "date": "Jun 2024",
+    "caption": "demo caption 5"
+  },
+  {
+    "id": 108,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/30.jpg",
+    "location": "Noida, IN",
+    "date": "Jan 2023",
+    "caption": "demo caption 6"
+  },
+  {
+    "id": 109,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/31.jpg",
+    "location": "Hyderabad, IN",
+    "date": "Aug 2026",
+    "caption": "demo caption 7"
+  },
+  {
+    "id": 110,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/32.jpg",
+    "location": "Delhi, IN",
+    "date": "Mar 2025",
+    "caption": "demo caption 8"
+  },
+  {
+    "id": 111,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/33.jpg",
+    "location": "Lucknow, IN",
+    "date": "Oct 2024",
+    "caption": "demo caption 9"
+  },
+  {
+    "id": 112,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/34.jpg",
+    "location": "Varanasi, IN",
+    "date": "May 2023",
+    "caption": "demo caption 10"
+  },
+  {
+    "id": 113,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/35.jpg",
+    "location": "Kolkata, IN",
+    "date": "Dec 2026",
+    "caption": "demo caption 11"
+  },
+  {
+    "id": 114,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/36.jpg",
+    "location": "Jaipur, IN",
+    "date": "Jul 2025",
+    "caption": "demo caption 12"
+  },
+  {
+    "id": 115,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/37.jpg",
+    "location": "Pune, IN",
+    "date": "Feb 2024",
+    "caption": "demo caption 13"
+  },
+  {
+    "id": 116,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/38.jpg",
+    "location": "Bengaluru, IN",
+    "date": "Sep 2023",
+    "caption": "demo caption 14"
+  },
+  {
+    "id": 117,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/39.jpg",
+    "location": "Mumbai, IN",
+    "date": "Apr 2026",
+    "caption": "demo caption 15"
+  },
+  {
+    "id": 118,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/40.jpg",
+    "location": "Noida, IN",
+    "date": "Nov 2025",
+    "caption": "demo caption 16"
+  },
+  {
+    "id": 119,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/41.jpg",
+    "location": "Hyderabad, IN",
+    "date": "Jun 2024",
+    "caption": "demo caption 17"
+  },
+  {
+    "id": 120,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/42.jpg",
+    "location": "Delhi, IN",
+    "date": "Jan 2023",
+    "caption": "demo caption 18"
+  },
+  {
+    "id": 121,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/43.jpg",
+    "location": "Lucknow, IN",
+    "date": "Aug 2026",
+    "caption": "demo caption 19"
+  },
+  {
+    "id": 122,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/44.jpg",
+    "location": "Varanasi, IN",
+    "date": "Mar 2025",
+    "caption": "demo caption 20"
+  },
+  {
+    "id": 123,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/45.jpg",
+    "location": "Kolkata, IN",
+    "date": "Oct 2024",
+    "caption": "demo caption 21"
+  },
+  {
+    "id": 124,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/46.jpg",
+    "location": "Jaipur, IN",
+    "date": "May 2023",
+    "caption": "demo caption 22"
+  },
+  {
+    "id": 125,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/47.jpg",
+    "location": "Pune, IN",
+    "date": "Dec 2026",
+    "caption": "demo caption 23"
+  },
+  {
+    "id": 126,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/48.jpg",
+    "location": "Bengaluru, IN",
+    "date": "Jul 2025",
+    "caption": "demo caption 24"
+  },
+  {
+    "id": 127,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/49.jpg",
+    "location": "Mumbai, IN",
+    "date": "Feb 2024",
+    "caption": "demo caption 25"
+  },
+  {
+    "id": 128,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/50.jpg",
+    "location": "Noida, IN",
+    "date": "Sep 2023",
+    "caption": "demo caption 26"
+  },
+  {
+    "id": 129,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/51.jpg",
+    "location": "Hyderabad, IN",
+    "date": "Apr 2026",
+    "caption": "demo caption 27"
+  },
+  {
+    "id": 130,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/52.jpg",
+    "location": "Delhi, IN",
+    "date": "Nov 2025",
+    "caption": "demo caption 28"
+  },
+  {
+    "id": 131,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/53.jpg",
+    "location": "Lucknow, IN",
+    "date": "Jun 2024",
+    "caption": "demo caption 29"
+  },
+  {
+    "id": 132,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/54.jpg",
+    "location": "Varanasi, IN",
+    "date": "Jan 2023",
+    "caption": "demo caption 30"
+  },
+  {
+    "id": 133,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/55.jpg",
+    "location": "Kolkata, IN",
+    "date": "Aug 2026",
+    "caption": "demo caption 31"
+  },
+  {
+    "id": 134,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/56.jpg",
+    "location": "Jaipur, IN",
+    "date": "Mar 2025",
+    "caption": "demo caption 32"
+  },
+  {
+    "id": 135,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/57.jpg",
+    "location": "Pune, IN",
+    "date": "Oct 2024",
+    "caption": "demo caption 33"
+  },
+  {
+    "id": 136,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/58.jpg",
+    "location": "Bengaluru, IN",
+    "date": "May 2023",
+    "caption": "demo caption 34"
+  },
+  {
+    "id": 137,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/59.jpg",
+    "location": "Mumbai, IN",
+    "date": "Dec 2026",
+    "caption": "demo caption 35"
+  },
+  {
+    "id": 138,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/60.jpg",
+    "location": "Noida, IN",
+    "date": "Jul 2025",
+    "caption": "demo caption 36"
+  },
+  {
+    "id": 139,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/61.jpg",
+    "location": "Hyderabad, IN",
+    "date": "Feb 2024",
+    "caption": "demo caption 37"
+  },
+  {
+    "id": 140,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/62.jpg",
+    "location": "Delhi, IN",
+    "date": "Sep 2023",
+    "caption": "demo caption 38"
+  },
+  {
+    "id": 141,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/63.jpg",
+    "location": "Lucknow, IN",
+    "date": "Apr 2026",
+    "caption": "demo caption 39"
+  },
+  {
+    "id": 142,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/64.jpg",
+    "location": "Varanasi, IN",
+    "date": "Nov 2025",
+    "caption": "demo caption 40"
+  },
+  {
+    "id": 143,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/65.jpg",
+    "location": "Kolkata, IN",
+    "date": "Jun 2024",
+    "caption": "demo caption 41"
+  },
+  {
+    "id": 144,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/66.jpg",
+    "location": "Jaipur, IN",
+    "date": "Jan 2023",
+    "caption": "demo caption 42"
+  },
+  {
+    "id": 145,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/67.jpg",
+    "location": "Pune, IN",
+    "date": "Aug 2026",
+    "caption": "demo caption 43"
+  },
+  {
+    "id": 146,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/68.jpg",
+    "location": "Bengaluru, IN",
+    "date": "Mar 2025",
+    "caption": "demo caption 44"
+  },
+  {
+    "id": 147,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/69.jpg",
+    "location": "Mumbai, IN",
+    "date": "Oct 2024",
+    "caption": "demo caption 45"
+  },
+  {
+    "id": 148,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/70.jpg",
+    "location": "Noida, IN",
+    "date": "May 2023",
+    "caption": "demo caption 46"
+  },
+  {
+    "id": 149,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/71.jpg",
+    "location": "Hyderabad, IN",
+    "date": "Dec 2026",
+    "caption": "demo caption 47"
+  },
+  {
+    "id": 150,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/72.jpg",
+    "location": "Delhi, IN",
+    "date": "Jul 2025",
+    "caption": "demo caption 48"
+  },
+  {
+    "id": 151,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/73.jpg",
+    "location": "Lucknow, IN",
+    "date": "Feb 2024",
+    "caption": "demo caption 49"
+  },
+  {
+    "id": 152,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/74.jpg",
+    "location": "Varanasi, IN",
+    "date": "Sep 2023",
+    "caption": "demo caption 50"
+  },
+  {
+    "id": 153,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/75.jpg",
+    "location": "Kolkata, IN",
+    "date": "Apr 2026",
+    "caption": "demo caption 51"
+  },
+  {
+    "id": 154,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/76.jpg",
+    "location": "Jaipur, IN",
+    "date": "Nov 2025",
+    "caption": "demo caption 52"
+  },
+  {
+    "id": 155,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/77.jpg",
+    "location": "Pune, IN",
+    "date": "Jun 2024",
+    "caption": "demo caption 53"
+  },
+  {
+    "id": 156,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/78.jpg",
+    "location": "Bengaluru, IN",
+    "date": "Jan 2023",
+    "caption": "demo caption 54"
+  },
+  {
+    "id": 157,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/79.jpg",
+    "location": "Mumbai, IN",
+    "date": "Aug 2026",
+    "caption": "demo caption 55"
+  },
+  {
+    "id": 158,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/80.jpg",
+    "location": "Noida, IN",
+    "date": "Mar 2025",
+    "caption": "demo caption 56"
+  },
+  {
+    "id": 159,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/81.jpg",
+    "location": "Hyderabad, IN",
+    "date": "Oct 2024",
+    "caption": "demo caption 57"
+  },
+  {
+    "id": 160,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/82.jpg",
+    "location": "Delhi, IN",
+    "date": "May 2023",
+    "caption": "demo caption 58"
+  },
+  {
+    "id": 161,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/83.jpg",
+    "location": "Lucknow, IN",
+    "date": "Dec 2026",
+    "caption": "demo caption 59"
+  },
+  {
+    "id": 162,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/84.jpg",
+    "location": "Varanasi, IN",
+    "date": "Jul 2025",
+    "caption": "demo caption 60"
+  },
+  {
+    "id": 163,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/85.jpg",
+    "location": "Kolkata, IN",
+    "date": "Feb 2024",
+    "caption": "demo caption 61"
+  },
+  {
+    "id": 164,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/86.jpg",
+    "location": "Jaipur, IN",
+    "date": "Sep 2023",
+    "caption": "demo caption 62"
+  },
+  {
+    "id": 165,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/87.jpg",
+    "location": "Pune, IN",
+    "date": "Apr 2026",
+    "caption": "demo caption 63"
+  },
+  {
+    "id": 166,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/88.jpg",
+    "location": "Bengaluru, IN",
+    "date": "Nov 2025",
+    "caption": "demo caption 64"
+  },
+  {
+    "id": 167,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/89.jpg",
+    "location": "Mumbai, IN",
+    "date": "Jun 2024",
+    "caption": "demo caption 65"
+  },
+  {
+    "id": 168,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/90.jpg",
+    "location": "Noida, IN",
+    "date": "Jan 2023",
+    "caption": "demo caption 66"
+  },
+  {
+    "id": 169,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/91.jpg",
+    "location": "Hyderabad, IN",
+    "date": "Aug 2026",
+    "caption": "demo caption 67"
+  },
+  {
+    "id": 170,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/92.jpg",
+    "location": "Delhi, IN",
+    "date": "Mar 2025",
+    "caption": "demo caption 68"
+  },
+  {
+    "id": 171,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/93.jpg",
+    "location": "Lucknow, IN",
+    "date": "Oct 2024",
+    "caption": "demo caption 69"
+  },
+  {
+    "id": 172,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/94.jpg",
+    "location": "Varanasi, IN",
+    "date": "May 2023",
+    "caption": "demo caption 70"
+  },
+  {
+    "id": 173,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/95.jpg",
+    "location": "Kolkata, IN",
+    "date": "Dec 2026",
+    "caption": "demo caption 71"
+  },
+  {
+    "id": 174,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/96.jpg",
+    "location": "Jaipur, IN",
+    "date": "Jul 2025",
+    "caption": "demo caption 72"
+  },
+  {
+    "id": 175,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/97.jpg",
+    "location": "Pune, IN",
+    "date": "Feb 2024",
+    "caption": "demo caption 73"
+  },
+  {
+    "id": 176,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/98.jpg",
+    "location": "Bengaluru, IN",
+    "date": "Sep 2023",
+    "caption": "demo caption 74"
+  },
+  {
+    "id": 177,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/99.jpg",
+    "location": "Mumbai, IN",
+    "date": "Apr 2026",
+    "caption": "demo caption 75"
+  },
+  {
+    "id": 178,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/100.jpg",
+    "location": "Noida, IN",
+    "date": "Nov 2025",
+    "caption": "demo caption 76"
+  },
+  {
+    "id": 179,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/101.jpg",
+    "location": "Hyderabad, IN",
+    "date": "Jun 2024",
+    "caption": "demo caption 77"
+  },
+  {
+    "id": 180,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/102.jpg",
+    "location": "Delhi, IN",
+    "date": "Jan 2023",
+    "caption": "demo caption 78"
+  },
+  {
+    "id": 181,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/103.jpg",
+    "location": "Lucknow, IN",
+    "date": "Aug 2026",
+    "caption": "demo caption 79"
+  },
+  {
+    "id": 182,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/104.jpg",
+    "location": "Varanasi, IN",
+    "date": "Mar 2025",
+    "caption": "demo caption 80"
+  },
+  {
+    "id": 183,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/105.jpg",
+    "location": "Kolkata, IN",
+    "date": "Oct 2024",
+    "caption": "demo caption 81"
+  },
+  {
+    "id": 184,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/106.jpg",
+    "location": "Jaipur, IN",
+    "date": "May 2023",
+    "caption": "demo caption 82"
+  },
+  {
+    "id": 185,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/107.jpg",
+    "location": "Pune, IN",
+    "date": "Dec 2026",
+    "caption": "demo caption 83"
+  },
+  {
+    "id": 186,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/108.jpg",
+    "location": "Bengaluru, IN",
+    "date": "Jul 2025",
+    "caption": "demo caption 84"
+  },
+  {
+    "id": 187,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/109.jpg",
+    "location": "Mumbai, IN",
+    "date": "Feb 2024",
+    "caption": "demo caption 85"
+  },
+  {
+    "id": 188,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/110.jpg",
+    "location": "Noida, IN",
+    "date": "Sep 2023",
+    "caption": "demo caption 86"
+  },
+  {
+    "id": 189,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/111.jpg",
+    "location": "Hyderabad, IN",
+    "date": "Apr 2026",
+    "caption": "demo caption 87"
+  },
+  {
+    "id": 190,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/112.jpg",
+    "location": "Delhi, IN",
+    "date": "Nov 2025",
+    "caption": "demo caption 88"
+  },
+  {
+    "id": 191,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/113.jpg",
+    "location": "Lucknow, IN",
+    "date": "Jun 2024",
+    "caption": "demo caption 89"
+  },
+  {
+    "id": 192,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/114.jpg",
+    "location": "Varanasi, IN",
+    "date": "Jan 2023",
+    "caption": "demo caption 90"
+  },
+  {
+    "id": 193,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/115.jpg",
+    "location": "Kolkata, IN",
+    "date": "Aug 2026",
+    "caption": "demo caption 91"
+  },
+  {
+    "id": 194,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/116.jpg",
+    "location": "Jaipur, IN",
+    "date": "Mar 2025",
+    "caption": "demo caption 92"
+  },
+  {
+    "id": 195,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/117.jpg",
+    "location": "Pune, IN",
+    "date": "Oct 2024",
+    "caption": "demo caption 93"
+  },
+  {
+    "id": 196,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/118.jpg",
+    "location": "Bengaluru, IN",
+    "date": "May 2023",
+    "caption": "demo caption 94"
+  },
+  {
+    "id": 197,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/119.jpg",
+    "location": "Mumbai, IN",
+    "date": "Dec 2026",
+    "caption": "demo caption 95"
+  },
+  {
+    "id": 198,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/120.jpg",
+    "location": "Noida, IN",
+    "date": "Jul 2025",
+    "caption": "demo caption 96"
+  },
+  {
+    "id": 199,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/121.jpg",
+    "location": "Hyderabad, IN",
+    "date": "Feb 2024",
+    "caption": "demo caption 97"
+  },
+  {
+    "id": 200,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/122.jpg",
+    "location": "Delhi, IN",
+    "date": "Sep 2023",
+    "caption": "demo caption 98"
+  },
+  {
+    "id": 201,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/123.jpg",
+    "location": "Lucknow, IN",
+    "date": "Apr 2026",
+    "caption": "demo caption 99"
+  },
+  {
+    "id": 202,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/124.jpg",
+    "location": "Varanasi, IN",
+    "date": "Nov 2025",
+    "caption": "demo caption 100"
+  },
+  {
+    "id": 203,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/125.jpg",
+    "location": "Kolkata, IN",
+    "date": "Jun 2024",
+    "caption": "demo caption 101"
+  },
+  {
+    "id": 204,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/126.jpg",
+    "location": "Jaipur, IN",
+    "date": "Jan 2023",
+    "caption": "demo caption 102"
+  },
+  {
+    "id": 205,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/127.jpg",
+    "location": "Pune, IN",
+    "date": "Aug 2026",
+    "caption": "demo caption 103"
+  },
+  {
+    "id": 206,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/somchandra17-20230729_183650-1664266765.webp",
+    "location": "Bengaluru, IN",
+    "date": "Mar 2025",
+    "caption": "demo caption 104"
+  },
+  {
+    "id": 207,
+    "type": "visual-detours",
+    "image": "/creative/pictures/sidequest/somchandra17-20250913_045156-1664266829.webp",
+    "location": "Mumbai, IN",
+    "date": "Oct 2024",
+    "caption": "demo caption 105"
+  },
+  {
+    "id": 224,
+    "type": "thoughts",
+    "title": "on music n language",
+    "date": "Nov 2024",
+    "text": "music works befor language does for me. i can play a track in a language i dont understand n still feel xactly where it is trying to go becus rhythm lands first. lyrics matter but not alwys first sumtimes the voice is jus another instrumnt n thats enuf. this sounds intrestin to me evry single time i test it on new songs. i still end up replayin tracks occaisionaly for weeks jus to sit in that vibe."
+  },
+  {
+    "id": 225,
+    "type": "thoughts",
+    "title": "why i sketch at 3 am",
+    "date": "Sep 2024",
+    "text": "after 2 am evrythin gets quiet n my brain finaly stops switching tabs. no pings no meetings no random can-u-check-this message jus graphite n watever shows up. i keep rough studies on seprate pages n im alwys writtin tiny notes to tommorow me. the playlist is usualy questionble but somehow it helps. this is the most honest part of my week n i can actualy acheive flow here."
+  },
+  {
+    "id": 226,
+    "type": "thoughts",
+    "title": "cameras n terminals",
+    "date": "Jun 2024",
+    "text": "i dont go out with a strict photo calender or any big plan. im jus movin thru normal life n if a frame shows up i grab it n keep commin. security work made me notice tiny anomolies n that same instinct shows up in photos its a wierd crossover but truely useful. my freinds think i overthink lil details n yeah thier probly right. i jus look one sec longer than most ppl n sumtimes that becums the shot. strangers still like me tho even if im dumb af n weired n confuse weired with wiredd all the time idk why lol"
+  }
+]
