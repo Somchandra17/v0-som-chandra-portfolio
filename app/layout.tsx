@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Space_Grotesk, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import './globals.css'
 import { LayoutShell } from '@/components/layout-shell'
 
@@ -47,6 +48,7 @@ export default function RootLayout({
       >
         <LayoutShell>{children}</LayoutShell>
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   )
