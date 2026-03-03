@@ -1,5 +1,3 @@
-# when im not starin at screens im probly holdin my phone wrong again lol
-
 User-agent: *
 Allow: /
 Disallow: /draft/
@@ -16,8 +14,4 @@ Disallow: /draft/
 # paper - https://systemweakness.com/paper-hack-the-box-writeup-245d0d7f9143
 
 # still run linux daily n tweak stuff i shoudl leave alone
-
-Sitemap: https://yoursite.com/sitemap.xml
-
-# easter egg unlocked bruh
 # u found my old htb side quests
