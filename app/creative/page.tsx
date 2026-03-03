@@ -204,9 +204,9 @@ export default function CreativePage() {
             <motion.div {...fadeUp}>
               <p className="font-mono text-xs tracking-widest uppercase text-[#999] mb-6">the other half</p>
 
-              <div className="flex flex-col lg:flex-row lg:gap-0 min-h-[420px]">
+              <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[420px]">
                 {/* Left side: nav items with image reveal */}
-                <div className="relative flex flex-col justify-center gap-0 lg:w-1/2 shrink-0 grow-0">
+                <div className="relative flex flex-col justify-center gap-0">
                   {/* Floating image reveal -- shared, positioned relative to nav container */}
                   <AnimatePresence mode="wait">
                     <motion.div
@@ -285,9 +285,10 @@ export default function CreativePage() {
                   <AnimatePresence>
                     {hasClicked && (
                       <motion.p
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="font-mono text-[0.6rem] text-[#555] mt-2 pl-2"
+                        initial={{ opacity: 0, y: 4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="font-mono text-[0.65rem] text-[#f0c6cf] mt-3 pl-2"
                       >
                         {"click again to view the full gallery ->"}
                       </motion.p>
@@ -295,8 +296,8 @@ export default function CreativePage() {
                   </AnimatePresence>
                 </div>
 
-                {/* Right side: bio content -- fixed width to prevent layout shifts */}
-                <div className="flex flex-col justify-center lg:w-1/2 shrink-0 grow-0 lg:border-l lg:border-[#222] lg:pl-10 mt-6 lg:mt-0 min-h-[380px]">
+                {/* Right side: bio content -- grid column locks width */}
+                <div className="flex flex-col justify-center lg:border-l lg:border-[#222] lg:pl-10 mt-6 lg:mt-0 min-h-[380px] overflow-hidden">
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={active.key}
