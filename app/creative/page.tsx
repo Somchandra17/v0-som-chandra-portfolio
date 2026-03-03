@@ -5,10 +5,11 @@ import { motion, AnimatePresence } from "framer-motion"
 import useSWR from "swr"
 import { PageHeader } from "@/components/page-header"
 import { PageTransition } from "@/components/page-transition"
-import { Camera, PenTool, BookOpen, X, Compass, Disc3 } from "lucide-react"
+import { Camera, PenTool, X, Disc3 } from "lucide-react"
+import { RevealImageNav, type RevealNavItem } from "@/components/reveal-images"
 import galleryRaw from "@/data/gallery.json"
 
-type Tab = "photos" | "sketches" | "sidequests" | "thoughts"
+type Tab = "photos" | "sketches" | "sidequests"
 type SortField = "date" | "location"
 type SortDirection = "asc" | "desc"
 
@@ -168,7 +169,7 @@ const sidequestGallery = galleryData
   )
   .map((entry) => toPhotoItem(entry, "visual detours"))
 
-const imageGalleryByTab: Record<Exclude<Tab, "thoughts">, PhotoItem[]> = {
+const imageGalleryByTab: Record<Tab, PhotoItem[]> = {
   photos: photoGallery,
   sketches: sketchGallery,
   sidequests: sidequestGallery,
@@ -250,8 +251,8 @@ const intentionalTypos = new Map<string, { correct: string; roast: string }>([
 
 const typoPattern = new RegExp(`\\b(${Array.from(intentionalTypos.keys()).join("|")})\\b`, "gi")
 
-function isImageTab(tab: Tab): tab is Exclude<Tab, "thoughts"> {
-  return tab !== "thoughts"
+function isImageTab(_tab: Tab): boolean {
+  return true
 }
 
 function IntentionalTypo({
@@ -334,16 +335,34 @@ const bioContent: Record<Tab, { heading: string; subtitle: string; description: 
     ],
     byTheWay: "i used to be the quiet kid in evry room now i talk more build more n ship faster same person jus less hesitent.",
   },
-  thoughts: {
-    heading: "things i wrote at questionble hours.",
-    subtitle: "(3 am brain is a diffrent person)",
-    description: [
-      "these are raw brain dumps mostly from late nights where sleep got replaced by overthinkin and tea.",
-      "no polished tone no clean structure jus thoughts as they landed in the moment.",
-    ],
-    byTheWay: "if this feels chaotic thats because it is and i kinda like it that way.",
-  },
 }
+
+const revealNavItems: RevealNavItem[] = [
+  {
+    text: "Visual Detors",
+    tabKey: "sidequests",
+    images: [
+      { src: "/creative/pictures/sidequest/1.jpeg", alt: "Visual detour 1" },
+      { src: "/creative/pictures/sidequest/2.jpg", alt: "Visual detour 2" },
+    ],
+  },
+  {
+    text: "Clicks",
+    tabKey: "photos",
+    images: [
+      { src: "/creative/pictures/clicks/1.jpg", alt: "Click 1" },
+      { src: "/creative/pictures/clicks/3.jpg", alt: "Click 2" },
+    ],
+  },
+  {
+    text: "Doodling",
+    tabKey: "sketches",
+    images: [
+      { src: "/creative/pictures/sketch/somchandra17-20220711_143837-3108937688.webp", alt: "Doodle 1" },
+      { src: "/creative/pictures/sketch/somchandra17-20230924_221828-1887787865.jpg", alt: "Doodle 2" },
+    ],
+  },
+]
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -458,7 +477,7 @@ function PhotoCard({
 }
 
 export default function CreativePage() {
-  const [activeTab, setActiveTab] = useState<Tab>("photos")
+  const [activeTab, setActiveTab] = useState<Tab>("sidequests")
   const [lightboxItem, setLightboxItem] = useState<PhotoItem | null>(null)
   const [isTouchDevice, setIsTouchDevice] = useState(false)
   const { data: nowPlaying } = useSWR<NowPlayingData>("/api/spotify/now-playing", fetcher, { refreshInterval: 30000 })
@@ -466,7 +485,7 @@ export default function CreativePage() {
   const relativePlayed = getRelativePlayedText(nowPlaying?.playedAt)
   const [sortField, setSortField] = useState<SortField>("date")
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc")
-  const [visibleCountByTab, setVisibleCountByTab] = useState<Record<Exclude<Tab, "thoughts">, number>>({
+  const [visibleCountByTab, setVisibleCountByTab] = useState<Record<Tab, number>>({
     photos: INITIAL_RENDER_COUNT,
     sketches: INITIAL_RENDER_COUNT,
     sidequests: INITIAL_RENDER_COUNT,
@@ -565,7 +584,7 @@ export default function CreativePage() {
 
   return (
     <>
-      <PageHeader title="the unhinged side" subtitle="photos / doodling / visual detours / late-night scribbles" />
+      <PageHeader title="the unhinged side" subtitle="visual detors / clicks / doodling / late-night scribbles" />
 
       <PageTransition>
         <div className="relative min-h-screen">
@@ -694,36 +713,16 @@ export default function CreativePage() {
 
           <div className="mx-auto max-w-4xl px-6"><div className="h-px bg-[#333]" /></div>
 
-          {/* -- Gallery / Side Quests -- */}
+          {/* -- Reveal Image Nav -- */}
           <section className="relative z-10 mx-auto max-w-4xl px-6 py-14">
             <motion.div {...fadeUp}>
-              <p className="font-mono text-xs tracking-widest uppercase text-[#999] mb-5">gallery</p>
+              <RevealImageNav
+                items={revealNavItems}
+                activeTab={activeTab}
+                onTabChange={(tab) => setActiveTab(tab as Tab)}
+              />
 
-              <div className="flex flex-wrap gap-1 mb-8">
-                {([
-                  { key: "photos" as Tab, label: "Photography", icon: Camera },
-                  { key: "sketches" as Tab, label: "Doodling", icon: PenTool },
-                  { key: "sidequests" as Tab, label: "Visual Detours", icon: Compass },
-                  { key: "thoughts" as Tab, label: "Thoughts", icon: BookOpen },
-                ]).map((tab) => (
-                  <button
-                    key={tab.key}
-                    onClick={() => setActiveTab(tab.key)}
-                    className={`
-                      flex items-center gap-2 px-4 py-2 text-sm font-mono transition-all border
-                      ${activeTab === tab.key
-                        ? "bg-[#e8e8e8] text-[#0a0a0a] border-[#e8e8e8]"
-                        : "bg-transparent text-[#999] border-[#333] hover:text-[#e8e8e8] hover:border-[#666]"
-                      }
-                    `}
-                  >
-                    <tab.icon className="h-3.5 w-3.5" />
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
-
-              {isImageTab(activeTab) && activeTab !== "sketches" && (
+              {activeTab !== "sketches" && (
                 <div className="mb-8 flex flex-wrap items-center gap-2">
                   <span className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-[#666]">sort</span>
                   {([
@@ -769,87 +768,92 @@ export default function CreativePage() {
             </motion.div>
 
             <AnimatePresence mode="wait">
-              {isImageTab(activeTab) ? (
-                <motion.div
-                  key={activeTab}
-                  className="space-y-10"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {groupedGallery.map((section, sectionIndex) => (
-                    <div key={`${activeTab}-${section.heading}`}>
-                      <div className="mb-4 flex items-center gap-3">
-                        <span className="h-px w-10 bg-[#3f3f3f]" />
-                        <p className="inline-flex items-center border border-[#383838] bg-[#0d0d0d]/70 px-2.5 py-1 font-mono text-[0.62rem] tracking-[0.18em] uppercase text-[#a8a8a8]">
-                          {section.heading}
-                        </p>
-                      </div>
-                      <div className="columns-1 sm:columns-2 lg:columns-3 gap-4">
-                        {section.items.map((item, i) => (
-                          <PhotoCard
-                            key={`${activeTab}-${section.heading}-${item.id}`}
-                            item={item}
-                            index={sectionIndex * 100 + i}
-                            activeTab={activeTab}
-                            isTouchDevice={isTouchDevice}
-                            onClick={() => setLightboxItem(item)}
-                          />
-                        ))}
-                      </div>
+              <motion.div
+                key={activeTab}
+                className="space-y-10"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3 }}
+              >
+                {groupedGallery.map((section, sectionIndex) => (
+                  <div key={`${activeTab}-${section.heading}`}>
+                    <div className="mb-4 flex items-center gap-3">
+                      <span className="h-px w-10 bg-[#3f3f3f]" />
+                      <p className="inline-flex items-center border border-[#383838] bg-[#0d0d0d]/70 px-2.5 py-1 font-mono text-[0.62rem] tracking-[0.18em] uppercase text-[#a8a8a8]">
+                        {section.heading}
+                      </p>
                     </div>
-                  ))}
-                  {hasMoreItems && (
-                    <div className="pt-3">
-                      <div ref={loadMoreTriggerRef} className="h-2 w-full" />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (!isImageTab(activeTab)) return
-                          setVisibleCountByTab((current) => ({
-                            ...current,
-                            [activeTab]: Math.min(
-                              current[activeTab] + RENDER_STEP,
-                              sortedImageItems.length
-                            ),
-                          }))
-                        }}
-                        className="mt-3 border border-[#333] bg-transparent px-3 py-2 font-mono text-xs text-[#9a9a9a] transition-colors hover:border-[#666] hover:text-[#e8e8e8]"
-                      >
-                        load more frames
-                      </button>
+                    <div className="columns-1 sm:columns-2 lg:columns-3 gap-4">
+                      {section.items.map((item, i) => (
+                        <PhotoCard
+                          key={`${activeTab}-${section.heading}-${item.id}`}
+                          item={item}
+                          index={sectionIndex * 100 + i}
+                          activeTab={activeTab}
+                          isTouchDevice={isTouchDevice}
+                          onClick={() => setLightboxItem(item)}
+                        />
+                      ))}
                     </div>
-                  )}
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="thoughts"
-                  className="space-y-5"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {thoughts.map((t, i) => (
-                    <motion.article
-                      key={t.title}
-                      className="paper-card p-5 md:p-7 hover-bounce"
-                      initial={{ opacity: 0, y: 16 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true, margin: "-40px" }}
-                      transition={{ delay: i * 0.08, duration: 0.45 }}
+                  </div>
+                ))}
+                {hasMoreItems && (
+                  <div className="pt-3">
+                    <div ref={loadMoreTriggerRef} className="h-2 w-full" />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setVisibleCountByTab((current) => ({
+                          ...current,
+                          [activeTab]: Math.min(
+                            current[activeTab] + RENDER_STEP,
+                            sortedImageItems.length
+                          ),
+                        }))
+                      }}
+                      className="mt-3 border border-[#333] bg-transparent px-3 py-2 font-mono text-xs text-[#9a9a9a] transition-colors hover:border-[#666] hover:text-[#e8e8e8]"
                     >
-                      <div className="flex items-center justify-between mb-3">
-                        <h3 className="text-lg font-bold text-[#e8e8e8]">{renderWithTypos(t.title)}</h3>
-                        <span className="font-mono text-xs text-[#999]">{t.date}</span>
-                      </div>
-                      <p className="text-sm text-[#ccc] leading-relaxed">{renderWithTypos(t.body)}</p>
-                    </motion.article>
-                  ))}
-                </motion.div>
-              )}
+                      load more frames
+                    </button>
+                  </div>
+                )}
+              </motion.div>
             </AnimatePresence>
+          </section>
+
+          {/* -- Thoughts -- */}
+          <section className="relative z-10 mx-auto max-w-4xl px-6 py-14">
+            <motion.div {...fadeUp}>
+              <div className="border-t border-[#333] pt-10">
+                <p className="font-mono text-xs tracking-widest uppercase text-[#999] mb-3">thoughts</p>
+                <h2 className="text-2xl md:text-3xl font-bold text-[#e8e8e8] tracking-tight mb-2">
+                  {renderWithTypos("things i wrote at questionble hours.")}
+                </h2>
+                <p className="text-sm text-[#666] mb-8 italic">
+                  {renderWithTypos("(3 am brain is a diffrent person)")}
+                </p>
+              </div>
+            </motion.div>
+
+            <div className="space-y-5">
+              {thoughts.map((t, i) => (
+                <motion.article
+                  key={t.title}
+                  className="paper-card p-5 md:p-7 hover-bounce"
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-40px" }}
+                  transition={{ delay: i * 0.08, duration: 0.45 }}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-lg font-bold text-[#e8e8e8]">{renderWithTypos(t.title)}</h3>
+                    <span className="font-mono text-xs text-[#999]">{t.date}</span>
+                  </div>
+                  <p className="text-sm text-[#ccc] leading-relaxed">{renderWithTypos(t.body)}</p>
+                </motion.article>
+              ))}
+            </div>
           </section>
 
           {/* Footer */}
