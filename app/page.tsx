@@ -13,6 +13,24 @@ import {
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
+function getRelativePlayedText(playedAt?: string): string | null {
+  if (!playedAt) return null
+  const playedDate = new Date(playedAt)
+  if (Number.isNaN(playedDate.getTime())) return null
+
+  const diffSeconds = Math.round((playedDate.getTime() - Date.now()) / 1000)
+  const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" })
+
+  const diffMinutes = Math.round(diffSeconds / 60)
+  if (Math.abs(diffMinutes) < 60) return rtf.format(diffMinutes, "minute")
+
+  const diffHours = Math.round(diffMinutes / 60)
+  if (Math.abs(diffHours) < 24) return rtf.format(diffHours, "hour")
+
+  const diffDays = Math.round(diffHours / 24)
+  return rtf.format(diffDays, "day")
+}
+
 const socials = [
   { label: "GitHub", href: "https://github.com/somchandra17", icon: Github },
   { label: "LinkedIn", href: "https://linkedin.com/in/somchandra17", icon: Linkedin },
@@ -73,6 +91,9 @@ const heroLines = [
 
 type NowPlayingData = {
   isPlaying: boolean
+  isCurrentlyPlaying?: boolean
+  mode?: "now_playing" | "last_played"
+  playedAt?: string
   title?: string
   artist?: string
   album?: string
@@ -168,6 +189,8 @@ export default function Home() {
   const topArtists = topArtistsData?.artists || []
   const recentTracks = recentData?.tracks || []
   const playlistTracks = playlistData?.tracks || []
+  const isNowPlaying = nowPlaying?.mode === "now_playing"
+  const relativePlayed = getRelativePlayedText(nowPlaying?.playedAt)
 
   return (
     <main className="relative min-h-screen">
@@ -434,8 +457,21 @@ export default function Home() {
           >
             <div className="border-t border-[#333] pt-10">
               <div className="flex items-center gap-2 mb-4">
-                <Disc3 className="h-4 w-4 text-[#1DB954] animate-spin" style={{ animationDuration: "3s" }} />
-                <p className="font-mono text-xs tracking-widest uppercase text-[#1DB954]">now playing</p>
+                <Disc3
+                  className={`h-4 w-4 ${isNowPlaying ? "animate-spin text-[#1DB954]" : "text-[#767676]"}`}
+                  style={{ animationDuration: "3s" }}
+                />
+                <p className={`font-mono text-xs tracking-widest uppercase ${isNowPlaying ? "text-[#1DB954]" : "text-[#8a8a8a]"}`}>
+                  {isNowPlaying ? "now playing" : "last played song"}
+                </p>
+                {!isNowPlaying && (
+                  <span className="border border-[#3a3a3a] bg-[#141414] px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.14em] text-[#8b8b8b]">
+                    afk
+                  </span>
+                )}
+                {!isNowPlaying && relativePlayed && (
+                  <span className="font-mono text-[10px] text-[#6f6f6f]">({relativePlayed})</span>
+                )}
               </div>
               <a
                 href={nowPlaying.songUrl}

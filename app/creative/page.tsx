@@ -1,18 +1,55 @@
 "use client"
 
-import { useEffect, useState, type ReactNode } from "react"
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react"
 import { motion, AnimatePresence } from "framer-motion"
+import useSWR from "swr"
 import { PageHeader } from "@/components/page-header"
 import { PageTransition } from "@/components/page-transition"
-import { Camera, PenTool, BookOpen, X, Compass } from "lucide-react"
+import { Camera, PenTool, BookOpen, X, Compass, Disc3 } from "lucide-react"
+import galleryRaw from "@/data/gallery.json"
 
-type Tab = "photos" | "sketches" | "sidequests"
+type Tab = "photos" | "sketches" | "sidequests" | "thoughts"
+type SortField = "date" | "location"
+type SortDirection = "asc" | "desc"
+
+const fetcher = (url: string) => fetch(url).then((r) => r.json())
+
+function getRelativePlayedText(playedAt?: string): string | null {
+  if (!playedAt) return null
+  const playedDate = new Date(playedAt)
+  if (Number.isNaN(playedDate.getTime())) return null
+
+  const diffSeconds = Math.round((playedDate.getTime() - Date.now()) / 1000)
+  const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" })
+
+  const diffMinutes = Math.round(diffSeconds / 60)
+  if (Math.abs(diffMinutes) < 60) return rtf.format(diffMinutes, "minute")
+
+  const diffHours = Math.round(diffMinutes / 60)
+  if (Math.abs(diffHours) < 24) return rtf.format(diffHours, "hour")
+
+  const diffDays = Math.round(diffHours / 24)
+  return rtf.format(diffDays, "day")
+}
+
+type NowPlayingData = {
+  isPlaying: boolean
+  isCurrentlyPlaying?: boolean
+  mode?: "now_playing" | "last_played"
+  playedAt?: string
+  title?: string
+  artist?: string
+  album?: string
+  albumImageUrl?: string
+  songUrl?: string
+}
 
 // Gallery item data for all creative tabs
 interface PhotoItem {
   id: number
+  kind: ImageEntryType
   title: string
-  desc: string
+  desc?: string
   location?: string
   date?: string
   src?: string
@@ -23,109 +60,122 @@ interface GallerySection {
   items: PhotoItem[]
 }
 
-const fileNamesByFolder = {
-  clicks: [
-    "somchandra17-20230113_110905-1140111110.jpg",
-    "somchandra17-20230121_043011-4162564923.jpg",
-    "somchandra17-20230121_122921-4001274092.webp",
-    "somchandra17-20230122_002019-1849427257.jpg",
-    "somchandra17-20230122_170855-2310111991.jpg",
-    "somchandra17-20230122_170855-2310111992.jpg",
-    "somchandra17-20230122_170855-2310111993.jpg",
-    "somchandra17-20230129_201707-3909732442.jpg",
-    "somchandra17-20230129_201707-3909732443.jpg",
-    "somchandra17-20230713_062021-1942073438.jpg",
-    "somchandra17-20231010_113819-907259677.jpg",
-    "somchandra17-20231014_183523-104227912.jpg",
-    "somchandra17-20231014_183523-104227914.jpg",
-    "somchandra17-20231108_025058-3567566177.webp",
-    "somchandra17-20250826_070017-672230852.webp",
-    "somchandra17-20260114_051140-1222039426.webp",
-    "somchandra17-20260126_065720-3096167035.webp",
-    "somchandra17-20260126_065720-3096167036.webp",
-    "somchandra17-20260126_065720-792613016.webp",
-    "somchandra17-20260126_065720-792613019.webp",
-    "somchandra17-20260209_020645-3220369136.webp",
-    "somchandra17-20260223_185930-813132418.webp",
-    "somchandra17-20260223_190621-813132420.webp",
-    "somchandra17-20260223_190641-813132421.webp",
-    "somchandra17-20260223_190648-813132422.webp",
-    "somchandra17__2023-01-21T065921.000Z.webp",
-  ],
-  sketch: [
-    "somchandra17-20220711_143837-3108937688.webp",
-    "somchandra17-20220714_035534-3108937689.webp",
-    "somchandra17-20220721_013323-3108937690.webp",
-    "somchandra17-20220807_040233-3108937691.webp",
-    "somchandra17-20220807_040355-3108937692.webp",
-    "somchandra17-20220807_040910-3108937693.webp",
-    "somchandra17-20220807_040943-3108937694.webp",
-    "somchandra17-20230806_030929-1887787864.webp",
-    "somchandra17-20230924_221828-1887787865.jpg",
-    "somchandra17-20230929_230349-1887787866.jpg",
-    "somchandra17-20231125_010718-1887787867.webp",
-  ],
-  sidequest: [
-    "somchandra17-20230729_183650-1664266765.webp",
-    "somchandra17-20240701_154239-1664266771.webp",
-    "somchandra17-20250701_123739-1664266801.webp",
-    "somchandra17-20250826_070017-672230848.webp",
-    "somchandra17-20250826_070017-672230851.webp",
-    "somchandra17-20250826_070017-672230854.webp",
-    "somchandra17-20250905_203302-1664266827.webp",
-    "somchandra17-20250913_045156-1664266829.webp",
-  ],
-} as const
+type ImageEntryType = "photography" | "doodling" | "visual-detours"
 
-const folderLocation: Record<keyof typeof fileNamesByFolder, string> = {
-  clicks: "clicks",
-  sketch: "sketch",
-  sidequest: "sidequest",
+type GalleryJsonEntry =
+  | {
+      id: number
+      type: ImageEntryType
+      image?: string
+      photos?: string[]
+      location?: string
+      date?: string
+      caption?: string
+    }
+  | {
+      id: number
+      type: "thoughts"
+      title: string
+      date: string
+      text: string
+    }
+
+const galleryData = [...(galleryRaw as GalleryJsonEntry[])].sort((a, b) => a.id - b.id)
+
+const monthNamesShort = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+const monthLookup = new Map<string, number>([
+  ["jan", 0],
+  ["january", 0],
+  ["feb", 1],
+  ["february", 1],
+  ["mar", 2],
+  ["march", 2],
+  ["apr", 3],
+  ["april", 3],
+  ["may", 4],
+  ["jun", 5],
+  ["june", 5],
+  ["jul", 6],
+  ["july", 6],
+  ["aug", 7],
+  ["august", 7],
+  ["sep", 8],
+  ["sept", 8],
+  ["september", 8],
+  ["oct", 9],
+  ["october", 9],
+  ["nov", 10],
+  ["november", 10],
+  ["dec", 11],
+  ["december", 11],
+])
+
+function normalizeMonthYear(value?: string): string | undefined {
+  if (!value) return undefined
+
+  const match = value.trim().match(/^([a-zA-Z]+)\s+(\d{4})$/)
+  if (!match) return undefined
+
+  const month = monthLookup.get(match[1].toLowerCase())
+  if (month === undefined) return undefined
+
+  const year = Number.parseInt(match[2], 10)
+  if (Number.isNaN(year)) return undefined
+
+  return `${monthNamesShort[month]} ${year}`
 }
 
-const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+function monthYearSortValue(value?: string): number {
+  const normalized = normalizeMonthYear(value)
+  if (!normalized) return Number.NEGATIVE_INFINITY
 
-function getDateFromFileName(fileName: string): string {
-  const compactMatch = fileName.match(/(\d{4})(\d{2})(\d{2})_/)
-  if (compactMatch) {
-    const year = Number.parseInt(compactMatch[1], 10)
-    const month = Number.parseInt(compactMatch[2], 10)
-    const day = Number.parseInt(compactMatch[3], 10)
-    if (month >= 1 && month <= 12) {
-      return `${monthNames[month - 1]} ${day}, ${year}`
-    }
-  }
+  const [monthName, year] = normalized.split(" ")
+  const month = monthNamesShort.indexOf(monthName)
+  const yearNumber = Number.parseInt(year, 10)
+  if (month < 0 || Number.isNaN(yearNumber)) return Number.NEGATIVE_INFINITY
 
-  const isoMatch = fileName.match(/(\d{4})-(\d{2})-(\d{2})T/)
-  if (isoMatch) {
-    const year = Number.parseInt(isoMatch[1], 10)
-    const month = Number.parseInt(isoMatch[2], 10)
-    const day = Number.parseInt(isoMatch[3], 10)
-    if (month >= 1 && month <= 12) {
-      return `${monthNames[month - 1]} ${day}, ${year}`
-    }
-  }
-
-  return "Unknown date"
+  return yearNumber * 12 + month
 }
 
-function createGalleryFromFolder(
-  folder: keyof typeof fileNamesByFolder,
-  title: string
-): PhotoItem[] {
-  return fileNamesByFolder[folder].map((fileName, index) => ({
-    id: index + 1,
+function formatMonthYear(value?: string): string {
+  return normalizeMonthYear(value) ?? "Unknown date"
+}
+
+function toPhotoItem(entry: Extract<GalleryJsonEntry, { type: ImageEntryType }>, title: string): PhotoItem {
+  const isDoodling = entry.type === "doodling"
+  return {
+    id: entry.id,
+    kind: entry.type,
     title,
-    desc: "dummy caption",
-    location: folderLocation[folder],
-    date: getDateFromFileName(fileName),
-    src: `/creative/pictures/${folder}/${fileName}`,
-  }))
+    desc: isDoodling ? undefined : entry.caption ?? "demo caption",
+    location: isDoodling ? undefined : entry.location ?? "demo location",
+    date: isDoodling ? undefined : normalizeMonthYear(entry.date) ?? "Jan 2024",
+    src: entry.image ?? entry.photos?.[0],
+  }
 }
 
-const photoGallery = createGalleryFromFolder("clicks", "clicks")
-const sketchGallery = createGalleryFromFolder("sketch", "sketch")
-const sidequestGallery = createGalleryFromFolder("sidequest", "sidequest")
+const photoGallery = galleryData
+  .filter((entry): entry is Extract<GalleryJsonEntry, { type: "photography" }> => entry.type === "photography")
+  .map((entry) => toPhotoItem(entry, "photography"))
+
+const sketchGallery = galleryData
+  .filter((entry): entry is Extract<GalleryJsonEntry, { type: "doodling" }> => entry.type === "doodling")
+  .map((entry) => toPhotoItem(entry, "doodling"))
+
+const sidequestGallery = galleryData
+  .filter(
+    (entry): entry is Extract<GalleryJsonEntry, { type: "visual-detours" }> => entry.type === "visual-detours"
+  )
+  .map((entry) => toPhotoItem(entry, "visual detours"))
+
+const imageGalleryByTab: Record<Exclude<Tab, "thoughts">, PhotoItem[]> = {
+  photos: photoGallery,
+  sketches: sketchGallery,
+  sidequests: sidequestGallery,
+}
+
+const INITIAL_RENDER_COUNT = 42
+const RENDER_STEP = 30
 
 const commonSubHeadings = ["late captures", "quiet chaos", "fragments", "random finds"]
 
@@ -200,6 +250,10 @@ const intentionalTypos = new Map<string, { correct: string; roast: string }>([
 
 const typoPattern = new RegExp(`\\b(${Array.from(intentionalTypos.keys()).join("|")})\\b`, "gi")
 
+function isImageTab(tab: Tab): tab is Exclude<Tab, "thoughts"> {
+  return tab !== "thoughts"
+}
+
 function IntentionalTypo({
   wrong,
   correct,
@@ -237,23 +291,13 @@ function renderWithTypos(text: string): ReactNode {
   })
 }
 
-const thoughts = [
-  {
-    title: "on music n language",
-    date: "nov 2024",
-    body: "music works befor language does for me. i can play a track in a language i dont understand n still feel xactly where it is trying to go becus rhythm lands first. lyrics matter but not alwys first sumtimes the voice is jus another instrumnt n thats enuf. this sounds intrestin to me evry single time i test it on new songs. i still end up replayin tracks occaisionaly for weeks jus to sit in that vibe.",
-  },
-  {
-    title: "why i sketch at 3 am",
-    date: "sep 2024",
-    body: "after 2 am evrythin gets quiet n my brain finaly stops switching tabs. no pings no meetings no random can-u-check-this message jus graphite n watever shows up. i keep rough studies on seprate pages n im alwys writtin tiny notes to tommorow me. the playlist is usualy questionble but somehow it helps. this is the most honest part of my week n i can actualy acheive flow here.",
-  },
-  {
-    title: "cameras n terminals",
-    date: "jun 2024",
-    body: "i dont go out with a strict photo calender or any big plan. im jus movin thru normal life n if a frame shows up i grab it n keep commin. security work made me notice tiny anomolies n that same instinct shows up in photos its a wierd crossover but truely useful. my freinds think i overthink lil details n yeah thier probly right. i jus look one sec longer than most ppl n sumtimes that becums the shot. strangers still like me tho even if im dumb af n weired n confuse weired with wiredd all the time idk why lol",
-  },
-]
+const thoughts = galleryData
+  .filter((entry): entry is Extract<GalleryJsonEntry, { type: "thoughts" }> => entry.type === "thoughts")
+  .map((entry) => ({
+    title: entry.title,
+    date: formatMonthYear(entry.date),
+    body: entry.text,
+  }))
 
 const bioContent: Record<Tab, { heading: string; subtitle: string; description: string[]; byTheWay: string }> = {
   photos: {
@@ -290,6 +334,15 @@ const bioContent: Record<Tab, { heading: string; subtitle: string; description: 
     ],
     byTheWay: "i used to be the quiet kid in evry room now i talk more build more n ship faster same person jus less hesitent.",
   },
+  thoughts: {
+    heading: "things i wrote at questionble hours.",
+    subtitle: "(3 am brain is a diffrent person)",
+    description: [
+      "these are raw brain dumps mostly from late nights where sleep got replaced by overthinkin and tea.",
+      "no polished tone no clean structure jus thoughts as they landed in the moment.",
+    ],
+    byTheWay: "if this feels chaotic thats because it is and i kinda like it that way.",
+  },
 }
 
 const fadeUp = {
@@ -300,24 +353,60 @@ const fadeUp = {
 }
 
 // Photo card component with proper aspect ratio
-function PhotoCard({ 
-  item, 
-  index, 
-  activeTab, 
+function PhotoCard({
+  item,
+  index,
+  activeTab,
+  isTouchDevice,
   onClick,
-}: { 
+}: {
   item: PhotoItem
   index: number
   activeTab: Tab
+  isTouchDevice: boolean
   onClick: () => void
 }) {
+  const cardRef = useRef<HTMLDivElement | null>(null)
+  const [isMidViewport, setIsMidViewport] = useState(false)
+  const isDoodling = activeTab === "sketches" || item.kind === "doodling"
+
+  useEffect(() => {
+    if (!isTouchDevice) {
+      setIsMidViewport(false)
+      return
+    }
+
+    const node = cardRef.current
+    if (!node) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsMidViewport(entry.isIntersecting)
+      },
+      {
+        root: null,
+        rootMargin: "-38% 0px -38% 0px",
+        threshold: 0,
+      }
+    )
+
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [isTouchDevice])
+
+  const overlayVisibilityClass = isDoodling
+    ? "opacity-0"
+    : isTouchDevice
+      ? isMidViewport
+        ? "opacity-100"
+        : "opacity-0"
+      : "opacity-0 group-hover:opacity-100"
+
   return (
-    <motion.div
-      className="break-inside-avoid mb-4 paper-card overflow-hidden cursor-pointer group hover-bounce"
-      initial={{ opacity: 0, y: 16 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay: index * 0.04, duration: 0.35 }}
+    <div
+      ref={cardRef}
+      className="break-inside-avoid mb-4 paper-card overflow-hidden cursor-pointer group hover-bounce animate-in fade-in slide-in-from-bottom-2 duration-300 [content-visibility:auto] [contain-intrinsic-size:340px_240px]"
+      style={{ animationDelay: `${Math.min(index, 8) * 24}ms` }}
       onClick={onClick}
     >
       <div className="w-full bg-[#1a1a1a] relative overflow-hidden">
@@ -326,6 +415,9 @@ function PhotoCard({
           <img
             src={item.src}
             alt={item.title}
+            loading={index < 6 ? "eager" : "lazy"}
+            decoding="async"
+            fetchPriority={index < 6 ? "high" : "auto"}
             className="block w-full h-auto transition-transform duration-500 group-hover:scale-[1.02]"
           />
         ) : (
@@ -337,7 +429,7 @@ function PhotoCard({
             )}
           </div>
         )}
-        <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <div className={`pointer-events-none absolute inset-0 transition-opacity duration-300 ${overlayVisibilityClass}`}>
           <div className="absolute inset-0 bg-gradient-to-t from-[#050505]/90 via-[#050505]/50 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-3">
             {item.src ? (
@@ -353,21 +445,33 @@ function PhotoCard({
             ) : (
               <p className="text-sm font-bold text-[#e8e8e8]">{item.title}</p>
             )}
-            <p className="text-xs text-[#cfcfcf] mt-1 leading-relaxed">{item.desc}</p>
+            {item.desc && <p className="text-xs text-[#cfcfcf] mt-1 leading-relaxed">{item.desc}</p>}
             <div className="flex items-center justify-between mt-2 text-xs text-[#b8b8b8]">
               <span className="font-mono">{item.location ?? "Unknown location"}</span>
-              <span className="font-mono">{item.date ?? "Unknown date"}</span>
+              <span className="font-mono">{formatMonthYear(item.date)}</span>
             </div>
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   )
 }
 
 export default function CreativePage() {
   const [activeTab, setActiveTab] = useState<Tab>("photos")
   const [lightboxItem, setLightboxItem] = useState<PhotoItem | null>(null)
+  const [isTouchDevice, setIsTouchDevice] = useState(false)
+  const { data: nowPlaying } = useSWR<NowPlayingData>("/api/spotify/now-playing", fetcher, { refreshInterval: 30000 })
+  const isNowPlaying = nowPlaying?.mode === "now_playing"
+  const relativePlayed = getRelativePlayedText(nowPlaying?.playedAt)
+  const [sortField, setSortField] = useState<SortField>("date")
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc")
+  const [visibleCountByTab, setVisibleCountByTab] = useState<Record<Exclude<Tab, "thoughts">, number>>({
+    photos: INITIAL_RENDER_COUNT,
+    sketches: INITIAL_RENDER_COUNT,
+    sidequests: INITIAL_RENDER_COUNT,
+  })
+  const loadMoreTriggerRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     if (!lightboxItem) return
@@ -382,17 +486,86 @@ export default function CreativePage() {
     return () => window.removeEventListener("keydown", onKeyDown)
   }, [lightboxItem])
 
-  const gallery =
-    activeTab === "photos"
-      ? photoGallery
-      : activeTab === "sketches"
-        ? sketchGallery
-        : sidequestGallery
-  const groupedGallery = splitIntoSections(gallery)
+  useEffect(() => {
+    if (typeof window === "undefined") return
+
+    const touchQuery = window.matchMedia("(hover: none), (pointer: coarse)")
+    const updateTouchMode = () => setIsTouchDevice(touchQuery.matches)
+    updateTouchMode()
+
+    if (typeof touchQuery.addEventListener === "function") {
+      touchQuery.addEventListener("change", updateTouchMode)
+      return () => touchQuery.removeEventListener("change", updateTouchMode)
+    }
+
+    touchQuery.addListener(updateTouchMode)
+    return () => touchQuery.removeListener(updateTouchMode)
+  }, [])
+
+  const sortedImageItems = useMemo(() => {
+    if (!isImageTab(activeTab)) return []
+    if (activeTab === "sketches") return imageGalleryByTab[activeTab]
+
+    const sorted = [...imageGalleryByTab[activeTab]]
+    sorted.sort((a, b) => {
+      if (sortField === "location") {
+        const locationA = (a.location ?? "").toLowerCase()
+        const locationB = (b.location ?? "").toLowerCase()
+        const compared = locationA.localeCompare(locationB)
+        return sortDirection === "asc" ? compared : -compared
+      }
+
+      const dateA = monthYearSortValue(a.date)
+      const dateB = monthYearSortValue(b.date)
+      const compared = dateA - dateB
+      return sortDirection === "asc" ? compared : -compared
+    })
+
+    return sorted
+  }, [activeTab, sortDirection, sortField])
+
+  const activeImageItems = useMemo(() => {
+    if (!isImageTab(activeTab)) return []
+    return sortedImageItems.slice(0, visibleCountByTab[activeTab])
+  }, [activeTab, sortedImageItems, visibleCountByTab])
+
+  const groupedGallery = useMemo(
+    () => (isImageTab(activeTab) ? splitIntoSections(activeImageItems) : []),
+    [activeTab, activeImageItems]
+  )
+
+  const hasMoreItems = isImageTab(activeTab)
+    ? visibleCountByTab[activeTab] < sortedImageItems.length
+    : false
+
+  useEffect(() => {
+    if (!isImageTab(activeTab) || !hasMoreItems) return
+    const node = loadMoreTriggerRef.current
+    if (!node) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return
+        setVisibleCountByTab((current) => {
+          const currentCount = current[activeTab]
+          const maxCount = sortedImageItems.length
+          if (currentCount >= maxCount) return current
+          return {
+            ...current,
+            [activeTab]: Math.min(currentCount + RENDER_STEP, maxCount),
+          }
+        })
+      },
+      { root: null, rootMargin: "900px 0px", threshold: 0 }
+    )
+
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [activeTab, hasMoreItems, sortedImageItems.length])
 
   return (
     <>
-      <PageHeader title="the unhinged side" subtitle="photos / sketches / side quests / late-night scribbles" />
+      <PageHeader title="the unhinged side" subtitle="photos / doodling / visual detours / late-night scribbles" />
 
       <PageTransition>
         <div className="relative min-h-screen">
@@ -409,6 +582,57 @@ export default function CreativePage() {
             </motion.p>
             <div className="clear-both" />
           </div>
+
+          {nowPlaying?.isPlaying && (
+            <section className="relative z-10 mx-auto max-w-4xl px-6 pt-6 pb-2">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.5 }}
+              >
+                <div className="border-t border-[#333] pt-8">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Disc3
+                      className={`h-4 w-4 ${isNowPlaying ? "animate-spin text-[#1DB954]" : "text-[#767676]"}`}
+                      style={{ animationDuration: "3s" }}
+                    />
+                    <p className={`font-mono text-xs tracking-widest uppercase ${isNowPlaying ? "text-[#1DB954]" : "text-[#8a8a8a]"}`}>
+                      {isNowPlaying ? "now playing" : "last played song"}
+                    </p>
+                    {!isNowPlaying && (
+                      <span className="border border-[#3a3a3a] bg-[#141414] px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.14em] text-[#8b8b8b]">
+                        afk
+                      </span>
+                    )}
+                    {!isNowPlaying && relativePlayed && (
+                      <span className="font-mono text-[10px] text-[#6f6f6f]">({relativePlayed})</span>
+                    )}
+                  </div>
+                  <a
+                    href={nowPlaying.songUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="paper-card p-5 flex items-center gap-5 hover-bounce group"
+                  >
+                    {nowPlaying.albumImageUrl && (
+                      <img
+                        src={nowPlaying.albumImageUrl}
+                        alt={nowPlaying.album}
+                        className="w-16 h-16 object-cover border border-[#333] shrink-0"
+                        crossOrigin="anonymous"
+                      />
+                    )}
+                    <div className="min-w-0">
+                      <p className="text-base font-bold text-[#e8e8e8] truncate group-hover:underline">{nowPlaying.title}</p>
+                      <p className="text-sm text-[#aaa] truncate">{nowPlaying.artist}</p>
+                      <p className="text-xs text-[#666] truncate mt-0.5">{nowPlaying.album}</p>
+                    </div>
+                  </a>
+                </div>
+              </motion.div>
+            </section>
+          )}
 
           {/* -- Bio -- */}
           <section className="relative z-10 mx-auto max-w-4xl px-6 pt-8 pb-10">
@@ -478,8 +702,9 @@ export default function CreativePage() {
               <div className="flex flex-wrap gap-1 mb-8">
                 {([
                   { key: "photos" as Tab, label: "Photography", icon: Camera },
-                  { key: "sketches" as Tab, label: "Sketches", icon: PenTool },
-                  { key: "sidequests" as Tab, label: "Side Quests", icon: Compass },
+                  { key: "sketches" as Tab, label: "Doodling", icon: PenTool },
+                  { key: "sidequests" as Tab, label: "Visual Detours", icon: Compass },
+                  { key: "thoughts" as Tab, label: "Thoughts", icon: BookOpen },
                 ]).map((tab) => (
                   <button
                     key={tab.key}
@@ -497,10 +722,54 @@ export default function CreativePage() {
                   </button>
                 ))}
               </div>
+
+              {isImageTab(activeTab) && activeTab !== "sketches" && (
+                <div className="mb-8 flex flex-wrap items-center gap-2">
+                  <span className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-[#666]">sort</span>
+                  {([
+                    { key: "date" as SortField, label: "date" },
+                    { key: "location" as SortField, label: "location" },
+                  ]).map((field) => (
+                    <button
+                      key={field.key}
+                      type="button"
+                      onClick={() => setSortField(field.key)}
+                      className={`
+                        border px-2.5 py-1 font-mono text-[0.68rem] uppercase tracking-[0.12em] transition-colors
+                        ${sortField === field.key
+                          ? "border-[#e8e8e8] bg-[#e8e8e8] text-[#0a0a0a]"
+                          : "border-[#333] bg-transparent text-[#8c8c8c] hover:border-[#666] hover:text-[#e8e8e8]"
+                        }
+                      `}
+                    >
+                      {field.label}
+                    </button>
+                  ))}
+                  {([
+                    { key: "asc" as SortDirection, label: "asc" },
+                    { key: "desc" as SortDirection, label: "desc" },
+                  ]).map((direction) => (
+                    <button
+                      key={direction.key}
+                      type="button"
+                      onClick={() => setSortDirection(direction.key)}
+                      className={`
+                        border px-2.5 py-1 font-mono text-[0.68rem] uppercase tracking-[0.12em] transition-colors
+                        ${sortDirection === direction.key
+                          ? "border-[#e8e8e8] bg-[#e8e8e8] text-[#0a0a0a]"
+                          : "border-[#333] bg-transparent text-[#8c8c8c] hover:border-[#666] hover:text-[#e8e8e8]"
+                        }
+                      `}
+                    >
+                      {direction.label}
+                    </button>
+                  ))}
+                </div>
+              )}
             </motion.div>
 
             <AnimatePresence mode="wait">
-              {groupedGallery && (
+              {isImageTab(activeTab) ? (
                 <motion.div
                   key={activeTab}
                   className="space-y-10"
@@ -524,50 +793,63 @@ export default function CreativePage() {
                             item={item}
                             index={sectionIndex * 100 + i}
                             activeTab={activeTab}
+                            isTouchDevice={isTouchDevice}
                             onClick={() => setLightboxItem(item)}
                           />
                         ))}
                       </div>
                     </div>
                   ))}
+                  {hasMoreItems && (
+                    <div className="pt-3">
+                      <div ref={loadMoreTriggerRef} className="h-2 w-full" />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (!isImageTab(activeTab)) return
+                          setVisibleCountByTab((current) => ({
+                            ...current,
+                            [activeTab]: Math.min(
+                              current[activeTab] + RENDER_STEP,
+                              sortedImageItems.length
+                            ),
+                          }))
+                        }}
+                        className="mt-3 border border-[#333] bg-transparent px-3 py-2 font-mono text-xs text-[#9a9a9a] transition-colors hover:border-[#666] hover:text-[#e8e8e8]"
+                      >
+                        load more frames
+                      </button>
+                    </div>
+                  )}
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="thoughts"
+                  className="space-y-5"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {thoughts.map((t, i) => (
+                    <motion.article
+                      key={t.title}
+                      className="paper-card p-5 md:p-7 hover-bounce"
+                      initial={{ opacity: 0, y: 16 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, margin: "-40px" }}
+                      transition={{ delay: i * 0.08, duration: 0.45 }}
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-lg font-bold text-[#e8e8e8]">{renderWithTypos(t.title)}</h3>
+                        <span className="font-mono text-xs text-[#999]">{t.date}</span>
+                      </div>
+                      <p className="text-sm text-[#ccc] leading-relaxed">{renderWithTypos(t.body)}</p>
+                    </motion.article>
+                  ))}
                 </motion.div>
               )}
             </AnimatePresence>
-          </section>
-
-          <div className="mx-auto max-w-4xl px-6"><div className="h-px bg-[#333]" /></div>
-
-          {/* -- Thoughts -- */}
-          <section className="relative z-10 mx-auto max-w-4xl px-6 py-14">
-            <motion.div {...fadeUp}>
-              <div className="flex items-center gap-2 mb-2">
-                <BookOpen className="h-4 w-4 text-[#999]" />
-                <p className="font-mono text-xs tracking-widest uppercase text-[#999]">thoughts</p>
-              </div>
-              <h2 className="text-2xl md:text-3xl font-bold text-[#e8e8e8] tracking-tight mb-2">
-                {renderWithTypos("things i wrote at questionble hours.")}
-              </h2>
-              <p className="text-sm text-[#666] mb-8 italic">{renderWithTypos("(3 am brain is a diffrent person)")}</p>
-            </motion.div>
-
-            <div className="space-y-5">
-              {thoughts.map((t, i) => (
-                <motion.article
-                  key={t.title}
-                  className="paper-card p-5 md:p-7 hover-bounce"
-                  initial={{ opacity: 0, y: 16 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-40px" }}
-                  transition={{ delay: i * 0.08, duration: 0.45 }}
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-lg font-bold text-[#e8e8e8]">{renderWithTypos(t.title)}</h3>
-                    <span className="font-mono text-xs text-[#999]">{t.date}</span>
-                  </div>
-                  <p className="text-sm text-[#ccc] leading-relaxed">{renderWithTypos(t.body)}</p>
-                </motion.article>
-              ))}
-            </div>
           </section>
 
           {/* Footer */}
@@ -626,10 +908,12 @@ export default function CreativePage() {
               )}
             </motion.div>
 
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#000]/85 to-transparent px-4 py-5 md:px-6">
-              <h3 className="text-lg font-bold text-[#e8e8e8]">{lightboxItem.title}</h3>
-              <p className="text-sm text-[#bdbdbd] mt-1">{lightboxItem.desc}</p>
-            </div>
+            {lightboxItem.kind !== "doodling" && (
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#000]/85 to-transparent px-4 py-5 md:px-6">
+                <h3 className="text-lg font-bold text-[#e8e8e8]">{lightboxItem.title}</h3>
+                {lightboxItem.desc && <p className="text-sm text-[#bdbdbd] mt-1">{lightboxItem.desc}</p>}
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
