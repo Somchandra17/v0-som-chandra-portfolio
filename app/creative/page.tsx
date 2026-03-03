@@ -204,9 +204,9 @@ export default function CreativePage() {
             <motion.div {...fadeUp}>
               <p className="font-mono text-xs tracking-widest uppercase text-[#999] mb-6">the other half</p>
 
-              <div className="flex flex-col lg:flex-row lg:gap-10 min-h-[420px]">
+              <div className="flex flex-col lg:flex-row lg:gap-0 min-h-[420px]">
                 {/* Left side: nav items with image reveal */}
-                <div className="relative flex flex-col justify-center gap-0 lg:w-[45%] shrink-0">
+                <div className="relative flex flex-col justify-center gap-0 lg:w-1/2 shrink-0 grow-0">
                   {/* Floating image reveal -- shared, positioned relative to nav container */}
                   <AnimatePresence mode="wait">
                     <motion.div
@@ -295,8 +295,8 @@ export default function CreativePage() {
                   </AnimatePresence>
                 </div>
 
-                {/* Right side: bio content -- fixed height to prevent padding shifts */}
-                <div className="flex-1 flex flex-col justify-center lg:border-l lg:border-[#222] lg:pl-10 mt-6 lg:mt-0 min-h-[380px]">
+                {/* Right side: bio content -- fixed width to prevent layout shifts */}
+                <div className="flex flex-col justify-center lg:w-1/2 shrink-0 grow-0 lg:border-l lg:border-[#222] lg:pl-10 mt-6 lg:mt-0 min-h-[380px]">
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={active.key}
