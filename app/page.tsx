@@ -6,6 +6,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import useSWR from "swr"
 import { MusicDCTF } from "@/components/musicd-ctf"
+import { TextMorph } from "@/components/text-morph"
 import {
   Terminal, Pen, Github, Linkedin, Mail, ExternalLink,
   ArrowRight, ArrowDown, Music, Disc3, Headphones, Users, Clock,
@@ -220,22 +221,14 @@ export default function Home() {
           <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight text-[#e8e8e8] leading-[1.15]">
             <span className="block cursor-pointer" onClick={cycleName}>
               {"i'm "}
-              <AnimatePresence mode="wait">
-                <motion.span
-                  key={nameMode}
-                  initial={{ opacity: 0, filter: "blur(12px)", y: 8, scale: 0.95 }}
-                  animate={{ opacity: 1, filter: "blur(0px)", y: 0, scale: 1 }}
-                  exit={{ opacity: 0, filter: "blur(8px)", y: -8, scale: 1.02 }}
-                  transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                  className={nameMode === "nerdy" ? "inline-block font-mono" : "inline-block"}
-                  style={{
-                    color: nameConfig[nameMode].color,
-                    textShadow: nameConfig[nameMode].shadow,
-                  }}
-                >
-                  {nameConfig[nameMode].text}
-                </motion.span>
-              </AnimatePresence>
+              <TextMorph
+                text={nameConfig[nameMode].text}
+                className={nameMode === "nerdy" ? "font-mono" : ""}
+                style={{
+                  color: nameConfig[nameMode].color,
+                  textShadow: nameConfig[nameMode].shadow,
+                }}
+              />
               .
             </span>
           </h1>
@@ -383,18 +376,50 @@ export default function Home() {
               className="group"
             >
               <Link href="/creative">
-                <div className="paper-card relative p-7 md:p-9 min-h-[220px] flex flex-col justify-between overflow-hidden hover-wiggle">
+                <motion.div 
+                  className="paper-card relative p-7 md:p-9 min-h-[220px] flex flex-col justify-between overflow-hidden hover-wiggle"
+                  animate={hoverSide === "creative" ? { 
+                    borderColor: "#f0c6cf",
+                    boxShadow: "0 0 20px rgba(240, 198, 207, 0.3)"
+                  } : { 
+                    borderColor: "#2a2a2a",
+                    boxShadow: "none"
+                  }}
+                  transition={{ duration: 0.5 }}
+                  style={{ border: "1px solid" }}
+                >
                   <div className="tape-top" />
                   <div>
                     <div className="flex items-center gap-3 mb-3">
-                      <div className="flex h-9 w-9 items-center justify-center border border-[#333]">
-                        <Pen className="h-4 w-4 text-[#e8e8e8]" />
-                      </div>
-                      <span className="font-mono text-xs text-[#666]">~</span>
+                      <motion.div 
+                        className="flex h-9 w-9 items-center justify-center border"
+                        animate={hoverSide === "creative" ? { 
+                          borderColor: "#f0c6cf",
+                          color: "#f0c6cf"
+                        } : { 
+                          borderColor: "#333",
+                          color: "#e8e8e8"
+                        }}
+                        transition={{ duration: 0.5 }}
+                        style={{ border: "1px solid" }}
+                      >
+                        <Pen className="h-4 w-4" />
+                      </motion.div>
+                      <motion.span 
+                        className="font-mono text-xs"
+                        animate={hoverSide === "creative" ? { color: "#f0c6cf" } : { color: "#666" }}
+                        transition={{ duration: 0.5 }}
+                      >
+                        ~
+                      </motion.span>
                     </div>
-                    <h2 className="text-xl md:text-2xl font-bold text-[#e8e8e8] tracking-tight mb-2">
+                    <motion.h2 
+                      className="text-xl md:text-2xl font-bold tracking-tight mb-2"
+                      animate={hoverSide === "creative" ? { color: "#f0c6cf" } : { color: "#e8e8e8" }}
+                      transition={{ duration: 0.5 }}
+                    >
                       the unhinged side
-                    </h2>
+                    </motion.h2>
                     <p className="text-sm text-[#aaa] leading-relaxed max-w-xs">
                       {"photos, sketches, late-night scribbles. the fun stuff."}
                     </p>
@@ -406,8 +431,18 @@ export default function Home() {
                     <span>go there</span>
                     <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
                   </div>
-                  <div className="absolute bottom-0 left-0 h-[2px] w-0 bg-[#e8e8e8] group-hover:w-full transition-all duration-500" />
-                </div>
+                  <motion.div 
+                    className="absolute bottom-0 left-0 h-[2px] bg-[#e8e8e8] group-hover:w-full transition-all duration-500"
+                    animate={hoverSide === "creative" ? { 
+                      width: "100%",
+                      backgroundColor: "#f0c6cf"
+                    } : { 
+                      width: "0%",
+                      backgroundColor: "#e8e8e8"
+                    }}
+                    transition={{ duration: 0.5 }}
+                  />
+                </motion.div>
               </Link>
             </motion.div>
           </div>
