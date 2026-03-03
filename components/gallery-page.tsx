@@ -1,8 +1,8 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { X, Camera, PenTool } from "lucide-react"
+import { X, Camera, PenTool, ChevronLeft, ChevronRight, MapPin, Calendar } from "lucide-react"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { PageHeader } from "@/components/page-header"
@@ -226,53 +226,203 @@ export function GalleryPage({ title, subtitle, tabKey, items, showSort = true }:
         </div>
       </PageTransition>
 
-      {/* Lightbox */}
+      {/* Story Lightbox */}
       <AnimatePresence>
         {lightboxItem && (
-          <motion.div
-            className="fixed inset-0 z-[300] bg-[#000]/92 backdrop-blur-sm"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setLightboxItem(null)}
-          >
-            <button
-              onClick={() => setLightboxItem(null)}
-              className="absolute top-4 right-4 z-10 rounded-sm border border-[#3a3a3a] bg-[#111]/80 p-2 hover:bg-[#1a1a1a] transition-colors"
-            >
-              <X className="h-5 w-5 text-[#d5d5d5]" />
-            </button>
-            <motion.div
-              className="absolute inset-0 flex items-center justify-center p-3 md:p-6"
-              initial={{ scale: 0.98, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.98, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              {lightboxItem.src ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={lightboxItem.src}
-                  alt={lightboxItem.title}
-                  className="block max-w-[calc(100vw-1.5rem)] max-h-[calc(100vh-7.5rem)] w-auto h-auto object-contain"
-                  onClick={(e) => e.stopPropagation()}
-                />
-              ) : (
-                <div className="text-center" onClick={(e) => e.stopPropagation()}>
-                  <Camera className="h-12 w-12 text-[#333] mx-auto mb-2" />
-                  <p className="font-mono text-xs text-[#666]">image placeholder</p>
-                </div>
-              )}
-            </motion.div>
-            {lightboxItem.kind !== "doodling" && (
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#000]/85 to-transparent px-4 py-5 md:px-6">
-                <h3 className="text-lg font-bold text-[#e8e8e8]">{lightboxItem.title}</h3>
-                {lightboxItem.desc && <p className="text-sm text-[#bdbdbd] mt-1">{lightboxItem.desc}</p>}
-              </div>
-            )}
-          </motion.div>
+          <StoryLightbox item={lightboxItem} onClose={() => setLightboxItem(null)} />
         )}
       </AnimatePresence>
     </>
+  )
+}
+
+/* ── Story Lightbox ───────────────────────────────────────────────── */
+
+function StoryLightbox({ item, onClose }: { item: PhotoItem; onClose: () => void }) {
+  const allPhotos = item.photos && item.photos.length > 1 ? item.photos : item.src ? [item.src] : []
+  const [photoIndex, setPhotoIndex] = useState(0)
+  const hasMultiple = allPhotos.length > 1
+  const isDoodling = item.kind === "doodling"
+
+  const goNext = useCallback(() => {
+    setPhotoIndex((i) => (i + 1) % allPhotos.length)
+  }, [allPhotos.length])
+
+  const goPrev = useCallback(() => {
+    setPhotoIndex((i) => (i - 1 + allPhotos.length) % allPhotos.length)
+  }, [allPhotos.length])
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose()
+      if (e.key === "ArrowRight" && hasMultiple) goNext()
+      if (e.key === "ArrowLeft" && hasMultiple) goPrev()
+    }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [onClose, hasMultiple, goNext, goPrev])
+
+  return (
+    <motion.div
+      className="fixed inset-0 z-[300] bg-[#000]/95 backdrop-blur-md"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={onClose}
+    >
+      {/* Close button */}
+      <button
+        onClick={onClose}
+        className="absolute top-4 right-4 z-20 border border-[#3a3a3a] bg-[#111]/80 p-2 hover:bg-[#1a1a1a] transition-colors"
+        aria-label="Close lightbox"
+      >
+        <X className="h-5 w-5 text-[#d5d5d5]" />
+      </button>
+
+      {/* Split layout: image left, story right */}
+      <motion.div
+        className="absolute inset-0 flex flex-col lg:flex-row"
+        initial={{ scale: 0.97, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.97, opacity: 0 }}
+        transition={{ duration: 0.25 }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Image side */}
+        <div className="relative flex-1 flex items-center justify-center p-4 lg:p-8 min-h-0">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={photoIndex}
+              className="relative max-w-full max-h-full"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.2 }}
+            >
+              {allPhotos[photoIndex] ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={allPhotos[photoIndex]}
+                  alt={`${item.title} - ${photoIndex + 1}`}
+                  className="block max-w-full max-h-[60vh] lg:max-h-[85vh] w-auto h-auto object-contain"
+                />
+              ) : (
+                <div className="flex items-center justify-center w-64 h-64 bg-[#111]">
+                  <Camera className="h-12 w-12 text-[#333]" />
+                </div>
+              )}
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Multi-photo nav */}
+          {hasMultiple && (
+            <>
+              <button
+                onClick={goPrev}
+                className="absolute left-2 lg:left-4 top-1/2 -translate-y-1/2 border border-[#333] bg-[#0a0a0a]/80 p-2 hover:bg-[#1a1a1a] transition-colors"
+                aria-label="Previous photo"
+              >
+                <ChevronLeft className="h-5 w-5 text-[#ccc]" />
+              </button>
+              <button
+                onClick={goNext}
+                className="absolute right-2 lg:right-4 top-1/2 -translate-y-1/2 border border-[#333] bg-[#0a0a0a]/80 p-2 hover:bg-[#1a1a1a] transition-colors"
+                aria-label="Next photo"
+              >
+                <ChevronRight className="h-5 w-5 text-[#ccc]" />
+              </button>
+              {/* Dot indicators */}
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                {allPhotos.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setPhotoIndex(i)}
+                    className={`w-1.5 h-1.5 rounded-full transition-all ${
+                      i === photoIndex ? "bg-[#f0c6cf] scale-125" : "bg-[#555]"
+                    }`}
+                    aria-label={`Go to photo ${i + 1}`}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Story side -- only for non-doodling items */}
+        {!isDoodling && (
+          <div className="lg:w-[380px] shrink-0 border-t lg:border-t-0 lg:border-l border-[#222] bg-[#0a0a0a]/60 p-6 lg:p-8 flex flex-col justify-center overflow-y-auto max-h-[40vh] lg:max-h-full">
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15, duration: 0.3 }}
+              className="space-y-5"
+            >
+              {/* Meta tags */}
+              <div className="flex flex-wrap items-center gap-3 text-xs">
+                {item.location && (
+                  <span className="inline-flex items-center gap-1.5 font-mono text-[#999]">
+                    <MapPin className="h-3 w-3 text-[#f0c6cf]" />
+                    {item.location}
+                  </span>
+                )}
+                {item.date && (
+                  <span className="inline-flex items-center gap-1.5 font-mono text-[#999]">
+                    <Calendar className="h-3 w-3 text-[#f0c6cf]" />
+                    {item.date}
+                  </span>
+                )}
+                {hasMultiple && (
+                  <span className="font-mono text-[#666]">
+                    {photoIndex + 1} / {allPhotos.length}
+                  </span>
+                )}
+              </div>
+
+              {/* Title */}
+              <h3 className="text-xl lg:text-2xl font-bold text-[#e8e8e8] tracking-tight leading-snug">
+                {item.title}
+              </h3>
+
+              {/* Description */}
+              {item.desc && item.desc !== "demo caption" && (
+                <p className="text-sm text-[#bbb] leading-relaxed">{item.desc}</p>
+              )}
+
+              {/* Story */}
+              {item.story && (
+                <div className="border-l-2 border-[#f0c6cf]/30 pl-4 py-1">
+                  <p className="font-mono text-[0.6rem] uppercase tracking-widest text-[#666] mb-2">the story</p>
+                  <p className="text-sm text-[#aaa] leading-relaxed">{item.story}</p>
+                </div>
+              )}
+
+              {/* Thumbnail strip for multi-photo */}
+              {hasMultiple && (
+                <div className="flex gap-2 pt-2 overflow-x-auto">
+                  {allPhotos.map((src, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setPhotoIndex(i)}
+                      className={`shrink-0 w-12 h-12 overflow-hidden border transition-all ${
+                        i === photoIndex
+                          ? "border-[#f0c6cf] opacity-100"
+                          : "border-[#333] opacity-50 hover:opacity-80"
+                      }`}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={src}
+                        alt={`Thumbnail ${i + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          </div>
+        )}
+      </motion.div>
+    </motion.div>
   )
 }

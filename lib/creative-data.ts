@@ -11,9 +11,11 @@ export interface PhotoItem {
   kind: ImageEntryType
   title: string
   desc?: string
+  story?: string
   location?: string
   date?: string
   src?: string
+  photos?: string[]
 }
 
 export interface GallerySection {
@@ -42,6 +44,7 @@ type GalleryJsonEntry =
       location?: string
       date?: string
       caption?: string
+      story?: string
     }
   | {
       id: number
@@ -103,9 +106,11 @@ function toPhotoItem(entry: Extract<GalleryJsonEntry, { type: ImageEntryType }>,
     kind: entry.type,
     title,
     desc: isDoodling ? undefined : entry.caption ?? "demo caption",
+    story: isDoodling ? undefined : entry.story,
     location: isDoodling ? undefined : entry.location ?? "demo location",
     date: isDoodling ? undefined : normalizeMonthYear(entry.date) ?? "Jan 2024",
     src: entry.image ?? entry.photos?.[0],
+    photos: entry.photos,
   }
 }
 
