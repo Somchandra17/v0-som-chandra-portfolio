@@ -20,6 +20,12 @@ import {
   RENDER_STEP,
 } from "@/lib/creative-data"
 
+const siblingLinks: { key: Tab; label: string; href: string }[] = [
+  { key: "sidequests", label: "Visual Detors", href: "/creative/visual-detours" },
+  { key: "photos", label: "Clicks", href: "/creative/clicks" },
+  { key: "sketches", label: "Doodling", href: "/creative/doodling" },
+]
+
 interface GalleryPageProps {
   title: string
   subtitle: string
@@ -101,8 +107,8 @@ export function GalleryPage({ title, subtitle, tabKey, items, showSort = true }:
 
       <PageTransition>
         <div className="relative min-h-screen">
-          {/* Back link */}
-          <div className="mx-auto max-w-4xl px-6 pt-6">
+          {/* Back link + sibling nav */}
+          <div className="mx-auto max-w-4xl px-6 pt-6 flex flex-wrap items-center justify-between gap-3">
             <Link
               href="/creative"
               className="inline-flex items-center gap-2 font-mono text-xs text-[#666] hover:text-[#e8e8e8] transition-colors"
@@ -110,6 +116,19 @@ export function GalleryPage({ title, subtitle, tabKey, items, showSort = true }:
               <ArrowLeft className="h-3 w-3" />
               back to the unhinged side
             </Link>
+            <div className="flex items-center gap-1">
+              {siblingLinks
+                .filter((s) => s.key !== tabKey)
+                .map((s) => (
+                  <Link
+                    key={s.key}
+                    href={s.href}
+                    className="border border-[#333] px-3 py-1.5 font-mono text-[0.65rem] text-[#777] hover:text-[#e8e8e8] hover:border-[#666] transition-colors"
+                  >
+                    {s.label}
+                  </Link>
+                ))}
+            </div>
           </div>
 
           <NowPlaying />
