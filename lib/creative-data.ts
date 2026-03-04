@@ -116,15 +116,15 @@ function toPhotoItem(entry: Extract<GalleryJsonEntry, { type: ImageEntryType }>,
 
 export const photoGallery = galleryData
   .filter((entry): entry is Extract<GalleryJsonEntry, { type: "photography" }> => entry.type === "photography")
-  .map((entry) => toPhotoItem(entry, "photography"))
+  .map((entry) => toPhotoItem(entry, entry.location ?? ""))
 
 export const sketchGallery = galleryData
   .filter((entry): entry is Extract<GalleryJsonEntry, { type: "doodling" }> => entry.type === "doodling")
-  .map((entry) => toPhotoItem(entry, "doodling"))
+  .map((entry) => toPhotoItem(entry, ""))
 
 export const sidequestGallery = galleryData
   .filter((entry): entry is Extract<GalleryJsonEntry, { type: "visual-detours" }> => entry.type === "visual-detours")
-  .map((entry) => toPhotoItem(entry, "visual detours"))
+  .map((entry) => toPhotoItem(entry, entry.location ?? ""))
 
 export const imageGalleryByTab: Record<Tab, PhotoItem[]> = {
   photos: photoGallery,

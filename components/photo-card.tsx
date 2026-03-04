@@ -88,22 +88,11 @@ export function PhotoCard({
         <div className={`pointer-events-none absolute inset-0 transition-opacity duration-300 ${overlayVisibilityClass}`}>
           <div className="absolute inset-0 bg-gradient-to-t from-[#050505]/90 via-[#050505]/50 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-3">
-            {item.src ? (
-              <a
-                href={item.src}
-                target="_blank"
-                rel="noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className="pointer-events-auto text-sm font-bold text-[#e8e8e8] underline-offset-2 hover:underline"
-              >
-                {item.title}
-              </a>
-            ) : (
-              <p className="text-sm font-bold text-[#e8e8e8]">{item.title}</p>
+            {item.desc && item.desc.length > 0 && (
+              <p className="text-xs text-[#cfcfcf] mb-1.5 leading-relaxed">{item.desc}</p>
             )}
-            {item.desc && <p className="text-xs text-[#cfcfcf] mt-1 leading-relaxed">{item.desc}</p>}
-            <div className="flex items-center justify-between mt-2 text-xs text-[#b8b8b8]">
-              <span className="font-mono">{item.location ?? "Unknown location"}</span>
+            <div className="flex items-center justify-between text-xs text-[#b8b8b8]">
+              <span className="font-mono">{item.location ?? ""}</span>
               <span className="font-mono">{formatMonthYear(item.date)}</span>
             </div>
           </div>
