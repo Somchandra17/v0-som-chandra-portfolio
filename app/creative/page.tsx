@@ -138,8 +138,8 @@ const sections: {
     label: "doodling",
     href: "/creative/doodling",
     images: [
-      "/creative/pictures/sketch/somchandra17-20220711_143837-3108937688.webp",
-      "/creative/pictures/sketch/somchandra17-20230924_221828-1887787865.jpg",
+      "/creative/pictures/sketch/1.png",
+      "/creative/pictures/sketch/2.png",
     ],
     heading: "when im not starin at screens im usually covered in graphite dust.",
     subtitle: "(and starin at a blank sketchbook like it owes me money lol)",
