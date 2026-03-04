@@ -179,7 +179,7 @@ export default function CreativePage() {
 
   return (
     <>
-      <PageHeader title="the unhinged side" subtitle="visual detors / clicks / doodling / late-night scribbles" />
+      <PageHeader title="the unhinged side" subtitle="visual detors / clicks / doodling / late-night scribbles" subtitleSmallCaps breadcrumb="som / creative" />
 
       <PageTransition>
         <div className="relative min-h-screen">
@@ -260,6 +260,7 @@ export default function CreativePage() {
                             className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight"
                             animate={{ color: isActive ? "#e8e8e8" : "#444" }}
                             transition={{ duration: 0.3 }}
+                            style={{ fontVariant: "small-caps" }}
                           >
                             {section.label}
                           </motion.h2>

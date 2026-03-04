@@ -7,7 +7,7 @@ export default function ClicksPage() {
   return (
     <GalleryPage
       title="clicks"
-      subtitle="shot on phone -- no fancy gear, just vibes"
+      subtitle="shot on phone -- no fancy gear, jus vibes"
       tabKey="photos"
       items={photoGallery}
       showSort={true}
