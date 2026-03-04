@@ -36,7 +36,7 @@ const socials = [
   { label: "GitHub", href: "https://github.com/somchandra17", icon: Github },
   { label: "LinkedIn", href: "https://linkedin.com/in/somchandra17", icon: Linkedin },
   { label: "Email", href: "mailto:somchandra.infosec@gmail.com", icon: Mail },
-  { label: "0xs0m.live", href: "https://0xs0m.live", icon: ExternalLink },
+  { label: "somm.tf", href: "https://www.somm.tf", icon: ExternalLink },
 ]
 
 const funFacts = [
@@ -72,9 +72,8 @@ const funFacts = [
   "spent an hour on a bug. it was a typo.",
   "dark mode everything. my eyes thank me.",
   "sleep is just a variable I never initialize",
-  "i speak fluent python and broken hindi",
+  "i speak broken grammar",
   "my rubber duck deserves a raise",
-  "404: social life not found",
   "i hack things legally. mostly.",
   "drawing things no one asked for since 2005",
   "i photograph things instead of experiencing them",
@@ -202,279 +201,279 @@ export default function Home() {
           className="relative z-10 mx-auto max-w-5xl px-6 flex flex-col justify-center min-h-screen"
           style={{ opacity: heroOpacity, y: heroY }}
         >
-        <motion.div
-          className="mb-10 h-px bg-[#e8e8e8]"
-          initial={{ width: 0, opacity: 0 }}
-          animate={{ width: "100%", opacity: 1 }}
-          transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
-        />
+          <motion.div
+            className="mb-10 h-px bg-[#e8e8e8]"
+            initial={{ width: 0, opacity: 0 }}
+            animate={{ width: "100%", opacity: 1 }}
+            transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
+          />
 
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-        >
-          <p className="font-mono text-xs tracking-widest uppercase text-[#999] mb-6">
-            oh hey, you found this page
-          </p>
-
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight text-[#e8e8e8] leading-[1.15]">
-            <span className="block cursor-pointer" onClick={cycleName}>
-              {"i'm "}
-              <TextMorph
-                text={nameConfig[nameMode].text}
-                className={nameMode === "nerdy" ? "font-mono" : ""}
-                style={{
-                  color: nameConfig[nameMode].color,
-                  textShadow: nameConfig[nameMode].shadow,
-                }}
-              />
-              .
-            </span>
-          </h1>
-
-          {/* Cycling hero tagline */}
-          <div className="mt-3 h-10 md:h-12 overflow-hidden">
-            <AnimatePresence mode="wait">
-              <motion.p
-                key={heroIdx}
-                className="text-xl md:text-2xl lg:text-3xl font-bold text-[#777]"
-                initial={{ opacity: 0, y: 24, filter: "blur(4px)" }}
-                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                exit={{ opacity: 0, y: -20, filter: "blur(2px)" }}
-                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-              >
-                {heroLines[heroIdx]}
-              </motion.p>
-            </AnimatePresence>
-          </div>
-
-          {/* Auto-cycling fun fact */}
-          <div className="mt-6 h-6 overflow-hidden">
-            <AnimatePresence mode="wait">
-              <motion.p
-                key={factIdx}
-                className="font-mono text-sm text-[#666]"
-                initial={{ opacity: 0, y: 14, x: -4 }}
-                animate={{ opacity: 1, y: 0, x: 0 }}
-                exit={{ opacity: 0, y: -10, x: 4 }}
-                transition={{ duration: 0.28, ease: "easeOut" }}
-              >
-                {"// "}
-                {funFacts[factIdx]}
-              </motion.p>
-            </AnimatePresence>
-          </div>
-        </motion.div>
-
-        <motion.div
-          className="mt-10 h-px bg-[#333]"
-          initial={{ width: 0 }}
-          animate={{ width: "50%" }}
-          transition={{ duration: 0.7, delay: 0.7 }}
-        />
-
-        {/* ---- THE CHOICE ---- */}
-        <motion.div
-          className="mt-12"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.9 }}
-        >
-          <p className="font-mono text-xs tracking-widest uppercase text-[#999] mb-6">
-            pick a side
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
-            {/* NERDY */}
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 1 }}
-              onHoverStart={() => { setHoverSide("nerdy"); if (!isHoverLocked) setNameMode("nerdy") }}
-              onHoverEnd={() => { setHoverSide(null); if (!isHoverLocked) setNameMode("default") }}
-              className="group"
-            >
-              <Link href="/nerdy" onClick={handleNerdyOpen}>
-                <motion.div 
-                  className="paper-card relative p-7 md:p-9 min-h-[220px] flex flex-col justify-between overflow-hidden hover-wiggle"
-                  animate={nameMode === "nerdy" ? { 
-                    borderColor: "#7fb07f",
-                    boxShadow: "0 0 20px rgba(127, 176, 127, 0.3)"
-                  } : { 
-                    borderColor: "#2a2a2a",
-                    boxShadow: "none"
-                  }}
-                  transition={{ duration: 0.5 }}
-                  style={{ border: "1px solid" }}
-                >
-                  <div className="tape-top" />
-                  <div>
-                    <div className="flex items-center gap-3 mb-3">
-                      <motion.div 
-                        className="flex h-9 w-9 items-center justify-center border"
-                        animate={nameMode === "nerdy" ? { 
-                          borderColor: "#7fb07f",
-                          color: "#7fb07f"
-                        } : { 
-                          borderColor: "#333",
-                          color: "#e8e8e8"
-                        }}
-                        transition={{ duration: 0.5 }}
-                        style={{ border: "1px solid" }}
-                      >
-                        <Terminal className="h-4 w-4" />
-                      </motion.div>
-                      <motion.span 
-                        className="font-mono text-xs"
-                        animate={nameMode === "nerdy" ? { color: "#7fb07f" } : { color: "#666" }}
-                        transition={{ duration: 0.5 }}
-                      >
-                        {"> whoami"}
-                      </motion.span>
-                    </div>
-                    <motion.h2 
-                      className="text-xl md:text-2xl font-bold tracking-tight mb-2"
-                      animate={nameMode === "nerdy" ? { color: "#7fb07f" } : { color: "#e8e8e8" }}
-                      transition={{ duration: 0.5 }}
-                    >
-                      the nerdy side
-                    </motion.h2>
-                    <p className="text-sm text-[#aaa] leading-relaxed max-w-xs">
-                      {"resume, hacking stuff, certs, all that serious jazz."}
-                    </p>
-                    <p className="mt-3 text-xs font-mono text-[#666] group-hover:text-[#e8e8e8] transition-colors italic">
-                      {"psst -- wanna hire me?"}
-                    </p>
-                  </div>
-                  <div className="mt-4 flex items-center gap-2 text-sm font-mono text-[#666] group-hover:text-[#e8e8e8] transition-colors">
-                    <span>go there</span>
-                    <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
-                  </div>
-                  <motion.div 
-                    className="absolute bottom-0 left-0 h-[2px] bg-[#e8e8e8] group-hover:w-full transition-all duration-500"
-                    animate={nameMode === "nerdy" ? { 
-                      width: "100%",
-                      backgroundColor: "#7fb07f"
-                    } : { 
-                      width: "0%",
-                      backgroundColor: "#e8e8e8"
-                    }}
-                    transition={{ duration: 0.5 }}
-                  />
-                </motion.div>
-              </Link>
-            </motion.div>
-
-            {/* CREATIVE */}
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 1.15 }}
-              onHoverStart={() => { setHoverSide("creative") }}
-              onHoverEnd={() => { setHoverSide(null) }}
-              className="group"
-            >
-              <Link href="/creative">
-                <motion.div 
-                  className="paper-card relative p-7 md:p-9 min-h-[220px] flex flex-col justify-between overflow-hidden hover-wiggle"
-                  animate={hoverSide === "creative" ? { 
-                    borderColor: "#f0c6cf",
-                    boxShadow: "0 0 20px rgba(240, 198, 207, 0.3)"
-                  } : { 
-                    borderColor: "#2a2a2a",
-                    boxShadow: "none"
-                  }}
-                  transition={{ duration: 0.5 }}
-                  style={{ border: "1px solid" }}
-                >
-                  <div className="tape-top" />
-                  <div>
-                    <div className="flex items-center gap-3 mb-3">
-                      <motion.div 
-                        className="flex h-9 w-9 items-center justify-center border"
-                        animate={hoverSide === "creative" ? { 
-                          borderColor: "#f0c6cf",
-                          color: "#f0c6cf"
-                        } : { 
-                          borderColor: "#333",
-                          color: "#e8e8e8"
-                        }}
-                        transition={{ duration: 0.5 }}
-                        style={{ border: "1px solid" }}
-                      >
-                        <Pen className="h-4 w-4" />
-                      </motion.div>
-                      <motion.span 
-                        className="font-mono text-xs"
-                        animate={hoverSide === "creative" ? { color: "#f0c6cf" } : { color: "#666" }}
-                        transition={{ duration: 0.5 }}
-                      >
-                        ~
-                      </motion.span>
-                    </div>
-                    <motion.h2 
-                      className="text-xl md:text-2xl font-bold tracking-tight mb-2"
-                      animate={hoverSide === "creative" ? { color: "#f0c6cf" } : { color: "#e8e8e8" }}
-                      transition={{ duration: 0.5 }}
-                    >
-                      the unhinged side
-                    </motion.h2>
-                    <p className="text-sm text-[#aaa] leading-relaxed max-w-xs">
-                      {"photos, sketches, late-night scribbles. the fun stuff."}
-                    </p>
-                    <p className="mt-3 text-xs font-mono text-[#666] group-hover:text-[#e8e8e8] transition-colors italic">
-                      {"aka the fun one"}
-                    </p>
-                  </div>
-                  <div className="mt-4 flex items-center gap-2 text-sm font-mono text-[#666] group-hover:text-[#e8e8e8] transition-colors">
-                    <span>go there</span>
-                    <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
-                  </div>
-                  <motion.div 
-                    className="absolute bottom-0 left-0 h-[2px] bg-[#e8e8e8] group-hover:w-full transition-all duration-500"
-                    animate={hoverSide === "creative" ? { 
-                      width: "100%",
-                      backgroundColor: "#f0c6cf"
-                    } : { 
-                      width: "0%",
-                      backgroundColor: "#e8e8e8"
-                    }}
-                    transition={{ duration: 0.5 }}
-                  />
-                </motion.div>
-              </Link>
-            </motion.div>
-          </div>
-
-          {/* Hover indicator */}
-          <motion.p
-            className="mt-5 font-mono text-xs text-[#666] h-5"
-            animate={{ opacity: hoverSide ? 1 : 0 }}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
           >
-            {hoverSide === "nerdy"
-              ? "yes there's a resume in there. yes you can hire me."
-              : hoverSide === "creative"
-              ? "warning: the unhinged side may contain bad sketches and worse opinions"
-              : ""}
-          </motion.p>
-        </motion.div>
+            <p className="font-mono text-xs tracking-widest uppercase text-[#999] mb-6">
+              oh hey, you found this page
+            </p>
 
-        {/* Scroll hint */}
-        <motion.div
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.5, duration: 0.6, ease: "easeOut" }}
-        >
-          <p className="font-mono text-xs text-[#666]">scroll for vibes</p>
-          <motion.div 
-            animate={{ y: [0, 8, 0] }} 
-            transition={{ duration: 1.8, repeat: Infinity, ease: [0.45, 0, 0.55, 1] }}
-          >
-            <ArrowDown className="h-4 w-4 text-[#666]" />
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight text-[#e8e8e8] leading-[1.15]">
+              <span className="block cursor-pointer" onClick={cycleName}>
+                {"i'm "}
+                <TextMorph
+                  text={nameConfig[nameMode].text}
+                  className={nameMode === "nerdy" ? "font-mono" : ""}
+                  style={{
+                    color: nameConfig[nameMode].color,
+                    textShadow: nameConfig[nameMode].shadow,
+                  }}
+                />
+                .
+              </span>
+            </h1>
+
+            {/* Cycling hero tagline */}
+            <div className="mt-3 h-10 md:h-12 overflow-hidden">
+              <AnimatePresence mode="wait">
+                <motion.p
+                  key={heroIdx}
+                  className="text-xl md:text-2xl lg:text-3xl font-bold text-[#777]"
+                  initial={{ opacity: 0, y: 24, filter: "blur(4px)" }}
+                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                  exit={{ opacity: 0, y: -20, filter: "blur(2px)" }}
+                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  {heroLines[heroIdx]}
+                </motion.p>
+              </AnimatePresence>
+            </div>
+
+            {/* Auto-cycling fun fact */}
+            <div className="mt-6 h-6 overflow-hidden">
+              <AnimatePresence mode="wait">
+                <motion.p
+                  key={factIdx}
+                  className="font-mono text-sm text-[#666]"
+                  initial={{ opacity: 0, y: 14, x: -4 }}
+                  animate={{ opacity: 1, y: 0, x: 0 }}
+                  exit={{ opacity: 0, y: -10, x: 4 }}
+                  transition={{ duration: 0.28, ease: "easeOut" }}
+                >
+                  {"// "}
+                  {funFacts[factIdx]}
+                </motion.p>
+              </AnimatePresence>
+            </div>
           </motion.div>
-        </motion.div>
+
+          <motion.div
+            className="mt-10 h-px bg-[#333]"
+            initial={{ width: 0 }}
+            animate={{ width: "50%" }}
+            transition={{ duration: 0.7, delay: 0.7 }}
+          />
+
+          {/* ---- THE CHOICE ---- */}
+          <motion.div
+            className="mt-12"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.9 }}
+          >
+            <p className="font-mono text-xs tracking-widest uppercase text-[#999] mb-6">
+              pick a side
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
+              {/* NERDY */}
+              <motion.div
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 1 }}
+                onHoverStart={() => { setHoverSide("nerdy"); if (!isHoverLocked) setNameMode("nerdy") }}
+                onHoverEnd={() => { setHoverSide(null); if (!isHoverLocked) setNameMode("default") }}
+                className="group"
+              >
+                <Link href="/nerdy" onClick={handleNerdyOpen}>
+                  <motion.div
+                    className="paper-card relative p-7 md:p-9 min-h-[220px] flex flex-col justify-between overflow-hidden hover-wiggle"
+                    animate={nameMode === "nerdy" ? {
+                      borderColor: "#7fb07f",
+                      boxShadow: "0 0 20px rgba(127, 176, 127, 0.3)"
+                    } : {
+                      borderColor: "#2a2a2a",
+                      boxShadow: "none"
+                    }}
+                    transition={{ duration: 0.5 }}
+                    style={{ border: "1px solid" }}
+                  >
+                    <div className="tape-top" />
+                    <div>
+                      <div className="flex items-center gap-3 mb-3">
+                        <motion.div
+                          className="flex h-9 w-9 items-center justify-center border"
+                          animate={nameMode === "nerdy" ? {
+                            borderColor: "#7fb07f",
+                            color: "#7fb07f"
+                          } : {
+                            borderColor: "#333",
+                            color: "#e8e8e8"
+                          }}
+                          transition={{ duration: 0.5 }}
+                          style={{ border: "1px solid" }}
+                        >
+                          <Terminal className="h-4 w-4" />
+                        </motion.div>
+                        <motion.span
+                          className="font-mono text-xs"
+                          animate={nameMode === "nerdy" ? { color: "#7fb07f" } : { color: "#666" }}
+                          transition={{ duration: 0.5 }}
+                        >
+                          {"> whoami"}
+                        </motion.span>
+                      </div>
+                      <motion.h2
+                        className="text-xl md:text-2xl font-bold tracking-tight mb-2"
+                        animate={nameMode === "nerdy" ? { color: "#7fb07f" } : { color: "#e8e8e8" }}
+                        transition={{ duration: 0.5 }}
+                      >
+                        the nerdy side
+                      </motion.h2>
+                      <p className="text-sm text-[#aaa] leading-relaxed max-w-xs">
+                        {"resume, hacking stuff, certs, all that serious jazz."}
+                      </p>
+                      <p className="mt-3 text-xs font-mono text-[#666] group-hover:text-[#e8e8e8] transition-colors italic">
+                        {"psst -- wanna hire me?"}
+                      </p>
+                    </div>
+                    <div className="mt-4 flex items-center gap-2 text-sm font-mono text-[#666] group-hover:text-[#e8e8e8] transition-colors">
+                      <span>go there</span>
+                      <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+                    </div>
+                    <motion.div
+                      className="absolute bottom-0 left-0 h-[2px] bg-[#e8e8e8] group-hover:w-full transition-all duration-500"
+                      animate={nameMode === "nerdy" ? {
+                        width: "100%",
+                        backgroundColor: "#7fb07f"
+                      } : {
+                        width: "0%",
+                        backgroundColor: "#e8e8e8"
+                      }}
+                      transition={{ duration: 0.5 }}
+                    />
+                  </motion.div>
+                </Link>
+              </motion.div>
+
+              {/* CREATIVE */}
+              <motion.div
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 1.15 }}
+                onHoverStart={() => { setHoverSide("creative") }}
+                onHoverEnd={() => { setHoverSide(null) }}
+                className="group"
+              >
+                <Link href="/creative">
+                  <motion.div
+                    className="paper-card relative p-7 md:p-9 min-h-[220px] flex flex-col justify-between overflow-hidden hover-wiggle"
+                    animate={hoverSide === "creative" ? {
+                      borderColor: "#f0c6cf",
+                      boxShadow: "0 0 20px rgba(240, 198, 207, 0.3)"
+                    } : {
+                      borderColor: "#2a2a2a",
+                      boxShadow: "none"
+                    }}
+                    transition={{ duration: 0.5 }}
+                    style={{ border: "1px solid" }}
+                  >
+                    <div className="tape-top" />
+                    <div>
+                      <div className="flex items-center gap-3 mb-3">
+                        <motion.div
+                          className="flex h-9 w-9 items-center justify-center border"
+                          animate={hoverSide === "creative" ? {
+                            borderColor: "#f0c6cf",
+                            color: "#f0c6cf"
+                          } : {
+                            borderColor: "#333",
+                            color: "#e8e8e8"
+                          }}
+                          transition={{ duration: 0.5 }}
+                          style={{ border: "1px solid" }}
+                        >
+                          <Pen className="h-4 w-4" />
+                        </motion.div>
+                        <motion.span
+                          className="font-mono text-xs"
+                          animate={hoverSide === "creative" ? { color: "#f0c6cf" } : { color: "#666" }}
+                          transition={{ duration: 0.5 }}
+                        >
+                          ~
+                        </motion.span>
+                      </div>
+                      <motion.h2
+                        className="text-xl md:text-2xl font-bold tracking-tight mb-2"
+                        animate={hoverSide === "creative" ? { color: "#f0c6cf" } : { color: "#e8e8e8" }}
+                        transition={{ duration: 0.5 }}
+                      >
+                        the unhinged side
+                      </motion.h2>
+                      <p className="text-sm text-[#aaa] leading-relaxed max-w-xs">
+                        {"photos, sketches, late-night scribbles. the fun stuff."}
+                      </p>
+                      <p className="mt-3 text-xs font-mono text-[#666] group-hover:text-[#e8e8e8] transition-colors italic">
+                        {"aka the fun one"}
+                      </p>
+                    </div>
+                    <div className="mt-4 flex items-center gap-2 text-sm font-mono text-[#666] group-hover:text-[#e8e8e8] transition-colors">
+                      <span>go there</span>
+                      <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+                    </div>
+                    <motion.div
+                      className="absolute bottom-0 left-0 h-[2px] bg-[#e8e8e8] group-hover:w-full transition-all duration-500"
+                      animate={hoverSide === "creative" ? {
+                        width: "100%",
+                        backgroundColor: "#f0c6cf"
+                      } : {
+                        width: "0%",
+                        backgroundColor: "#e8e8e8"
+                      }}
+                      transition={{ duration: 0.5 }}
+                    />
+                  </motion.div>
+                </Link>
+              </motion.div>
+            </div>
+
+            {/* Hover indicator */}
+            <motion.p
+              className="mt-5 font-mono text-xs text-[#666] h-5"
+              animate={{ opacity: hoverSide ? 1 : 0 }}
+            >
+              {hoverSide === "nerdy"
+                ? "yes there's a resume in there. yes you can hire me."
+                : hoverSide === "creative"
+                  ? "warning: the unhinged side may contain bad sketches and worse opinions"
+                  : ""}
+            </motion.p>
+          </motion.div>
+
+          {/* Scroll hint */}
+          <motion.div
+            className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.5, duration: 0.6, ease: "easeOut" }}
+          >
+            <p className="font-mono text-xs text-[#666]">scroll for vibes</p>
+            <motion.div
+              animate={{ y: [0, 8, 0] }}
+              transition={{ duration: 1.8, repeat: Infinity, ease: [0.45, 0, 0.55, 1] }}
+            >
+              <ArrowDown className="h-4 w-4 text-[#666]" />
+            </motion.div>
+          </motion.div>
         </motion.div>
       </section>
 
@@ -737,7 +736,7 @@ export default function Home() {
       <footer className="relative z-10 border-t border-[#333]">
         <div className="mx-auto max-w-5xl px-6 py-7 flex items-center justify-between">
           <p className="font-mono text-xs text-[#888]">som chandra, 2025</p>
-          <p className="font-mono text-xs text-[#666]">made with mass of coffee</p>
+          <p className="font-mono text-xs text-[#666]">made with monster and bunch of tokens</p>
         </div>
       </footer>
     </main>
