@@ -15,15 +15,14 @@ import {
   type SortField,
   type SortDirection,
   monthYearSortValue,
-  splitIntoSections,
   INITIAL_RENDER_COUNT,
   RENDER_STEP,
 } from "@/lib/creative-data"
 
 const siblingLinks: { key: Tab; label: string; href: string }[] = [
-  { key: "sidequests", label: "Visual Detors", href: "/creative/visual-detours" },
-  { key: "photos", label: "Clicks", href: "/creative/clicks" },
-  { key: "sketches", label: "Doodling", href: "/creative/doodling" },
+  { key: "sidequests", label: "visual detors", href: "/creative/visual-detours" },
+  { key: "photos", label: "clicks", href: "/creative/clicks" },
+  { key: "sketches", label: "doodling", href: "/creative/doodling" },
 ]
 
 interface GalleryPageProps {
@@ -83,7 +82,6 @@ export function GalleryPage({ title, subtitle, tabKey, items, showSort = true }:
   }, [items, sortField, sortDirection, showSort])
 
   const visibleItems = useMemo(() => sortedItems.slice(0, visibleCount), [sortedItems, visibleCount])
-  const groupedGallery = useMemo(() => splitIntoSections(visibleItems), [visibleItems])
   const hasMore = visibleCount < sortedItems.length
 
   useEffect(() => {
@@ -103,7 +101,7 @@ export function GalleryPage({ title, subtitle, tabKey, items, showSort = true }:
 
   return (
     <>
-      <PageHeader title={title} subtitle={subtitle} />
+      <PageHeader title={title} subtitle={subtitle} breadcrumb={`som / creative / ${title}`} />
 
       <PageTransition>
         <div className="relative min-h-screen">
@@ -176,44 +174,32 @@ export function GalleryPage({ title, subtitle, tabKey, items, showSort = true }:
             </div>
           )}
 
-          {/* Gallery grid */}
+          {/* Gallery grid -- continuous flow, no section separators */}
           <section className="relative z-10 mx-auto max-w-4xl px-6 pb-14">
-            <div className="space-y-10">
-              {groupedGallery.map((section, sectionIndex) => (
-                <div key={section.heading}>
-                  <div className="mb-4 flex items-center gap-3">
-                    <span className="h-px w-10 bg-[#3f3f3f]" />
-                    <p className="inline-flex items-center border border-[#383838] bg-[#0d0d0d]/70 px-2.5 py-1 font-mono text-[0.62rem] tracking-[0.18em] uppercase text-[#a8a8a8]">
-                      {section.heading}
-                    </p>
-                  </div>
-                  <div className="columns-1 sm:columns-2 lg:columns-3 gap-4">
-                    {section.items.map((item, i) => (
-                      <PhotoCard
-                        key={`${section.heading}-${item.id}`}
-                        item={item}
-                        index={sectionIndex * 100 + i}
-                        activeTab={tabKey}
-                        isTouchDevice={isTouchDevice}
-                        onClick={() => setLightboxItem(item)}
-                      />
-                    ))}
-                  </div>
-                </div>
+            <div className="columns-1 sm:columns-2 lg:columns-3 gap-6">
+              {visibleItems.map((item, i) => (
+                <PhotoCard
+                  key={`${tabKey}-${item.id}`}
+                  item={item}
+                  index={i}
+                  activeTab={tabKey}
+                  isTouchDevice={isTouchDevice}
+                  onClick={() => setLightboxItem(item)}
+                />
               ))}
-              {hasMore && (
-                <div className="pt-3">
-                  <div ref={loadMoreTriggerRef} className="h-2 w-full" />
-                  <button
-                    type="button"
-                    onClick={() => setVisibleCount((c) => Math.min(c + RENDER_STEP, sortedItems.length))}
-                    className="mt-3 border border-[#333] bg-transparent px-3 py-2 font-mono text-xs text-[#9a9a9a] transition-colors hover:border-[#666] hover:text-[#e8e8e8]"
-                  >
-                    load more frames
-                  </button>
-                </div>
-              )}
             </div>
+            {hasMore && (
+              <div className="pt-6">
+                <div ref={loadMoreTriggerRef} className="h-2 w-full" />
+                <button
+                  type="button"
+                  onClick={() => setVisibleCount((c) => Math.min(c + RENDER_STEP, sortedItems.length))}
+                  className="mt-3 border border-[#333] bg-transparent px-3 py-2 font-mono text-xs text-[#9a9a9a] transition-colors hover:border-[#666] hover:text-[#e8e8e8]"
+                >
+                  load more frames
+                </button>
+              </div>
+            )}
           </section>
 
           {/* Footer */}

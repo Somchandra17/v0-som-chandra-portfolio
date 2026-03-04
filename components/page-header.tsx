@@ -7,9 +7,12 @@ import { ArrowLeft } from "lucide-react"
 interface PageHeaderProps {
   title: string
   subtitle?: string
+  subtitleSmallCaps?: boolean
+  titleSmallCaps?: boolean
+  breadcrumb?: string
 }
 
-export function PageHeader({ title, subtitle }: PageHeaderProps) {
+export function PageHeader({ title, subtitle, subtitleSmallCaps, titleSmallCaps, breadcrumb }: PageHeaderProps) {
   return (
     <motion.header
       className="sticky top-0 z-40 border-b border-[#2a2a2a] bg-[#0a0a0a]/95 backdrop-blur-sm"
@@ -28,9 +31,22 @@ export function PageHeader({ title, subtitle }: PageHeaderProps) {
         </Link>
 
         <div className="text-right">
-          <h1 className="text-base font-bold tracking-tight text-[#e8e8e8]">{title}</h1>
+          {breadcrumb && (
+            <p className="font-mono text-[0.6rem] text-[#555] mb-0.5">{breadcrumb}</p>
+          )}
+          <h1
+            className="text-base font-bold tracking-tight text-[#e8e8e8]"
+            style={titleSmallCaps ? { fontVariant: "small-caps" } : undefined}
+          >
+            {title}
+          </h1>
           {subtitle && (
-            <p className="text-xs font-mono text-[#777]">{subtitle}</p>
+            <p
+              className="text-xs font-mono text-[#777]"
+              style={subtitleSmallCaps ? { fontVariant: "small-caps" } : undefined}
+            >
+              {subtitle}
+            </p>
           )}
         </div>
       </div>

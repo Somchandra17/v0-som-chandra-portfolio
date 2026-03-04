@@ -7,7 +7,7 @@ export default function VisualDetoursPage() {
   return (
     <GalleryPage
       title="visual detors"
-      subtitle="side quests are secretly the main quest"
+      subtitle="side quests r secretly the main quest"
       tabKey="sidequests"
       items={sidequestGallery}
       showSort={true}

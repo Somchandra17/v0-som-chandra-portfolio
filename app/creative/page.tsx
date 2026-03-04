@@ -99,7 +99,7 @@ const sections: {
 }[] = [
   {
     key: "sidequests",
-    label: "Visual Detors",
+    label: "visual detors",
     href: "/creative/visual-detours",
     images: [
       "/creative/pictures/sidequest/1.jpeg",
@@ -117,7 +117,7 @@ const sections: {
   },
   {
     key: "photos",
-    label: "Clicks",
+    label: "clicks",
     href: "/creative/clicks",
     images: [
       "/creative/pictures/clicks/1.jpg",
@@ -135,7 +135,7 @@ const sections: {
   },
   {
     key: "sketches",
-    label: "Doodling",
+    label: "doodling",
     href: "/creative/doodling",
     images: [
       "/creative/pictures/sketch/somchandra17-20220711_143837-3108937688.webp",
@@ -179,7 +179,7 @@ export default function CreativePage() {
 
   return (
     <>
-      <PageHeader title="the unhinged side" subtitle="visual detors / clicks / doodling / late-night scribbles" />
+      <PageHeader title="the unhinged side" subtitle="visual detors / clicks / doodling / late-night scribbles" breadcrumb="som / creative" />
 
       <PageTransition>
         <div className="relative min-h-screen">

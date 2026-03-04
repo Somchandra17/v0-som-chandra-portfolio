@@ -151,7 +151,7 @@ export default function NerdyPage() {
 
   return (
     <>
-      <PageHeader title="the nerdy side" subtitle="resume / projects / hacking stuff" />
+      <PageHeader title="the nerdy side" subtitle="resume / projects / hacking stuff" breadcrumb="som / nerdy" />
 
       <PageTransition>
         <div className="relative min-h-screen">
