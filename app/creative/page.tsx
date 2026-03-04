@@ -99,7 +99,7 @@ const sections: {
 }[] = [
   {
     key: "sidequests",
-    label: "Visual Detors",
+    label: "visual detors",
     href: "/creative/visual-detours",
     images: [
       "/creative/pictures/sidequest/1.jpeg",
@@ -117,7 +117,7 @@ const sections: {
   },
   {
     key: "photos",
-    label: "Clicks",
+    label: "clicks",
     href: "/creative/clicks",
     images: [
       "/creative/pictures/clicks/1.jpg",
@@ -135,7 +135,7 @@ const sections: {
   },
   {
     key: "sketches",
-    label: "Doodling",
+    label: "doodling",
     href: "/creative/doodling",
     images: [
       "/creative/pictures/sketch/somchandra17-20220711_143837-3108937688.webp",
@@ -179,7 +179,7 @@ export default function CreativePage() {
 
   return (
     <>
-      <PageHeader title="the unhinged side" subtitle="visual detors / clicks / doodling / late-night scribbles" subtitleSmallCaps breadcrumb="som / creative" />
+      <PageHeader title="the unhinged side" subtitle="visual detors / clicks / doodling / late-night scribbles" breadcrumb="som / creative" />
 
       <PageTransition>
         <div className="relative min-h-screen">
@@ -260,7 +260,6 @@ export default function CreativePage() {
                             className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight"
                             animate={{ color: isActive ? "#e8e8e8" : "#444" }}
                             transition={{ duration: 0.3 }}
-                            style={{ fontVariant: "small-caps" }}
                           >
                             {section.label}
                           </motion.h2>

@@ -58,8 +58,11 @@ export function PhotoCard({
   return (
     <div
       ref={cardRef}
-      className={`break-inside-avoid mb-6 paper-card overflow-hidden cursor-pointer group hover-bounce animate-in fade-in slide-in-from-bottom-2 duration-300 [content-visibility:auto] [contain-intrinsic-size:340px_240px] ${isVaranasi ? "ring-1 ring-[#f0c6cf]/60 shadow-[0_0_16px_rgba(240,198,207,0.25)]" : ""}`}
-      style={{ animationDelay: `${Math.min(index, 8) * 24}ms` }}
+      className={`break-inside-avoid mb-6 paper-card overflow-hidden cursor-pointer group hover-bounce animate-in fade-in slide-in-from-bottom-2 duration-300 [content-visibility:auto] [contain-intrinsic-size:340px_240px] ${isVaranasi ? "ring-2 ring-[#f0c6cf]" : ""}`}
+      style={{
+        animationDelay: `${Math.min(index, 8) * 24}ms`,
+        ...(isVaranasi ? { boxShadow: "0 0 18px 4px rgba(240,198,207,0.45), 0 0 40px 8px rgba(240,198,207,0.2), inset 0 0 12px rgba(240,198,207,0.08)" } : {}),
+      }}
       onClick={onClick}
     >
       <div className="w-full bg-[#1a1a1a] relative overflow-hidden">

@@ -20,9 +20,9 @@ import {
 } from "@/lib/creative-data"
 
 const siblingLinks: { key: Tab; label: string; href: string }[] = [
-  { key: "sidequests", label: "Visual Detors", href: "/creative/visual-detours" },
-  { key: "photos", label: "Clicks", href: "/creative/clicks" },
-  { key: "sketches", label: "Doodling", href: "/creative/doodling" },
+  { key: "sidequests", label: "visual detors", href: "/creative/visual-detours" },
+  { key: "photos", label: "clicks", href: "/creative/clicks" },
+  { key: "sketches", label: "doodling", href: "/creative/doodling" },
 ]
 
 interface GalleryPageProps {
@@ -101,7 +101,7 @@ export function GalleryPage({ title, subtitle, tabKey, items, showSort = true }:
 
   return (
     <>
-      <PageHeader title={title} subtitle={subtitle} titleSmallCaps breadcrumb={`som / creative / ${title}`} />
+      <PageHeader title={title} subtitle={subtitle} breadcrumb={`som / creative / ${title}`} />
 
       <PageTransition>
         <div className="relative min-h-screen">
@@ -122,7 +122,6 @@ export function GalleryPage({ title, subtitle, tabKey, items, showSort = true }:
                     key={s.key}
                     href={s.href}
                     className="border border-[#333] px-3 py-1.5 font-mono text-[0.65rem] text-[#777] hover:text-[#e8e8e8] hover:border-[#666] transition-colors"
-                    style={{ fontVariant: "small-caps" }}
                   >
                     {s.label}
                   </Link>
