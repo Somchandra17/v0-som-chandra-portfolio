@@ -22,18 +22,18 @@ export function Loader({ onComplete }: { onComplete: () => void }) {
     // Cycle through messages
     messages.forEach((_, i) => {
       if (i > 0) {
-        timers.push(setTimeout(() => setMsgIndex(i), i * 1200))
+        timers.push(setTimeout(() => setMsgIndex(i), i * 1000))
       }
     })
 
     // Show name after messages
-    timers.push(setTimeout(() => setPhase("name"), messages.length * 600))
+    timers.push(setTimeout(() => setPhase("name"), messages.length * 1000))
 
     // Complete after name
     timers.push(setTimeout(() => {
       setPhase("done")
       stableComplete()
-    }, messages.length * 600 + 1200))
+    }, messages.length * 1000 + 1000))
 
     return () => timers.forEach(clearTimeout)
   }, [stableComplete])
