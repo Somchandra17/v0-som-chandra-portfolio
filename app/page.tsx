@@ -40,35 +40,12 @@ const socials = [
 ]
 
 const funFacts = [
-  "probably debugging something rn",
-  "or doodling in a notebook",
-  "or both at the same time",
-  "definitely needs more coffee",
-  "has mass tabs open. no regrets.",
-  "talking to rubber duck again",
-  "forgot to push before leaving",
-  "arguing with a yaml file",
-  "pretending to understand kubernetes",
-  "ctrl+z is my best friend",
-  "alt-tabbing between terminal and spotify",
-  "wrote a script to automate a 2-min task. took 3 hours.",
-  "sudo make me a sandwich",
-  "the bug was a missing semicolon. always is.",
-  "stack overflow is down. panic mode.",
-  "renaming variables for the 5th time today",
-  "coffee machine broken. code red.",
-  "accidentally opened vim. send help.",
-  "refactoring code I wrote 2 weeks ago like it's someone else's",
-  "explaining to friends what I do for a living",
-  "git blame: it was me all along",
-  "copy-pasted from stack overflow. it worked first try. terrifying.",
-  "spent an hour on my hyprland",
-  "dark mode everything. my eyes thank me.",
-  "sleep is just a variable I never initialize",
-  "i speak broken grammar",
-  "my rubber duck deserves a raise",
-  "drawing things no one asked for since 2002",
-  "i photograph things instead of experiencing them",
+  "i break things for a living.",
+  "i draw things nobody asked for.",
+  "i take photos of random things.",
+  "cybersecurity by day, doodling by night.",
+  "i have two personalities and one website.",
+  "a can of white monster would be helpfull"
 ]
 
 const heroLines = [
@@ -223,12 +200,13 @@ export default function Home() {
               </span>
             </h1>
 
-            {/* Cycling hero tagline */}
+            {/* Cycling hero tagline with highlight effect */}
             <div className="mt-3 h-10 md:h-12 overflow-hidden">
               <AnimatePresence mode="wait">
                 <motion.p
                   key={heroIdx}
-                  className="text-xl md:text-2xl lg:text-3xl font-bold text-[#777]"
+                  className="text-xl md:text-2xl lg:text-3xl font-bold inline-block px-2 py-0.5"
+                  style={{ backgroundColor: "#e8e8e8", color: "#0a0a0a" }}
                   initial={{ opacity: 0, y: 24, filter: "blur(4px)" }}
                   animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                   exit={{ opacity: 0, y: -20, filter: "blur(2px)" }}
