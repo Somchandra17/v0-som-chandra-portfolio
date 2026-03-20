@@ -46,11 +46,8 @@ const funFacts = [
   "definitely needs more coffee",
   "has mass tabs open. no regrets.",
   "talking to rubber duck again",
-  "googling error for the 47th time",
-  "accidentally rm -rf'd something important",
   "forgot to push before leaving",
   "arguing with a yaml file",
-  "broke prod on a friday. again.",
   "pretending to understand kubernetes",
   "ctrl+z is my best friend",
   "alt-tabbing between terminal and spotify",
@@ -60,33 +57,27 @@ const funFacts = [
   "stack overflow is down. panic mode.",
   "renaming variables for the 5th time today",
   "coffee machine broken. code red.",
-  "found a bug. turns out it was a feature.",
   "accidentally opened vim. send help.",
-  "my code works. I have no idea why.",
   "refactoring code I wrote 2 weeks ago like it's someone else's",
-  "the wifi dropped mid-deploy. classic.",
   "explaining to friends what I do for a living",
   "git blame: it was me all along",
-  "wrote tests. they passed. now I'm suspicious.",
   "copy-pasted from stack overflow. it worked first try. terrifying.",
-  "spent an hour on a bug. it was a typo.",
+  "spent an hour on my hyprland",
   "dark mode everything. my eyes thank me.",
   "sleep is just a variable I never initialize",
   "i speak broken grammar",
   "my rubber duck deserves a raise",
-  "i hack things legally. mostly.",
-  "drawing things no one asked for since 2005",
+  "drawing things no one asked for since 2002",
   "i photograph things instead of experiencing them",
 ]
 
 const heroLines = [
   "i break things for a living.",
   "i draw things nobody asked for.",
-  "i hack stuff. legally. mostly.",
   "i take photos of random things.",
-  "half nerd, half artist, fully caffeinated.",
   "cybersecurity by day, doodling by night.",
   "i have two personalities and one website.",
+  "a can of white monster would be helpfull"
 ]
 
 type NowPlayingData = {
