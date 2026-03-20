@@ -49,12 +49,30 @@ const funFacts = [
 ]
 
 const heroLines = [
-  "i break things for a living.",
-  "i draw things nobody asked for.",
-  "i take photos of random things.",
-  "cybersecurity by day, doodling by night.",
-  "i have two personalities and one website.",
-  "a can of white monster would be helpfull"
+  "probably debugging something rn",
+  "or doodling in a notebook",
+  "or both at the same time",
+  "probably missing her rn",
+  "sleep is just a variable I never initialize",
+  "talking to rubber duck again",
+  "accidentally rm -rf'd something important",
+  "pretending to understand kubernetes",
+  "ctrl+z is my best friend",
+  "alt-tabbing between terminal and spotify",
+  "wrote a script to automate a 2-min task. took 3 hours.",
+  "sudo make me a sandwich",
+  "renaming variables for the 5th time today",
+  "accidentally opened vim. send help.",
+  "refactoring code I wrote 2 weeks ago like it's someone else's",
+  "explaining to friends what I do for a living",
+  "git blame: it was me all along",
+  "spent an hour on my hyprland",
+  "dark mode everything. my eyes thank me.",
+  "i speak broken grammar",
+  "my rubber duck deserves a raise",
+  "drawing things no one asked for since 2002",
+  "i photograph things instead of experiencing them",
+  "arguing with a yaml file"
 ]
 
 type NowPlayingData = {
