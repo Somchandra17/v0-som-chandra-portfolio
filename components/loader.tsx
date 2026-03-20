@@ -22,7 +22,7 @@ export function Loader({ onComplete }: { onComplete: () => void }) {
     // Cycle through messages
     messages.forEach((_, i) => {
       if (i > 0) {
-        timers.push(setTimeout(() => setMsgIndex(i), i * 600))
+        timers.push(setTimeout(() => setMsgIndex(i), i * 1200))
       }
     })
 
