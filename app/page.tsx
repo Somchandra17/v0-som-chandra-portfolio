@@ -535,8 +535,8 @@ export default function Home() {
               </div>
               <p className="text-sm text-[#888] mb-8">{"the people responsible for my personality"}</p>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                {topArtists.map((artist, i) => (
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+                {topArtists.slice(0, 5).map((artist, i) => (
                   <motion.a
                     key={artist.url}
                     href={artist.url}
@@ -548,22 +548,23 @@ export default function Home() {
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.06, duration: 0.35 }}
                   >
-                    {artist.imageUrl ? (
-                      <img
-                        src={artist.imageUrl}
-                        alt={artist.name}
-                        className="w-20 h-20 object-cover border-2 border-[#333] mb-3 group-hover:border-[#e8e8e8] transition-colors"
-                        style={{ borderRadius: "50%" }}
-                        crossOrigin="anonymous"
-                      />
-                    ) : (
-                      <div
-                        className="w-20 h-20 border-2 border-[#333] bg-[#1a1a1a] mb-3 flex items-center justify-center"
-                        style={{ borderRadius: "50%" }}
-                      >
+                    <div
+                      className="w-20 h-20 border-2 border-[#333] bg-[#1a1a1a] mb-3 flex items-center justify-center overflow-hidden group-hover:border-[#e8e8e8] transition-colors"
+                      style={{ borderRadius: "50%" }}
+                    >
+                      {artist.imageUrl ? (
+                        <img
+                          src={artist.imageUrl}
+                          alt={artist.name}
+                          className="w-full h-full object-cover"
+                          crossOrigin="anonymous"
+                          loading="lazy"
+                          onError={(e) => { e.currentTarget.style.display = 'none' }}
+                        />
+                      ) : (
                         <Users className="h-8 w-8 text-[#444]" />
-                      </div>
-                    )}
+                      )}
+                    </div>
                     <p className="text-sm font-bold text-[#e8e8e8] group-hover:underline truncate w-full">{artist.name}</p>
                     {artist.genres.length > 0 && (
                       <p className="text-xs text-[#888] truncate w-full mt-1">{artist.genres.join(", ")}</p>
