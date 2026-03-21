@@ -593,7 +593,7 @@ export default function Home() {
               <p className="text-sm text-[#888] mb-6">{"the songs i've played to death"}</p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {topTracks.slice(0, 10).map((track, i) => (
+                {topTracks.slice(0, 5).map((track, i) => (
                   <motion.a
                     key={track.songUrl + i}
                     href={track.songUrl}
@@ -606,9 +606,20 @@ export default function Home() {
                     transition={{ delay: i * 0.04, duration: 0.3 }}
                   >
                     <span className="font-mono text-xs text-[#666] w-5 shrink-0">{String(i + 1).padStart(2, "0")}</span>
-                    {track.albumImageUrl && (
-                      <img src={track.albumImageUrl} alt={track.album} className="w-10 h-10 object-cover border border-[#333] shrink-0" crossOrigin="anonymous" />
-                    )}
+                    <div className="w-10 h-10 shrink-0 border border-[#333] bg-[#1a1a1a] flex items-center justify-center overflow-hidden">
+                      {track.albumImageUrl ? (
+                        <img 
+                          src={track.albumImageUrl} 
+                          alt={track.album} 
+                          className="w-full h-full object-cover" 
+                          crossOrigin="anonymous"
+                          loading="lazy"
+                          onError={(e) => { e.currentTarget.style.display = 'none' }}
+                        />
+                      ) : (
+                        <span className="text-[#444] text-xs">♪</span>
+                      )}
+                    </div>
                     <div className="min-w-0">
                       <p className="text-sm font-bold text-[#e8e8e8] truncate group-hover:underline">{track.title}</p>
                       <p className="text-xs text-[#aaa] truncate">{track.artist}</p>
@@ -638,7 +649,7 @@ export default function Home() {
               <p className="text-sm text-[#888] mb-6">{"what was in my ears a minute ago"}</p>
 
               <div className="space-y-2">
-                {recentTracks.slice(0, 8).map((track, i) => (
+                {recentTracks.slice(0, 5).map((track, i) => (
                   <motion.a
                     key={track.songUrl + track.playedAt}
                     href={track.songUrl}
@@ -650,9 +661,20 @@ export default function Home() {
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.03, duration: 0.25 }}
                   >
-                    {track.albumImageUrl && (
-                      <img src={track.albumImageUrl} alt={track.album} className="w-8 h-8 object-cover border border-[#333] shrink-0" crossOrigin="anonymous" />
-                    )}
+                    <div className="w-8 h-8 shrink-0 border border-[#333] bg-[#1a1a1a] flex items-center justify-center overflow-hidden">
+                      {track.albumImageUrl ? (
+                        <img 
+                          src={track.albumImageUrl} 
+                          alt={track.album} 
+                          className="w-full h-full object-cover" 
+                          crossOrigin="anonymous"
+                          loading="lazy"
+                          onError={(e) => { e.currentTarget.style.display = 'none' }}
+                        />
+                      ) : (
+                        <span className="text-[#444] text-xs">♪</span>
+                      )}
+                    </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-sm text-[#e8e8e8] truncate group-hover:underline">{track.title}</p>
                       <p className="text-xs text-[#aaa] truncate">{track.artist}</p>

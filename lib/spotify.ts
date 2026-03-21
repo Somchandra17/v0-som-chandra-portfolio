@@ -38,7 +38,7 @@ export async function getNowPlaying() {
 export async function getTopTracks() {
   const { access_token } = await getAccessToken()
 
-  return fetch(`${TOP_TRACKS_ENDPOINT}?time_range=long_term&limit=10`, {
+  return fetch(`${TOP_TRACKS_ENDPOINT}?time_range=long_term&limit=5`, {
     headers: {
       Authorization: `Bearer ${access_token}`,
     },
@@ -48,7 +48,7 @@ export async function getTopTracks() {
 export async function getTopArtists() {
   const { access_token } = await getAccessToken()
 
-  return fetch(`${TOP_ARTISTS_ENDPOINT}?time_range=long_term&limit=8`, {
+  return fetch(`${TOP_ARTISTS_ENDPOINT}?time_range=long_term&limit=5`, {
     headers: {
       Authorization: `Bearer ${access_token}`,
     },
@@ -58,7 +58,7 @@ export async function getTopArtists() {
 export async function getRecentlyPlayed() {
   const { access_token } = await getAccessToken()
 
-  return fetch(`${RECENTLY_PLAYED_ENDPOINT}?limit=10`, {
+  return fetch(`${RECENTLY_PLAYED_ENDPOINT}?limit=5`, {
     headers: {
       Authorization: `Bearer ${access_token}`,
     },
