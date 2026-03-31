@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation"
 import useSWR from "swr"
 import { MusicDCTF } from "@/components/musicd-ctf"
 import { TextMorph } from "@/components/text-morph"
+import { PretextHighlight } from "@/components/pretext-highlight"
 import {
   Terminal, Pen, Github, Linkedin, Mail, ExternalLink,
   ArrowRight, ArrowDown, Music, Disc3, Headphones, Users, Clock,
@@ -218,21 +219,17 @@ export default function Home() {
               </span>
             </h1>
 
-            {/* Cycling hero tagline with highlight effect */}
-            <div className="mt-3 h-10 md:h-12 overflow-hidden">
-              <AnimatePresence mode="wait">
-                <motion.p
-                  key={heroIdx}
-                  className="text-xl md:text-2xl lg:text-3xl font-bold inline-block px-2 py-0.5"
-                  style={{ backgroundColor: "#e8e8e8", color: "#0a0a0a" }}
-                  initial={{ opacity: 0, y: 24, filter: "blur(4px)" }}
-                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                  exit={{ opacity: 0, y: -20, filter: "blur(2px)" }}
-                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                >
-                  {heroLines[heroIdx]}
-                </motion.p>
-              </AnimatePresence>
+            {/* Cycling hero tagline with pretext-measured highlight */}
+            <div className="mt-3 h-10 md:h-12">
+              <PretextHighlight
+                lines={heroLines}
+                currentIndex={heroIdx}
+                fontSize={24}
+                bgColor="#e8e8e8"
+                textColor="#0a0a0a"
+                paddingX={8}
+                paddingY={2}
+              />
             </div>
 
             {/* Auto-cycling fun fact */}
@@ -535,8 +532,8 @@ export default function Home() {
               </div>
               <p className="text-sm text-[#888] mb-8">{"the people responsible for my personality"}</p>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                {topArtists.map((artist, i) => (
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+                {topArtists.slice(0, 5).map((artist, i) => (
                   <motion.a
                     key={artist.url}
                     href={artist.url}
@@ -548,22 +545,23 @@ export default function Home() {
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.06, duration: 0.35 }}
                   >
-                    {artist.imageUrl ? (
-                      <img
-                        src={artist.imageUrl}
-                        alt={artist.name}
-                        className="w-20 h-20 object-cover border-2 border-[#333] mb-3 group-hover:border-[#e8e8e8] transition-colors"
-                        style={{ borderRadius: "50%" }}
-                        crossOrigin="anonymous"
-                      />
-                    ) : (
-                      <div
-                        className="w-20 h-20 border-2 border-[#333] bg-[#1a1a1a] mb-3 flex items-center justify-center"
-                        style={{ borderRadius: "50%" }}
-                      >
+                    <div
+                      className="w-20 h-20 border-2 border-[#333] bg-[#1a1a1a] mb-3 flex items-center justify-center overflow-hidden group-hover:border-[#e8e8e8] transition-colors"
+                      style={{ borderRadius: "50%" }}
+                    >
+                      {artist.imageUrl ? (
+                        <img
+                          src={artist.imageUrl}
+                          alt={artist.name}
+                          className="w-full h-full object-cover"
+                          crossOrigin="anonymous"
+                          loading="lazy"
+                          onError={(e) => { e.currentTarget.style.display = 'none' }}
+                        />
+                      ) : (
                         <Users className="h-8 w-8 text-[#444]" />
-                      </div>
-                    )}
+                      )}
+                    </div>
                     <p className="text-sm font-bold text-[#e8e8e8] group-hover:underline truncate w-full">{artist.name}</p>
                     {artist.genres.length > 0 && (
                       <p className="text-xs text-[#888] truncate w-full mt-1">{artist.genres.join(", ")}</p>
@@ -593,7 +591,7 @@ export default function Home() {
               <p className="text-sm text-[#888] mb-6">{"the songs i've played to death"}</p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {topTracks.slice(0, 10).map((track, i) => (
+                {topTracks.slice(0, 5).map((track, i) => (
                   <motion.a
                     key={track.songUrl + i}
                     href={track.songUrl}
@@ -606,9 +604,20 @@ export default function Home() {
                     transition={{ delay: i * 0.04, duration: 0.3 }}
                   >
                     <span className="font-mono text-xs text-[#666] w-5 shrink-0">{String(i + 1).padStart(2, "0")}</span>
-                    {track.albumImageUrl && (
-                      <img src={track.albumImageUrl} alt={track.album} className="w-10 h-10 object-cover border border-[#333] shrink-0" crossOrigin="anonymous" />
-                    )}
+                    <div className="w-10 h-10 shrink-0 border border-[#333] bg-[#1a1a1a] flex items-center justify-center overflow-hidden">
+                      {track.albumImageUrl ? (
+                        <img 
+                          src={track.albumImageUrl} 
+                          alt={track.album} 
+                          className="w-full h-full object-cover" 
+                          crossOrigin="anonymous"
+                          loading="lazy"
+                          onError={(e) => { e.currentTarget.style.display = 'none' }}
+                        />
+                      ) : (
+                        <span className="text-[#444] text-xs">♪</span>
+                      )}
+                    </div>
                     <div className="min-w-0">
                       <p className="text-sm font-bold text-[#e8e8e8] truncate group-hover:underline">{track.title}</p>
                       <p className="text-xs text-[#aaa] truncate">{track.artist}</p>
@@ -638,7 +647,7 @@ export default function Home() {
               <p className="text-sm text-[#888] mb-6">{"what was in my ears a minute ago"}</p>
 
               <div className="space-y-2">
-                {recentTracks.slice(0, 8).map((track, i) => (
+                {recentTracks.slice(0, 5).map((track, i) => (
                   <motion.a
                     key={track.songUrl + track.playedAt}
                     href={track.songUrl}
@@ -650,9 +659,20 @@ export default function Home() {
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.03, duration: 0.25 }}
                   >
-                    {track.albumImageUrl && (
-                      <img src={track.albumImageUrl} alt={track.album} className="w-8 h-8 object-cover border border-[#333] shrink-0" crossOrigin="anonymous" />
-                    )}
+                    <div className="w-8 h-8 shrink-0 border border-[#333] bg-[#1a1a1a] flex items-center justify-center overflow-hidden">
+                      {track.albumImageUrl ? (
+                        <img 
+                          src={track.albumImageUrl} 
+                          alt={track.album} 
+                          className="w-full h-full object-cover" 
+                          crossOrigin="anonymous"
+                          loading="lazy"
+                          onError={(e) => { e.currentTarget.style.display = 'none' }}
+                        />
+                      ) : (
+                        <span className="text-[#444] text-xs">♪</span>
+                      )}
+                    </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-sm text-[#e8e8e8] truncate group-hover:underline">{track.title}</p>
                       <p className="text-xs text-[#aaa] truncate">{track.artist}</p>

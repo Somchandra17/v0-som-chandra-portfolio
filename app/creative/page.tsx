@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, type ReactNode } from "react"
+import { useState, useMemo, type ReactNode } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
 import { PageHeader } from "@/components/page-header"
@@ -8,6 +8,7 @@ import { PageTransition } from "@/components/page-transition"
 import { NowPlaying } from "@/components/now-playing"
 import { ArrowRight } from "lucide-react"
 import { thoughts, formatMonthYear } from "@/lib/creative-data"
+import { measureText, fonts } from "@/lib/pretext"
 
 // ── Intentional typos system ───────────────────────────────────────
 const intentionalTypos = new Map<string, { correct: string; roast: string }>([
@@ -166,6 +167,50 @@ export default function CreativePage() {
 
   const active = sections.find((s) => s.key === activeSection) ?? sections[0]
 
+  // Pre-measure all bio section heights with pretext for stable container sizing
+  const bioMeasurements = useMemo(() => {
+    const BIO_WIDTH = 400
+    const LINE_HEIGHT = 22
+    
+    return sections.map((section) => {
+      try {
+        const headingHeight = measureText(section.heading, fonts.bold(20), BIO_WIDTH, 28).height
+        const subtitleHeight = measureText(section.subtitle, fonts.body(14), BIO_WIDTH, 20).height
+        const descHeight = section.description.reduce((acc, para) => {
+          return acc + measureText(para, fonts.body(14), BIO_WIDTH, LINE_HEIGHT).height + 12
+        }, 0)
+        const byTheWayHeight = measureText(section.byTheWay, fonts.body(14), BIO_WIDTH - 16, LINE_HEIGHT).height
+        
+        return {
+          key: section.key,
+          totalHeight: headingHeight + subtitleHeight + descHeight + byTheWayHeight + 80, // padding
+        }
+      } catch {
+        return { key: section.key, totalHeight: 380 }
+      }
+    })
+  }, [])
+
+  // Use maximum height across all sections for stable container
+  const maxBioHeight = useMemo(() => {
+    return Math.max(...bioMeasurements.map((m) => m.totalHeight), 380)
+  }, [bioMeasurements])
+
+  // Pre-measure thoughts card body heights for balanced presentation
+  const thoughtsMeasurements = useMemo(() => {
+    const THOUGHT_WIDTH = 600 // approx card content width
+    const LINE_HEIGHT = 22
+    
+    return thoughts.map((thought) => {
+      try {
+        const { height, lineCount } = measureText(thought.body, fonts.body(14), THOUGHT_WIDTH, LINE_HEIGHT)
+        return { title: thought.title, height, lineCount }
+      } catch {
+        return { title: thought.title, height: 44, lineCount: 2 }
+      }
+    })
+  }, [])
+
   const handleHover = (key: Section) => {
     if (!hasClicked) {
       setActiveSection(key)
@@ -297,7 +342,10 @@ export default function CreativePage() {
                 </div>
 
                 {/* Right side: bio content -- grid column locks width */}
-                <div className="flex flex-col justify-center lg:border-l lg:border-[#222] lg:pl-10 mt-6 lg:mt-0 min-h-[380px] overflow-hidden">
+                <div 
+                  className="flex flex-col justify-center lg:border-l lg:border-[#222] lg:pl-10 mt-6 lg:mt-0 overflow-hidden"
+                  style={{ minHeight: `${maxBioHeight}px` }}
+                >
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={active.key}
@@ -359,7 +407,12 @@ export default function CreativePage() {
                     <h3 className="text-lg font-bold text-[#e8e8e8]">{renderWithTypos(t.title)}</h3>
                     <span className="font-mono text-xs text-[#999]">{t.date}</span>
                   </div>
-                  <p className="text-sm text-[#ccc] leading-relaxed">{renderWithTypos(t.body)}</p>
+                  <p 
+                    className="text-sm text-[#ccc] leading-relaxed"
+                    style={{ minHeight: `${thoughtsMeasurements.find((m) => m.title === t.title)?.height ?? 44}px` }}
+                  >
+                    {renderWithTypos(t.body)}
+                  </p>
                 </motion.article>
               ))}
             </div>
