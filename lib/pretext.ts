@@ -1,6 +1,6 @@
 "use client"
 
-import { prepare, layout, prepareWithSegments, walkLineRanges } from "pretext"
+import { prepare, layout, prepareWithSegments, walkLineRanges } from "@chenglou/pretext"
 
 // Cache for prepared text measurements
 const measurementCache = new Map<string, ReturnType<typeof prepare>>()
