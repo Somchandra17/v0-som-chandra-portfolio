@@ -18,9 +18,9 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'hey, it\'s som',
+  title: 'som chandra — designer & developer',
   description:
-    'a pretty corner over internet',
+    'crafting experiences at the intersection of design, code, and creativity',
   icons: {
     icon: [
       { url: '/icon-light-32x32.png', media: '(prefers-color-scheme: light)' },
