@@ -1,39 +1,84 @@
 "use client"
 
-import { prepare, layout, prepareWithSegments, walkLineRanges } from "@chenglou/pretext"
+// Native Canvas-based text measurement (no external dependencies)
+// Provides similar functionality to @chenglou/pretext using browser Canvas API
 
-// Cache for prepared text measurements
-const measurementCache = new Map<string, ReturnType<typeof prepare>>()
-const segmentCache = new Map<string, ReturnType<typeof prepareWithSegments>>()
+// Singleton canvas context for measurements
+let ctx: CanvasRenderingContext2D | null = null
+
+function getContext(): CanvasRenderingContext2D {
+  if (typeof window === "undefined") {
+    // SSR fallback - return mock that estimates based on character count
+    return {
+      font: "",
+      measureText: (text: string) => ({ width: text.length * 8 }),
+    } as unknown as CanvasRenderingContext2D
+  }
+  
+  if (!ctx) {
+    const canvas = document.createElement("canvas")
+    ctx = canvas.getContext("2d")!
+  }
+  return ctx
+}
+
+// Cache for text measurements
+const measurementCache = new Map<string, { width: number }>()
 
 /**
- * Prepare text for measurement (cached)
+ * Measure single line text width
  */
-export function prepareText(text: string, font: string) {
+export function measureTextWidth(text: string, font: string): number {
   const key = `${text}::${font}`
-  if (!measurementCache.has(key)) {
-    measurementCache.set(key, prepare(text, font))
+  if (measurementCache.has(key)) {
+    return measurementCache.get(key)!.width
   }
-  return measurementCache.get(key)!
+  
+  const context = getContext()
+  context.font = font
+  const metrics = context.measureText(text)
+  const width = metrics.width
+  
+  measurementCache.set(key, { width })
+  return width
 }
 
 /**
- * Prepare text with segments for line-level control (cached)
+ * Calculate layout dimensions for multi-line text
  */
-export function prepareTextWithSegments(text: string, font: string) {
-  const key = `${text}::${font}`
-  if (!segmentCache.has(key)) {
-    segmentCache.set(key, prepareWithSegments(text, font))
+export function measureText(
+  text: string,
+  font: string,
+  maxWidth: number,
+  lineHeight: number
+): { height: number; lineCount: number } {
+  if (!text || text.length === 0) {
+    return { height: 0, lineCount: 0 }
   }
-  return segmentCache.get(key)!
-}
 
-/**
- * Get layout dimensions for text
- */
-export function measureText(text: string, font: string, maxWidth: number, lineHeight: number) {
-  const prepared = prepareText(text, font)
-  return layout(prepared, maxWidth, lineHeight)
+  const context = getContext()
+  context.font = font
+  
+  const words = text.split(/\s+/)
+  let lineCount = 1
+  let currentLineWidth = 0
+  const spaceWidth = context.measureText(" ").width
+
+  for (const word of words) {
+    const wordWidth = context.measureText(word).width
+    
+    if (currentLineWidth + wordWidth > maxWidth && currentLineWidth > 0) {
+      lineCount++
+      currentLineWidth = wordWidth + spaceWidth
+    } else {
+      currentLineWidth += wordWidth + spaceWidth
+    }
+  }
+
+  return {
+    height: lineCount * lineHeight,
+    lineCount,
+  }
 }
 
 /**
@@ -41,51 +86,67 @@ export function measureText(text: string, font: string, maxWidth: number, lineHe
  * This finds the exact pixel width that fits the text perfectly
  */
 export function getShrinkWrapWidth(text: string, font: string, maxWidth: number): number {
-  const prepared = prepareTextWithSegments(text, font)
-  let width = 0
-  walkLineRanges(prepared, maxWidth, (line) => {
-    width = Math.max(width, line.width)
-  })
-  return Math.ceil(width)
+  const context = getContext()
+  context.font = font
+  
+  // For single line, just measure directly
+  const fullWidth = context.measureText(text).width
+  if (fullWidth <= maxWidth) {
+    return Math.ceil(fullWidth)
+  }
+  
+  // For multi-line, find the widest line
+  const words = text.split(/\s+/)
+  let maxLineWidth = 0
+  let currentLineWidth = 0
+  const spaceWidth = context.measureText(" ").width
+
+  for (const word of words) {
+    const wordWidth = context.measureText(word).width
+    
+    if (currentLineWidth + wordWidth > maxWidth && currentLineWidth > 0) {
+      maxLineWidth = Math.max(maxLineWidth, currentLineWidth - spaceWidth)
+      currentLineWidth = wordWidth + spaceWidth
+    } else {
+      currentLineWidth += wordWidth + spaceWidth
+    }
+  }
+  
+  // Don't forget the last line
+  maxLineWidth = Math.max(maxLineWidth, currentLineWidth - spaceWidth)
+  
+  return Math.ceil(maxLineWidth)
 }
 
 /**
  * Get line-by-line measurements for multi-line text
  */
 export function getLineWidths(text: string, font: string, maxWidth: number): number[] {
-  const prepared = prepareTextWithSegments(text, font)
+  const context = getContext()
+  context.font = font
+  
+  const words = text.split(/\s+/)
   const widths: number[] = []
-  walkLineRanges(prepared, maxWidth, (line) => {
-    widths.push(Math.ceil(line.width))
-  })
-  return widths
-}
+  let currentLineWidth = 0
+  const spaceWidth = context.measureText(" ").width
 
-/**
- * Calculate balanced line width for text
- * Finds a width that distributes lines more evenly
- */
-export function getBalancedWidth(text: string, font: string, maxWidth: number): number {
-  const prepared = prepareText(text, font)
-  const { lineCount } = layout(prepared, maxWidth, 1)
-  
-  if (lineCount <= 1) return maxWidth
-  
-  // Binary search for a width that produces balanced lines
-  let lo = maxWidth / 2
-  let hi = maxWidth
-  
-  while (hi - lo > 1) {
-    const mid = (lo + hi) / 2
-    const { lineCount: midLines } = layout(prepared, mid, 1)
-    if (midLines > lineCount) {
-      lo = mid
+  for (const word of words) {
+    const wordWidth = context.measureText(word).width
+    
+    if (currentLineWidth + wordWidth > maxWidth && currentLineWidth > 0) {
+      widths.push(Math.ceil(currentLineWidth - spaceWidth))
+      currentLineWidth = wordWidth + spaceWidth
     } else {
-      hi = mid
+      currentLineWidth += wordWidth + spaceWidth
     }
   }
   
-  return Math.ceil(hi)
+  // Don't forget the last line
+  if (currentLineWidth > 0) {
+    widths.push(Math.ceil(currentLineWidth - spaceWidth))
+  }
+  
+  return widths
 }
 
 /**
@@ -128,5 +189,4 @@ export const fonts = {
 // Clear caches (useful for font changes)
 export function clearMeasurementCache() {
   measurementCache.clear()
-  segmentCache.clear()
 }
