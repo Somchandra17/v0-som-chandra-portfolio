@@ -18,7 +18,7 @@ import {
   INITIAL_RENDER_COUNT,
   RENDER_STEP,
 } from "@/lib/creative-data"
-import { measureText, fonts } from "@/lib/pretext"
+import { measureText, fonts, usePretextReady } from "@/lib/pretext"
 
 const siblingLinks: { key: Tab; label: string; href: string }[] = [
   { key: "sidequests", label: "visual detors", href: "/creative/visual-detours" },
@@ -84,27 +84,6 @@ export function GalleryPage({ title, subtitle, tabKey, items, showSort = true }:
 
   const visibleItems = useMemo(() => sortedItems.slice(0, visibleCount), [sortedItems, visibleCount])
   const hasMore = visibleCount < sortedItems.length
-
-  // Pre-measure caption heights with pretext for consistent virtualization
-  const captionHeights = useMemo(() => {
-    const heights = new Map<number, number>()
-    const CARD_WIDTH = 280 // approximate card content width
-    const LINE_HEIGHT = 16
-
-    items.forEach((item) => {
-      if (item.desc && item.desc.length > 0) {
-        try {
-          const { height } = measureText(item.desc, fonts.body(12), CARD_WIDTH, LINE_HEIGHT)
-          heights.set(item.id, height)
-        } catch {
-          heights.set(item.id, 20) // fallback single line
-        }
-      } else {
-        heights.set(item.id, 0)
-      }
-    })
-    return heights
-  }, [items])
 
   useEffect(() => {
     if (!hasMore) return
@@ -201,13 +180,12 @@ export function GalleryPage({ title, subtitle, tabKey, items, showSort = true }:
             <div className="columns-1 sm:columns-2 lg:columns-3 gap-6">
               {visibleItems.map((item, i) => (
                 <PhotoCard
-                  key={`${tabKey}-${item.id}`}
+                  key={item.stableKey}
                   item={item}
                   index={i}
                   activeTab={tabKey}
                   isTouchDevice={isTouchDevice}
                   onClick={() => setLightboxItem(item)}
-                  captionHeight={captionHeights.get(item.id)}
                 />
               ))}
             </div>
@@ -252,6 +230,7 @@ function StoryLightbox({ item, onClose }: { item: PhotoItem; onClose: () => void
   const [photoIndex, setPhotoIndex] = useState(0)
   const hasMultiple = allPhotos.length > 1
   const isDoodling = item.kind === "doodling"
+  const pretextReady = usePretextReady()
 
   // Pre-measure story text for balanced presentation
   const storyMeasurement = useMemo(() => {
@@ -262,7 +241,7 @@ function StoryLightbox({ item, onClose }: { item: PhotoItem; onClose: () => void
     } catch {
       return null
     }
-  }, [item.story])
+  }, [item.story, pretextReady])
 
   const goNext = useCallback(() => {
     setPhotoIndex((i) => (i + 1) % allPhotos.length)

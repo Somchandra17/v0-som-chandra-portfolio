@@ -1,6 +1,7 @@
-import { getTopTracks } from "@/lib/spotify"
+import { cacheControl, getTopTracks } from "@/lib/spotify"
 
-export const revalidate = 3600 // cache for 1 hour
+export const dynamic = "force-dynamic"
+export const runtime = "nodejs"
 
 export async function GET() {
   try {
@@ -22,8 +23,15 @@ export async function GET() {
       })
     )
 
-    return Response.json({ tracks })
-  } catch {
-    return Response.json({ tracks: [] })
+    return Response.json(
+      { tracks },
+      { headers: { "Cache-Control": cacheControl(3600) } }
+    )
+  } catch (error) {
+    console.error("Spotify top tracks failed", error)
+    return Response.json(
+      { tracks: [] },
+      { headers: { "Cache-Control": cacheControl() } }
+    )
   }
 }
