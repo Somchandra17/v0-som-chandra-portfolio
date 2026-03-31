@@ -1,6 +1,7 @@
-import { getRecentlyPlayed } from "@/lib/spotify"
+import { cacheControl, getRecentlyPlayed } from "@/lib/spotify"
 
-export const revalidate = 0
+export const dynamic = "force-dynamic"
+export const runtime = "nodejs"
 
 export async function GET() {
   try {
@@ -26,8 +27,15 @@ export async function GET() {
       })
     )
 
-    return Response.json({ tracks })
-  } catch {
-    return Response.json({ tracks: [] })
+    return Response.json(
+      { tracks },
+      { headers: { "Cache-Control": cacheControl() } }
+    )
+  } catch (error) {
+    console.error("Spotify recently played failed", error)
+    return Response.json(
+      { tracks: [] },
+      { headers: { "Cache-Control": cacheControl() } }
+    )
   }
 }

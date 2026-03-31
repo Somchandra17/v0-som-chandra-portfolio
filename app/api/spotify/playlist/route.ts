@@ -1,6 +1,7 @@
-import { getPlaylistTracks } from "@/lib/spotify"
+import { cacheControl, getPlaylistTracks } from "@/lib/spotify"
 
-export const revalidate = 1800 // cache 30 min
+export const dynamic = "force-dynamic"
+export const runtime = "nodejs"
 
 const PLAYLIST_ID = "7fOEf8vDsrfgMMjU9fNiP1"
 
@@ -34,8 +35,15 @@ export async function GET() {
         })
       )
 
-    return Response.json({ tracks })
-  } catch {
-    return Response.json({ tracks: [] })
+    return Response.json(
+      { tracks },
+      { headers: { "Cache-Control": cacheControl(1800) } }
+    )
+  } catch (error) {
+    console.error("Spotify playlist failed", error)
+    return Response.json(
+      { tracks: [] },
+      { headers: { "Cache-Control": cacheControl() } }
+    )
   }
 }

@@ -8,6 +8,7 @@ export type ImageEntryType = "photography" | "doodling" | "visual-detours"
 
 export interface PhotoItem {
   id: number
+  stableKey: string
   kind: ImageEntryType
   title: string
   desc?: string
@@ -35,24 +36,32 @@ export type NowPlayingData = {
   songUrl?: string
 }
 
+type GalleryImageJsonEntry = {
+  id: number
+  image?: string
+  photos?: string[]
+  location?: string
+  date?: string
+  caption?: string
+  story?: string
+}
+
+type PhotographyJsonEntry = GalleryImageJsonEntry & { type: "photography" }
+type DoodlingJsonEntry = GalleryImageJsonEntry & { type: "doodling" }
+type VisualDetoursJsonEntry = GalleryImageJsonEntry & { type: "visual-detours" }
+type ThoughtJsonEntry = {
+  id: number
+  type: "thoughts"
+  title: string
+  date: string
+  text: string
+}
+
 type GalleryJsonEntry =
-  | {
-      id: number
-      type: ImageEntryType
-      image?: string
-      photos?: string[]
-      location?: string
-      date?: string
-      caption?: string
-      story?: string
-    }
-  | {
-      id: number
-      type: "thoughts"
-      title: string
-      date: string
-      text: string
-    }
+  | PhotographyJsonEntry
+  | DoodlingJsonEntry
+  | VisualDetoursJsonEntry
+  | ThoughtJsonEntry
 
 // ── Date parsing ───────────────────────────────────────────────────
 const monthNamesShort = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
@@ -99,10 +108,23 @@ export function formatMonthYear(value?: string): string {
 // ── Data loading ───────────────────────────────────────────────────
 const galleryData = [...(galleryRaw as GalleryJsonEntry[])].sort((a, b) => a.id - b.id)
 
-function toPhotoItem(entry: Extract<GalleryJsonEntry, { type: ImageEntryType }>, title: string): PhotoItem {
+function makePhotoItemKey(entry: PhotographyJsonEntry | DoodlingJsonEntry | VisualDetoursJsonEntry) {
+  return [
+    entry.type,
+    entry.id,
+    entry.image ?? "",
+    entry.photos?.join("|") ?? "",
+    entry.location ?? "",
+    entry.date ?? "",
+    entry.caption ?? "",
+  ].join("::")
+}
+
+function toPhotoItem(entry: PhotographyJsonEntry | DoodlingJsonEntry | VisualDetoursJsonEntry, title: string): PhotoItem {
   const isDoodling = entry.type === "doodling"
   return {
     id: entry.id,
+    stableKey: makePhotoItemKey(entry),
     kind: entry.type,
     title,
     desc: isDoodling ? undefined : entry.caption ?? "demo caption",

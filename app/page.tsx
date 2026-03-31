@@ -8,29 +8,21 @@ import useSWR from "swr"
 import { MusicDCTF } from "@/components/musicd-ctf"
 import { TextMorph } from "@/components/text-morph"
 import { PretextHighlight } from "@/components/pretext-highlight"
+import { SpotifyNowPlayingContent } from "@/components/now-playing"
+import { fonts, measureTextWidth, usePretextReady } from "@/lib/pretext"
 import {
   Terminal, Pen, Github, Linkedin, Mail, ExternalLink,
-  ArrowRight, ArrowDown, Music, Disc3, Headphones, Users, Clock,
+  ArrowRight, ArrowDown, Music, Headphones, Users, Clock,
 } from "lucide-react"
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
-function getRelativePlayedText(playedAt?: string): string | null {
-  if (!playedAt) return null
-  const playedDate = new Date(playedAt)
-  if (Number.isNaN(playedDate.getTime())) return null
+function clamp(value: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, value))
+}
 
-  const diffSeconds = Math.round((playedDate.getTime() - Date.now()) / 1000)
-  const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" })
-
-  const diffMinutes = Math.round(diffSeconds / 60)
-  if (Math.abs(diffMinutes) < 60) return rtf.format(diffMinutes, "minute")
-
-  const diffHours = Math.round(diffMinutes / 60)
-  if (Math.abs(diffHours) < 24) return rtf.format(diffHours, "hour")
-
-  const diffDays = Math.round(diffHours / 24)
-  return rtf.format(diffDays, "day")
+function fallbackWidth(text: string, fontSize: number) {
+  return Math.ceil(text.length * fontSize * 0.58)
 }
 
 const socials = [
@@ -96,7 +88,6 @@ type Track = {
   songUrl: string
 }
 
-type PlaylistTrack = Track & { addedAt: string }
 type RecentTrack = Track & { playedAt: string }
 
 type Artist = {
@@ -156,7 +147,8 @@ export default function Home() {
   const { data: topTracksData } = useSWR<{ tracks: Track[] }>("/api/spotify/top-tracks", fetcher)
   const { data: topArtistsData } = useSWR<{ artists: Artist[] }>("/api/spotify/top-artists", fetcher)
   const { data: recentData } = useSWR<{ tracks: RecentTrack[] }>("/api/spotify/recently-played", fetcher)
-  const { data: playlistData } = useSWR<{ tracks: PlaylistTrack[] }>("/api/spotify/playlist", fetcher)
+  const pretextReady = usePretextReady()
+  const [isCompactSpotify, setIsCompactSpotify] = useState(false)
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -172,12 +164,45 @@ export default function Home() {
     return () => clearInterval(interval)
   }, [])
 
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    const media = window.matchMedia("(max-width: 767px)")
+    const update = () => setIsCompactSpotify(media.matches)
+    update()
+    media.addEventListener("change", update)
+    return () => media.removeEventListener("change", update)
+  }, [])
+
   const topTracks = topTracksData?.tracks || []
   const topArtists = topArtistsData?.artists || []
   const recentTracks = recentData?.tracks || []
-  const playlistTracks = playlistData?.tracks || []
-  const isNowPlaying = nowPlaying?.mode === "now_playing"
-  const relativePlayed = getRelativePlayedText(nowPlaying?.playedAt)
+  const measure = (text: string, font: string, fontSize: number) => (
+    pretextReady ? measureTextWidth(text, font) : fallbackWidth(text, fontSize)
+  )
+
+  const topArtistCards = topArtists.slice(0, 5).map((artist) => {
+    const genreLabel = artist.genres.join(", ")
+    const nameWidth = measure(artist.name, fonts.bold(14), 14)
+    const genreWidth = genreLabel ? measure(genreLabel, fonts.body(12), 12) : 0
+    const cardWidth = clamp(Math.ceil(Math.max(nameWidth, genreWidth, 90) + 42), 140, 220)
+    return { ...artist, cardWidth, genreLabel }
+  })
+
+  const topTrackRows = topTracks.slice(0, 5).map((track, i) => {
+    const titleWidth = measure(track.title, fonts.bold(14), 14)
+    const artistWidth = measure(track.artist, fonts.body(12), 12)
+    const cardWidth = clamp(Math.ceil(Math.max(titleWidth, artistWidth) + 145), 260, 470)
+    return { ...track, cardWidth, rankLabel: String(i + 1).padStart(2, "0") }
+  })
+
+  const recentTrackRows = recentTracks.slice(0, 5).map((track) => {
+    const titleWidth = measure(track.title, fonts.body(14), 14)
+    const artistWidth = measure(track.artist, fonts.body(12), 12)
+    const playedLabel = new Date(track.playedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+    const playedWidth = measure(playedLabel, fonts.mono(12), 12)
+    const cardWidth = clamp(Math.ceil(Math.max(titleWidth, artistWidth) + playedWidth + 130), 270, 560)
+    return { ...track, cardWidth, playedLabel }
+  })
 
   return (
     <main className="relative min-h-screen">
@@ -475,43 +500,7 @@ export default function Home() {
             transition={{ duration: 0.5 }}
           >
             <div className="border-t border-[#333] pt-10">
-              <div className="flex items-center gap-2 mb-4">
-                <Disc3
-                  className={`h-4 w-4 ${isNowPlaying ? "animate-spin text-[#1DB954]" : "text-[#767676]"}`}
-                  style={{ animationDuration: "3s" }}
-                />
-                <p className={`font-mono text-xs tracking-widest uppercase ${isNowPlaying ? "text-[#1DB954]" : "text-[#8a8a8a]"}`}>
-                  {isNowPlaying ? "now playing" : "last played song"}
-                </p>
-                {!isNowPlaying && (
-                  <span className="border border-[#3a3a3a] bg-[#141414] px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.14em] text-[#8b8b8b]">
-                    afk
-                  </span>
-                )}
-                {!isNowPlaying && relativePlayed && (
-                  <span className="font-mono text-[10px] text-[#6f6f6f]">({relativePlayed})</span>
-                )}
-              </div>
-              <a
-                href={nowPlaying.songUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="paper-card p-5 flex items-center gap-5 hover-bounce group"
-              >
-                {nowPlaying.albumImageUrl && (
-                  <img
-                    src={nowPlaying.albumImageUrl}
-                    alt={nowPlaying.album}
-                    className="w-16 h-16 object-cover border border-[#333] shrink-0"
-                    crossOrigin="anonymous"
-                  />
-                )}
-                <div className="min-w-0">
-                  <p className="text-base font-bold text-[#e8e8e8] truncate group-hover:underline">{nowPlaying.title}</p>
-                  <p className="text-sm text-[#aaa] truncate">{nowPlaying.artist}</p>
-                  <p className="text-xs text-[#666] truncate mt-0.5">{nowPlaying.album}</p>
-                </div>
-              </a>
+              <SpotifyNowPlayingContent nowPlaying={nowPlaying} />
             </div>
           </motion.div>
         </section>
@@ -533,14 +522,15 @@ export default function Home() {
               </div>
               <p className="text-sm text-[#888] mb-8">{"the people responsible for my personality"}</p>
 
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
-                {topArtists.slice(0, 5).map((artist, i) => (
+              <div className="flex flex-wrap gap-4">
+                {topArtistCards.map((artist, i) => (
                   <motion.a
                     key={artist.url}
                     href={artist.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="paper-card p-5 flex flex-col items-center text-center hover-bounce group"
+                    className="group paper-card w-[calc(50%-0.5rem)] p-5 flex flex-col items-center text-center hover-bounce sm:w-auto"
+                    style={!isCompactSpotify ? { width: `${artist.cardWidth}px` } : undefined}
                     initial={{ opacity: 0, scale: 0.9 }}
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
@@ -564,8 +554,8 @@ export default function Home() {
                       )}
                     </div>
                     <p className="text-sm font-bold text-[#e8e8e8] group-hover:underline truncate w-full">{artist.name}</p>
-                    {artist.genres.length > 0 && (
-                      <p className="text-xs text-[#888] truncate w-full mt-1">{artist.genres.join(", ")}</p>
+                    {artist.genreLabel && (
+                      <p className="text-xs text-[#888] truncate w-full mt-1">{artist.genreLabel}</p>
                     )}
                   </motion.a>
                 ))}
@@ -591,20 +581,21 @@ export default function Home() {
               </div>
               <p className="text-sm text-[#888] mb-6">{"the songs i've played to death"}</p>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {topTracks.slice(0, 5).map((track, i) => (
+              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                {topTrackRows.map((track, i) => (
                   <motion.a
                     key={track.songUrl + i}
                     href={track.songUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="paper-card p-4 flex items-center gap-4 hover-bounce group"
+                    className="paper-card w-full p-4 flex items-center gap-4 hover-bounce group sm:w-auto"
+                    style={!isCompactSpotify ? { width: `${track.cardWidth}px` } : undefined}
                     initial={{ opacity: 0, x: -10 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.04, duration: 0.3 }}
                   >
-                    <span className="font-mono text-xs text-[#666] w-5 shrink-0">{String(i + 1).padStart(2, "0")}</span>
+                    <span className="font-mono text-xs text-[#666] w-5 shrink-0">{track.rankLabel}</span>
                     <div className="w-10 h-10 shrink-0 border border-[#333] bg-[#1a1a1a] flex items-center justify-center overflow-hidden">
                       {track.albumImageUrl ? (
                         <img 
@@ -647,14 +638,15 @@ export default function Home() {
               </div>
               <p className="text-sm text-[#888] mb-6">{"what was in my ears a minute ago"}</p>
 
-              <div className="space-y-2">
-                {recentTracks.slice(0, 5).map((track, i) => (
+              <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+                {recentTrackRows.map((track, i) => (
                   <motion.a
                     key={track.songUrl + track.playedAt}
                     href={track.songUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="paper-card p-3 flex items-center gap-4 hover-bounce group"
+                    className="paper-card w-full p-3 flex items-center gap-4 hover-bounce group sm:w-auto"
+                    style={!isCompactSpotify ? { width: `${track.cardWidth}px` } : undefined}
                     initial={{ opacity: 0, x: -8 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
@@ -678,9 +670,7 @@ export default function Home() {
                       <p className="text-sm text-[#e8e8e8] truncate group-hover:underline">{track.title}</p>
                       <p className="text-xs text-[#aaa] truncate">{track.artist}</p>
                     </div>
-                    <p className="font-mono text-xs text-[#666] shrink-0">
-                      {new Date(track.playedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                    </p>
+                    <p className="font-mono text-xs text-[#666] shrink-0">{track.playedLabel}</p>
                   </motion.a>
                 ))}
               </div>
