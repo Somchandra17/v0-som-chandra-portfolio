@@ -1,9 +1,15 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { Camera, PenTool } from "lucide-react"
 import type { PhotoItem, Tab } from "@/lib/creative-data"
 import { formatMonthYear } from "@/lib/creative-data"
+import { fonts, getTightWrapLayout, measureTextWidth, usePretextReady } from "@/lib/pretext"
+
+const NOTE_PADDING_X = 12
+const NOTE_MIN_WIDTH = 132
+const CAPTION_LINE_HEIGHT = 16
+const META_LINE_HEIGHT = 14
 
 export function PhotoCard({
   item,
@@ -11,19 +17,22 @@ export function PhotoCard({
   activeTab,
   isTouchDevice,
   onClick,
-  captionHeight,
 }: {
   item: PhotoItem
   index: number
   activeTab: Tab
   isTouchDevice: boolean
   onClick: () => void
-  captionHeight?: number
 }) {
   const cardRef = useRef<HTMLDivElement | null>(null)
   const [isMidViewport, setIsMidViewport] = useState(false)
+  const [cardWidth, setCardWidth] = useState(280)
+  const pretextReady = usePretextReady()
   const isDoodling = activeTab === "sketches" || item.kind === "doodling"
   const isVaranasi = item.location?.toLowerCase().includes("varanasi")
+  const captionText = item.desc && item.desc !== "demo caption" ? item.desc : ""
+  const locationText = item.location ?? ""
+  const dateText = item.date ? formatMonthYear(item.date) : ""
 
   useEffect(() => {
     if (!isTouchDevice) {
@@ -49,6 +58,51 @@ export function PhotoCard({
     return () => observer.disconnect()
   }, [isTouchDevice])
 
+  useEffect(() => {
+    const node = cardRef.current
+    if (!node || typeof ResizeObserver === "undefined") return
+
+    const updateWidth = () => setCardWidth(Math.max(180, Math.floor(node.clientWidth)))
+    updateWidth()
+
+    const observer = new ResizeObserver((entries) => {
+      const nextWidth = entries[0]?.contentRect.width ?? node.clientWidth
+      setCardWidth(Math.max(180, Math.floor(nextWidth)))
+    })
+
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [])
+
+  const noteLayout = useMemo(() => {
+    const availableWidth = Math.max(160, cardWidth - 28)
+    const contentMaxWidth = Math.max(120, availableWidth - NOTE_PADDING_X * 2)
+
+    const captionLayout = captionText
+      ? getTightWrapLayout(captionText, fonts.body(12), contentMaxWidth, CAPTION_LINE_HEIGHT)
+      : null
+    const locationLayout = locationText
+      ? getTightWrapLayout(locationText, fonts.mono(11), contentMaxWidth, META_LINE_HEIGHT)
+      : null
+    const dateWidth = dateText ? Math.ceil(measureTextWidth(dateText, fonts.mono(11))) : 0
+
+    const contentWidth = Math.max(
+      captionLayout?.width ?? 0,
+      locationLayout?.width ?? 0,
+      Math.min(contentMaxWidth, dateWidth)
+    )
+
+    const width = contentWidth > 0
+      ? Math.min(availableWidth, Math.max(NOTE_MIN_WIDTH, contentWidth + NOTE_PADDING_X * 2))
+      : availableWidth
+
+    return {
+      width,
+      captionHeight: captionLayout?.height ?? 0,
+      metaHeight: locationLayout?.height ?? 0,
+    }
+  }, [captionText, locationText, dateText, cardWidth, pretextReady])
+
   const overlayVisibilityClass = isDoodling
     ? "opacity-0"
     : isTouchDevice
@@ -63,7 +117,12 @@ export function PhotoCard({
       className={`break-inside-avoid mb-6 paper-card overflow-hidden cursor-pointer group hover-bounce animate-in fade-in slide-in-from-bottom-2 duration-300 [content-visibility:auto] [contain-intrinsic-size:340px_240px] ${isVaranasi ? "ring-2 ring-[#f0c6cf]" : ""}`}
       style={{
         animationDelay: `${Math.min(index, 8) * 24}ms`,
-        ...(isVaranasi ? { boxShadow: "0 0 18px 4px rgba(240,198,207,0.45), 0 0 40px 8px rgba(240,198,207,0.2), inset 0 0 12px rgba(240,198,207,0.08)" } : {}),
+        ...(isVaranasi
+          ? {
+              boxShadow:
+                "0 0 18px 4px rgba(240,198,207,0.45), 0 0 40px 8px rgba(240,198,207,0.2), inset 0 0 12px rgba(240,198,207,0.08)",
+            }
+          : {}),
       }}
       onClick={onClick}
     >
@@ -90,17 +149,31 @@ export function PhotoCard({
         <div className={`pointer-events-none absolute inset-0 transition-opacity duration-300 ${overlayVisibilityClass}`}>
           <div className="absolute inset-0 bg-gradient-to-t from-[#050505]/90 via-[#050505]/50 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-3">
-            {item.desc && item.desc.length > 0 && (
-              <p 
-                className="text-xs text-[#cfcfcf] mb-1.5 leading-relaxed"
-                style={captionHeight ? { minHeight: `${captionHeight}px` } : undefined}
-              >
-                {item.desc}
-              </p>
-            )}
-            <div className="flex items-center justify-between text-xs text-[#b8b8b8]">
-              <span className="font-mono">{item.location ?? ""}</span>
-              <span className="font-mono">{formatMonthYear(item.date)}</span>
+            <div
+              className="inline-flex max-w-full flex-col gap-2 border border-[#2f2f2f] bg-[#0a0a0a]/78 px-3 py-2 backdrop-blur-sm"
+              style={{ width: `${noteLayout.width}px` }}
+            >
+              {captionText && (
+                <p
+                  className="text-xs text-[#d8d8d8] leading-relaxed"
+                  style={noteLayout.captionHeight ? { minHeight: `${noteLayout.captionHeight}px` } : undefined}
+                >
+                  {captionText}
+                </p>
+              )}
+              {(locationText || dateText) && (
+                <div className={`${captionText ? "border-t border-[#242424] pt-2" : ""} space-y-1`}>
+                  {locationText && (
+                    <p
+                      className="font-mono text-[0.65rem] uppercase tracking-[0.12em] text-[#bcbcbc]"
+                      style={noteLayout.metaHeight ? { minHeight: `${noteLayout.metaHeight}px` } : undefined}
+                    >
+                      {locationText}
+                    </p>
+                  )}
+                  {dateText && <p className="font-mono text-[0.62rem] text-[#808080]">{dateText}</p>}
+                </div>
+              )}
             </div>
           </div>
         </div>

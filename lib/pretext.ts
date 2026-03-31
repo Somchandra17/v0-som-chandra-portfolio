@@ -1,157 +1,252 @@
 "use client"
 
-// Native Canvas-based text measurement (no external dependencies)
-// Provides similar functionality to @chenglou/pretext using browser Canvas API
+import { useEffect, useState } from "react"
+import {
+  clearCache as clearPretextCache,
+  layout,
+  layoutWithLines,
+  prepare,
+  prepareWithSegments,
+  walkLineRanges,
+  type LayoutLine,
+  type PreparedText,
+  type PreparedTextWithSegments,
+} from "@chenglou/pretext"
 
-// Singleton canvas context for measurements
-let ctx: CanvasRenderingContext2D | null = null
+const UNBOUNDED_WIDTH = 100_000
 
-function getContext(): CanvasRenderingContext2D {
-  if (typeof window === "undefined") {
-    // SSR fallback - return mock that estimates based on character count
-    return {
-      font: "",
-      measureText: (text: string) => ({ width: text.length * 8 }),
-    } as unknown as CanvasRenderingContext2D
-  }
-  
-  if (!ctx) {
-    const canvas = document.createElement("canvas")
-    ctx = canvas.getContext("2d")!
-  }
-  return ctx
+type FallbackLayout = {
+  height: number
+  lineCount: number
+  maxLineWidth: number
+  lines: Array<{ text: string; width: number }>
 }
 
-// Cache for text measurements
-const measurementCache = new Map<string, { width: number }>()
+type WrapMetrics = {
+  lineCount: number
+  maxLineWidth: number
+  breaksWord: boolean
+}
 
-/**
- * Measure single line text width
- */
+export type TightWrapLayout = {
+  width: number
+  height: number
+  lineCount: number
+  lines: Array<{ text: string; width: number }>
+}
+
+const preparedCache = new Map<string, PreparedText>()
+const segmentedCache = new Map<string, PreparedTextWithSegments>()
+
+function hasDocument() {
+  return typeof document !== "undefined"
+}
+
+function getFontSize(font: string): number {
+  const match = font.match(/(\d+(?:\.\d+)?)px/)
+  return match ? Number.parseFloat(match[1]) : 16
+}
+
+function approximateTextWidth(text: string, font: string): number {
+  const fontSize = getFontSize(font)
+  return [...text].length * fontSize * 0.56
+}
+
+function approximateLayout(text: string, font: string, maxWidth: number, lineHeight: number): FallbackLayout {
+  if (!text.trim()) {
+    return { height: 0, lineCount: 0, maxLineWidth: 0, lines: [] }
+  }
+
+  const words = text.trim().split(/\s+/)
+  const lines: Array<{ text: string; width: number }> = []
+  let currentLine = ""
+  let currentWidth = 0
+  const spaceWidth = approximateTextWidth(" ", font)
+
+  for (const word of words) {
+    const wordWidth = approximateTextWidth(word, font)
+    const candidateWidth = currentLine ? currentWidth + spaceWidth + wordWidth : wordWidth
+
+    if (currentLine && candidateWidth > maxWidth) {
+      lines.push({ text: currentLine, width: currentWidth })
+      currentLine = word
+      currentWidth = wordWidth
+      continue
+    }
+
+    currentLine = currentLine ? `${currentLine} ${word}` : word
+    currentWidth = candidateWidth
+  }
+
+  if (currentLine) {
+    lines.push({ text: currentLine, width: currentWidth })
+  }
+
+  const maxLineWidth = lines.reduce((max, line) => Math.max(max, line.width), 0)
+  return {
+    height: lines.length * lineHeight,
+    lineCount: lines.length,
+    maxLineWidth,
+    lines,
+  }
+}
+
+function getPrepared(text: string, font: string): PreparedText | null {
+  if (!hasDocument()) return null
+  const key = `${font}::${text}`
+  const cached = preparedCache.get(key)
+  if (cached) return cached
+  const prepared = prepare(text, font)
+  preparedCache.set(key, prepared)
+  return prepared
+}
+
+function getPreparedWithSegments(text: string, font: string): PreparedTextWithSegments | null {
+  if (!hasDocument()) return null
+  const key = `${font}::${text}`
+  const cached = segmentedCache.get(key)
+  if (cached) return cached
+  const prepared = prepareWithSegments(text, font)
+  segmentedCache.set(key, prepared)
+  return prepared
+}
+
+function collectWrapMetrics(prepared: PreparedTextWithSegments, maxWidth: number): WrapMetrics {
+  let maxLineWidth = 0
+  let breaksWord = false
+  const lineCount = walkLineRanges(prepared, maxWidth, (line) => {
+    if (line.width > maxLineWidth) maxLineWidth = line.width
+    if (line.end.graphemeIndex !== 0) breaksWord = true
+  })
+
+  return { lineCount, maxLineWidth, breaksWord }
+}
+
+function toTightWrapLayout(lines: LayoutLine[], lineHeight: number): TightWrapLayout {
+  let widest = 0
+  const mappedLines = lines.map((line) => {
+    const width = Math.ceil(line.width)
+    if (width > widest) widest = width
+    return { text: line.text, width }
+  })
+
+  return {
+    width: widest,
+    height: mappedLines.length * lineHeight,
+    lineCount: mappedLines.length,
+    lines: mappedLines,
+  }
+}
+
 export function measureTextWidth(text: string, font: string): number {
-  const key = `${text}::${font}`
-  if (measurementCache.has(key)) {
-    return measurementCache.get(key)!.width
+  if (!text) return 0
+
+  const prepared = getPreparedWithSegments(text, font)
+  if (!prepared) {
+    return Math.ceil(approximateTextWidth(text, font))
   }
-  
-  const context = getContext()
-  context.font = font
-  const metrics = context.measureText(text)
-  const width = metrics.width
-  
-  measurementCache.set(key, { width })
-  return width
+
+  let widest = 0
+  walkLineRanges(prepared, UNBOUNDED_WIDTH, (line) => {
+    if (line.width > widest) widest = line.width
+  })
+  return Math.ceil(widest)
 }
 
-/**
- * Calculate layout dimensions for multi-line text
- */
 export function measureText(
   text: string,
   font: string,
   maxWidth: number,
   lineHeight: number
 ): { height: number; lineCount: number } {
-  if (!text || text.length === 0) {
+  if (!text || !text.trim()) {
     return { height: 0, lineCount: 0 }
   }
 
-  const context = getContext()
-  context.font = font
-  
-  const words = text.split(/\s+/)
-  let lineCount = 1
-  let currentLineWidth = 0
-  const spaceWidth = context.measureText(" ").width
-
-  for (const word of words) {
-    const wordWidth = context.measureText(word).width
-    
-    if (currentLineWidth + wordWidth > maxWidth && currentLineWidth > 0) {
-      lineCount++
-      currentLineWidth = wordWidth + spaceWidth
-    } else {
-      currentLineWidth += wordWidth + spaceWidth
-    }
+  const prepared = getPrepared(text, font)
+  if (!prepared) {
+    const fallback = approximateLayout(text, font, maxWidth, lineHeight)
+    return { height: fallback.height, lineCount: fallback.lineCount }
   }
 
-  return {
-    height: lineCount * lineHeight,
-    lineCount,
-  }
+  return layout(prepared, maxWidth, lineHeight)
 }
 
-/**
- * Get the tightest "shrink-wrap" width for text
- * This finds the exact pixel width that fits the text perfectly
- */
 export function getShrinkWrapWidth(text: string, font: string, maxWidth: number): number {
-  const context = getContext()
-  context.font = font
-  
-  // For single line, just measure directly
-  const fullWidth = context.measureText(text).width
-  if (fullWidth <= maxWidth) {
-    return Math.ceil(fullWidth)
-  }
-  
-  // For multi-line, find the widest line
-  const words = text.split(/\s+/)
-  let maxLineWidth = 0
-  let currentLineWidth = 0
-  const spaceWidth = context.measureText(" ").width
+  if (!text || !text.trim()) return 0
 
-  for (const word of words) {
-    const wordWidth = context.measureText(word).width
-    
-    if (currentLineWidth + wordWidth > maxWidth && currentLineWidth > 0) {
-      maxLineWidth = Math.max(maxLineWidth, currentLineWidth - spaceWidth)
-      currentLineWidth = wordWidth + spaceWidth
-    } else {
-      currentLineWidth += wordWidth + spaceWidth
-    }
+  const prepared = getPreparedWithSegments(text, font)
+  if (!prepared) {
+    const fallback = approximateLayout(text, font, maxWidth, 16)
+    return Math.ceil(Math.min(maxWidth, fallback.maxLineWidth))
   }
-  
-  // Don't forget the last line
-  maxLineWidth = Math.max(maxLineWidth, currentLineWidth - spaceWidth)
-  
-  return Math.ceil(maxLineWidth)
+
+  let widest = 0
+  walkLineRanges(prepared, maxWidth, (line) => {
+    if (line.width > widest) widest = line.width
+  })
+  return Math.ceil(widest)
 }
 
-/**
- * Get line-by-line measurements for multi-line text
- */
 export function getLineWidths(text: string, font: string, maxWidth: number): number[] {
-  const context = getContext()
-  context.font = font
-  
-  const words = text.split(/\s+/)
-  const widths: number[] = []
-  let currentLineWidth = 0
-  const spaceWidth = context.measureText(" ").width
+  if (!text || !text.trim()) return []
 
-  for (const word of words) {
-    const wordWidth = context.measureText(word).width
-    
-    if (currentLineWidth + wordWidth > maxWidth && currentLineWidth > 0) {
-      widths.push(Math.ceil(currentLineWidth - spaceWidth))
-      currentLineWidth = wordWidth + spaceWidth
-    } else {
-      currentLineWidth += wordWidth + spaceWidth
-    }
+  const prepared = getPreparedWithSegments(text, font)
+  if (!prepared) {
+    return approximateLayout(text, font, maxWidth, 16).lines.map((line) => Math.ceil(line.width))
   }
-  
-  // Don't forget the last line
-  if (currentLineWidth > 0) {
-    widths.push(Math.ceil(currentLineWidth - spaceWidth))
-  }
-  
+
+  const widths: number[] = []
+  walkLineRanges(prepared, maxWidth, (line) => {
+    widths.push(Math.ceil(line.width))
+  })
   return widths
 }
 
-/**
- * Pre-measure an array of strings and return measurements
- */
+export function getTightWrapLayout(
+  text: string,
+  font: string,
+  maxWidth: number,
+  lineHeight: number
+): TightWrapLayout {
+  if (!text || !text.trim()) {
+    return { width: 0, height: 0, lineCount: 0, lines: [] }
+  }
+
+  const prepared = getPreparedWithSegments(text, font)
+  if (!prepared) {
+    const fallback = approximateLayout(text, font, maxWidth, lineHeight)
+    return {
+      width: Math.ceil(Math.min(maxWidth, fallback.maxLineWidth)),
+      height: fallback.height,
+      lineCount: fallback.lineCount,
+      lines: fallback.lines.map((line) => ({ text: line.text, width: Math.ceil(line.width) })),
+    }
+  }
+
+  const initial = collectWrapMetrics(prepared, maxWidth)
+  let lo = 1
+  let hi = Math.max(1, Math.ceil(maxWidth))
+  let bestWidth = hi
+
+  while (lo < hi) {
+    const mid = Math.floor((lo + hi) / 2)
+    const midMetrics = collectWrapMetrics(prepared, mid)
+    const keepsLineCount = midMetrics.lineCount <= initial.lineCount
+    const avoidsForcedBreaks = initial.breaksWord || !midMetrics.breaksWord
+
+    if (keepsLineCount && avoidsForcedBreaks) {
+      bestWidth = mid
+      hi = mid
+    } else {
+      lo = mid + 1
+    }
+  }
+
+  const result = layoutWithLines(prepared, bestWidth, lineHeight)
+  return toTightWrapLayout(result.lines, lineHeight)
+}
+
 export function batchMeasure(
   texts: string[],
   font: string,
@@ -164,9 +259,6 @@ export function batchMeasure(
   })
 }
 
-/**
- * Pre-measure strings and return shrink-wrap widths
- */
 export function batchShrinkWrap(
   texts: string[],
   font: string,
@@ -178,15 +270,42 @@ export function batchShrinkWrap(
   }))
 }
 
-// Font string builders for common use cases
 export const fonts = {
-  body: (size: number) => `${size}px Inter, system-ui, sans-serif`,
-  mono: (size: number) => `${size}px "Geist Mono", monospace`,
-  bold: (size: number) => `bold ${size}px Inter, system-ui, sans-serif`,
-  heading: (size: number) => `bold ${size}px Inter, system-ui, sans-serif`,
+  body: (size: number) => `400 ${size}px "Space Grotesk", sans-serif`,
+  mono: (size: number) => `400 ${size}px "Geist Mono", monospace`,
+  bold: (size: number) => `700 ${size}px "Space Grotesk", sans-serif`,
+  heading: (size: number) => `700 ${size}px "Space Grotesk", sans-serif`,
 }
 
-// Clear caches (useful for font changes)
 export function clearMeasurementCache() {
-  measurementCache.clear()
+  preparedCache.clear()
+  segmentedCache.clear()
+  clearPretextCache()
+}
+
+export function usePretextReady(): boolean {
+  const [ready, setReady] = useState(() => !hasDocument() || !document.fonts || document.fonts.status === "loaded")
+
+  useEffect(() => {
+    if (!hasDocument() || !document.fonts) {
+      setReady(true)
+      return
+    }
+
+    if (document.fonts.status === "loaded") {
+      setReady(true)
+      return
+    }
+
+    let cancelled = false
+    document.fonts.ready.then(() => {
+      if (!cancelled) setReady(true)
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  return ready
 }
