@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation"
 import useSWR from "swr"
 import { MusicDCTF } from "@/components/musicd-ctf"
 import { TextMorph } from "@/components/text-morph"
+import { PretextHighlight } from "@/components/pretext-highlight"
 import {
   Terminal, Pen, Github, Linkedin, Mail, ExternalLink,
   ArrowRight, ArrowDown, Music, Disc3, Headphones, Users, Clock,
@@ -218,21 +219,17 @@ export default function Home() {
               </span>
             </h1>
 
-            {/* Cycling hero tagline with highlight effect */}
-            <div className="mt-3 h-10 md:h-12 overflow-hidden">
-              <AnimatePresence mode="wait">
-                <motion.p
-                  key={heroIdx}
-                  className="text-xl md:text-2xl lg:text-3xl font-bold inline-block px-2 py-0.5"
-                  style={{ backgroundColor: "#e8e8e8", color: "#0a0a0a" }}
-                  initial={{ opacity: 0, y: 24, filter: "blur(4px)" }}
-                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                  exit={{ opacity: 0, y: -20, filter: "blur(2px)" }}
-                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                >
-                  {heroLines[heroIdx]}
-                </motion.p>
-              </AnimatePresence>
+            {/* Cycling hero tagline with pretext-measured highlight */}
+            <div className="mt-3 h-10 md:h-12">
+              <PretextHighlight
+                lines={heroLines}
+                currentIndex={heroIdx}
+                fontSize={24}
+                bgColor="#e8e8e8"
+                textColor="#0a0a0a"
+                paddingX={8}
+                paddingY={2}
+              />
             </div>
 
             {/* Auto-cycling fun fact */}

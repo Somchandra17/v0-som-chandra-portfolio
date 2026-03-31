@@ -11,12 +11,14 @@ export function PhotoCard({
   activeTab,
   isTouchDevice,
   onClick,
+  captionHeight,
 }: {
   item: PhotoItem
   index: number
   activeTab: Tab
   isTouchDevice: boolean
   onClick: () => void
+  captionHeight?: number
 }) {
   const cardRef = useRef<HTMLDivElement | null>(null)
   const [isMidViewport, setIsMidViewport] = useState(false)
@@ -89,7 +91,12 @@ export function PhotoCard({
           <div className="absolute inset-0 bg-gradient-to-t from-[#050505]/90 via-[#050505]/50 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-3">
             {item.desc && item.desc.length > 0 && (
-              <p className="text-xs text-[#cfcfcf] mb-1.5 leading-relaxed">{item.desc}</p>
+              <p 
+                className="text-xs text-[#cfcfcf] mb-1.5 leading-relaxed"
+                style={captionHeight ? { minHeight: `${captionHeight}px` } : undefined}
+              >
+                {item.desc}
+              </p>
             )}
             <div className="flex items-center justify-between text-xs text-[#b8b8b8]">
               <span className="font-mono">{item.location ?? ""}</span>

@@ -18,6 +18,7 @@ import {
   INITIAL_RENDER_COUNT,
   RENDER_STEP,
 } from "@/lib/creative-data"
+import { measureText, fonts } from "@/lib/pretext"
 
 const siblingLinks: { key: Tab; label: string; href: string }[] = [
   { key: "sidequests", label: "visual detors", href: "/creative/visual-detours" },
@@ -83,6 +84,27 @@ export function GalleryPage({ title, subtitle, tabKey, items, showSort = true }:
 
   const visibleItems = useMemo(() => sortedItems.slice(0, visibleCount), [sortedItems, visibleCount])
   const hasMore = visibleCount < sortedItems.length
+
+  // Pre-measure caption heights with pretext for consistent virtualization
+  const captionHeights = useMemo(() => {
+    const heights = new Map<number, number>()
+    const CARD_WIDTH = 280 // approximate card content width
+    const LINE_HEIGHT = 16
+
+    items.forEach((item) => {
+      if (item.desc && item.desc.length > 0) {
+        try {
+          const { height } = measureText(item.desc, fonts.body(12), CARD_WIDTH, LINE_HEIGHT)
+          heights.set(item.id, height)
+        } catch {
+          heights.set(item.id, 20) // fallback single line
+        }
+      } else {
+        heights.set(item.id, 0)
+      }
+    })
+    return heights
+  }, [items])
 
   useEffect(() => {
     if (!hasMore) return
@@ -185,6 +207,7 @@ export function GalleryPage({ title, subtitle, tabKey, items, showSort = true }:
                   activeTab={tabKey}
                   isTouchDevice={isTouchDevice}
                   onClick={() => setLightboxItem(item)}
+                  captionHeight={captionHeights.get(item.id)}
                 />
               ))}
             </div>
@@ -229,6 +252,17 @@ function StoryLightbox({ item, onClose }: { item: PhotoItem; onClose: () => void
   const [photoIndex, setPhotoIndex] = useState(0)
   const hasMultiple = allPhotos.length > 1
   const isDoodling = item.kind === "doodling"
+
+  // Pre-measure story text for balanced presentation
+  const storyMeasurement = useMemo(() => {
+    if (!item.story) return null
+    try {
+      const { height, lineCount } = measureText(item.story, fonts.body(14), 320, 22)
+      return { height, lineCount }
+    } catch {
+      return null
+    }
+  }, [item.story])
 
   const goNext = useCallback(() => {
     setPhotoIndex((i) => (i + 1) % allPhotos.length)
@@ -374,11 +408,16 @@ function StoryLightbox({ item, onClose }: { item: PhotoItem; onClose: () => void
                 <p className="text-sm text-[#bbb] leading-relaxed">{item.desc}</p>
               )}
 
-              {/* Story */}
+              {/* Story -- height pre-measured with pretext */}
               {item.story && (
                 <div className="border-l-2 border-[#f0c6cf]/30 pl-4 py-1">
                   <p className="font-mono text-[0.6rem] uppercase tracking-widest text-[#666] mb-2">the story</p>
-                  <p className="text-sm text-[#aaa] leading-relaxed">{item.story}</p>
+                  <p 
+                    className="text-sm text-[#aaa] leading-relaxed"
+                    style={storyMeasurement ? { minHeight: `${storyMeasurement.height}px` } : undefined}
+                  >
+                    {item.story}
+                  </p>
                 </div>
               )}
 
