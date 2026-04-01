@@ -18,22 +18,24 @@ export function LayoutShell({ children }: { children: ReactNode }) {
   }, [])
 
   useEffect(() => {
-    // Detect hard refresh (reload) vs soft navigation
-    const navEntries = performance.getEntriesByType("navigation") as PerformanceNavigationTiming[]
-    const navType = navEntries[0]?.type
-    
-    // Show animation on hard refresh (reload) or first visit
-    // Skip animation only on soft navigations (back/forward, navigate within app)
-    if (navType === "reload") {
-      // Hard refresh - always show animation
-      sessionStorage.removeItem("som-loaded")
-      setChecked(true)
-    } else {
-      // Check if we've seen the animation this session
+    try {
+      const navEntries = typeof performance !== "undefined"
+        ? (performance.getEntriesByType("navigation") as PerformanceNavigationTiming[])
+        : []
+      const navType = navEntries[0]?.type
+
+      if (navType === "reload") {
+        sessionStorage.removeItem("som-loaded")
+        setChecked(true)
+        return
+      }
+
       const seen = sessionStorage.getItem("som-loaded")
       if (seen) {
         setLoading(false)
       }
+      setChecked(true)
+    } catch {
       setChecked(true)
     }
   }, [])
@@ -44,7 +46,11 @@ export function LayoutShell({ children }: { children: ReactNode }) {
   }, [pathname, checked, loading])
 
   const handleLoadComplete = useCallback(() => {
-    sessionStorage.setItem("som-loaded", "1")
+    try {
+      sessionStorage.setItem("som-loaded", "1")
+    } catch {
+      // Storage can be unavailable in hardened browser contexts.
+    }
     setLoading(false)
   }, [])
 

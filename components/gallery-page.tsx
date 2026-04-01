@@ -52,6 +52,15 @@ export function GalleryPage({ title, subtitle, tabKey, items, showSort = true }:
   }, [lightboxItem])
 
   useEffect(() => {
+    if (!lightboxItem || typeof document === "undefined") return
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+    return () => {
+      document.body.style.overflow = previousOverflow
+    }
+  }, [lightboxItem])
+
+  useEffect(() => {
     if (typeof window === "undefined") return
     const touchQuery = window.matchMedia("(hover: none), (pointer: coarse)")
     const updateTouchMode = () => setIsTouchDevice(touchQuery.matches)
@@ -86,7 +95,12 @@ export function GalleryPage({ title, subtitle, tabKey, items, showSort = true }:
   const hasMore = visibleCount < sortedItems.length
 
   useEffect(() => {
+    setVisibleCount(INITIAL_RENDER_COUNT)
+  }, [tabKey, sortField, sortDirection, items.length])
+
+  useEffect(() => {
     if (!hasMore) return
+    if (typeof IntersectionObserver === "undefined") return
     const node = loadMoreTriggerRef.current
     if (!node) return
     const observer = new IntersectionObserver(
@@ -243,6 +257,10 @@ function StoryLightbox({ item, onClose }: { item: PhotoItem; onClose: () => void
     }
   }, [item.story, pretextReady])
 
+  useEffect(() => {
+    setPhotoIndex(0)
+  }, [item.stableKey])
+
   const goNext = useCallback(() => {
     setPhotoIndex((i) => (i + 1) % allPhotos.length)
   }, [allPhotos.length])
@@ -268,12 +286,16 @@ function StoryLightbox({ item, onClose }: { item: PhotoItem; onClose: () => void
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${item.title || "Gallery item"} lightbox`}
     >
       {/* Close button */}
       <button
         onClick={onClose}
         className="absolute top-4 right-4 z-20 border border-[#3a3a3a] bg-[#111]/80 p-2 hover:bg-[#1a1a1a] transition-colors"
         aria-label="Close lightbox"
+        autoFocus
       >
         <X className="h-5 w-5 text-[#d5d5d5]" />
       </button>

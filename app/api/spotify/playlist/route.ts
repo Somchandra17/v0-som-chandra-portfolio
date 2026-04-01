@@ -1,39 +1,30 @@
-import { cacheControl, getPlaylistTracks } from "@/lib/spotify"
+import { cacheControl, getPlaylistTracks, normalizeSpotifyTrack } from "@/lib/spotify"
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
 
 const PLAYLIST_ID = "7fOEf8vDsrfgMMjU9fNiP1"
+type PlaylistItem = { added_at?: string; track?: unknown }
 
 export async function GET() {
   try {
     const response = await getPlaylistTracks(PLAYLIST_ID)
     const data = await response.json()
 
-    const tracks = (data.items || [])
+    const tracks = (Array.isArray(data?.items) ? data.items : [])
       .sort(
-        (a: { added_at: string }, b: { added_at: string }) =>
-          new Date(a.added_at).getTime() - new Date(b.added_at).getTime()
+        (a: PlaylistItem, b: PlaylistItem) =>
+          new Date(a?.added_at ?? 0).getTime() - new Date(b?.added_at ?? 0).getTime()
       )
       .reverse()
-      .map(
-        (item: {
-          added_at: string
-          track: {
-            name: string
-            artists: { name: string }[]
-            album: { name: string; images: { url: string }[] }
-            external_urls: { spotify: string }
-          }
-        }) => ({
-          title: item.track.name,
-          artist: item.track.artists.map((a) => a.name).join(", "),
-          album: item.track.album.name,
-          albumImageUrl: item.track.album.images[0]?.url,
-          songUrl: item.track.external_urls.spotify,
-          addedAt: item.added_at,
-        })
-      )
+      .flatMap((item: PlaylistItem) => {
+        const normalizedTrack = normalizeSpotifyTrack(item?.track)
+        if (!normalizedTrack) return []
+        return [{
+          ...normalizedTrack,
+          addedAt: typeof item?.added_at === "string" ? item.added_at : "",
+        }]
+      })
 
     return Response.json(
       { tracks },

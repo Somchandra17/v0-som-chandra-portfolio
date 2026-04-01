@@ -1,4 +1,4 @@
-import { cacheControl, getTopTracks } from "@/lib/spotify"
+import { cacheControl, getTopTracks, normalizeSpotifyTrack } from "@/lib/spotify"
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
@@ -8,20 +8,10 @@ export async function GET() {
     const response = await getTopTracks()
     const data = await response.json()
 
-    const tracks = data.items.map(
-      (track: {
-        name: string
-        artists: { name: string }[]
-        album: { name: string; images: { url: string }[] }
-        external_urls: { spotify: string }
-      }) => ({
-        title: track.name,
-        artist: track.artists.map((a) => a.name).join(", "),
-        album: track.album.name,
-        albumImageUrl: track.album.images[0]?.url,
-        songUrl: track.external_urls.spotify,
-      })
-    )
+    const tracks = (Array.isArray(data?.items) ? data.items : []).flatMap((track: unknown) => {
+      const normalizedTrack = normalizeSpotifyTrack(track)
+      return normalizedTrack ? [normalizedTrack] : []
+    })
 
     return Response.json(
       { tracks },

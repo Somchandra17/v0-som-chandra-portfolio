@@ -32,6 +32,8 @@ export function PretextHighlight({
   const [measurements, setMeasurements] = useState<Map<string, number>>(new Map())
   const containerRef = useRef<HTMLDivElement>(null)
 
+  if (lines.length === 0) return null
+
   // Pre-measure all lines on mount and when lines change
   useEffect(() => {
     const measureLines = () => {
@@ -54,14 +56,16 @@ export function PretextHighlight({
     }
   }, [lines, fontSize])
 
-  const currentLine = lines[currentIndex]
-  const currentWidth = measurements.get(currentLine) || 0
+  const safeIndex = Math.min(Math.max(currentIndex, 0), lines.length - 1)
+  const currentLine = lines[safeIndex] ?? ""
+  const fallbackWidth = Math.ceil(currentLine.length * fontSize * 0.58)
+  const currentWidth = measurements.get(currentLine) || fallbackWidth
 
   return (
     <div ref={containerRef} className="relative overflow-hidden">
       <AnimatePresence mode="wait">
         <motion.div
-          key={currentIndex}
+          key={safeIndex}
           className={`inline-flex items-center ${className}`}
           initial={{ opacity: 0, y: 24, filter: "blur(4px)" }}
           animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}

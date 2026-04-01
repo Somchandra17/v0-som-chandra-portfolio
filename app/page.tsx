@@ -9,13 +9,13 @@ import { MusicDCTF } from "@/components/musicd-ctf"
 import { TextMorph } from "@/components/text-morph"
 import { PretextHighlight } from "@/components/pretext-highlight"
 import { SpotifyNowPlayingContent } from "@/components/now-playing"
+import { SpotifyArtwork } from "@/components/spotify-artwork"
 import { fonts, measureTextWidth, usePretextReady } from "@/lib/pretext"
+import { fetcher, type Artist, type NowPlayingData, type RecentTrack, type Track } from "@/lib/creative-data"
 import {
   Terminal, Pen, Github, Linkedin, Mail, ExternalLink,
   ArrowRight, ArrowDown, Music, Headphones, Users, Clock,
 } from "lucide-react"
-
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
 function clamp(value: number, min: number, max: number) {
   return Math.max(min, Math.min(max, value))
@@ -23,6 +23,28 @@ function clamp(value: number, min: number, max: number) {
 
 function fallbackWidth(text: string, fontSize: number) {
   return Math.ceil(text.length * fontSize * 0.58)
+}
+
+function setSessionFlag(key: string, value: string) {
+  if (typeof window === "undefined") return
+  try {
+    window.sessionStorage.setItem(key, value)
+  } catch {}
+}
+
+function getSessionFlag(key: string) {
+  if (typeof window === "undefined") return null
+  try {
+    return window.sessionStorage.getItem(key)
+  } catch {
+    return null
+  }
+}
+
+function formatPlayedLabel(playedAt: string) {
+  const playedDate = new Date(playedAt)
+  if (Number.isNaN(playedDate.getTime())) return "recent"
+  return playedDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
 }
 
 const socials = [
@@ -68,35 +90,6 @@ const heroLines = [
   "arguing with a yaml file"
 ]
 
-type NowPlayingData = {
-  isPlaying: boolean
-  isCurrentlyPlaying?: boolean
-  mode?: "now_playing" | "last_played"
-  playedAt?: string
-  title?: string
-  artist?: string
-  album?: string
-  albumImageUrl?: string
-  songUrl?: string
-}
-
-type Track = {
-  title: string
-  artist: string
-  album: string
-  albumImageUrl?: string
-  songUrl: string
-}
-
-type RecentTrack = Track & { playedAt: string }
-
-type Artist = {
-  name: string
-  genres: string[]
-  imageUrl?: string
-  url: string
-}
-
 export default function Home() {
   const router = useRouter()
   const [hoverSide, setHoverSide] = useState<"nerdy" | "creative" | null>(null)
@@ -106,7 +99,7 @@ export default function Home() {
   const [factIdx, setFactIdx] = useState(0)
 
   const cycleName = () => {
-    sessionStorage.setItem("som-name-clicked", "1")
+    setSessionFlag("som-name-clicked", "1")
     setIsHoverLocked(true)
     setNameMode((prev) => prev === "default" ? "nerdy" : prev === "nerdy" ? "default" : "default")
   }
@@ -117,7 +110,7 @@ export default function Home() {
       return
     }
 
-    const hasClickedName = sessionStorage.getItem("som-name-clicked") === "1"
+    const hasClickedName = getSessionFlag("som-name-clicked") === "1"
     if (hasClickedName) return
 
     event.preventDefault()
@@ -169,8 +162,12 @@ export default function Home() {
     const media = window.matchMedia("(max-width: 767px)")
     const update = () => setIsCompactSpotify(media.matches)
     update()
-    media.addEventListener("change", update)
-    return () => media.removeEventListener("change", update)
+    if (typeof media.addEventListener === "function") {
+      media.addEventListener("change", update)
+      return () => media.removeEventListener("change", update)
+    }
+    media.addListener(update)
+    return () => media.removeListener(update)
   }, [])
 
   const topTracks = topTracksData?.tracks || []
@@ -198,7 +195,7 @@ export default function Home() {
   const recentTrackRows = recentTracks.slice(0, 5).map((track) => {
     const titleWidth = measure(track.title, fonts.body(14), 14)
     const artistWidth = measure(track.artist, fonts.body(12), 12)
-    const playedLabel = new Date(track.playedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+    const playedLabel = formatPlayedLabel(track.playedAt)
     const playedWidth = measure(playedLabel, fonts.mono(12), 12)
     const cardWidth = clamp(Math.ceil(Math.max(titleWidth, artistWidth) + playedWidth + 130), 270, 560)
     return { ...track, cardWidth, playedLabel }
@@ -230,7 +227,12 @@ export default function Home() {
             </p>
 
             <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight text-[#e8e8e8] leading-[1.15]">
-              <span className="block cursor-pointer" onClick={cycleName}>
+              <button
+                type="button"
+                className="block cursor-pointer border-0 bg-transparent p-0 text-left"
+                onClick={cycleName}
+                aria-label="Toggle between som and 0xs0m"
+              >
                 {"i'm "}
                 <TextMorph
                   text={nameConfig[nameMode].text}
@@ -241,7 +243,7 @@ export default function Home() {
                   }}
                 />
                 .
-              </span>
+              </button>
             </h1>
 
             {/* Cycling hero tagline with pretext-measured highlight */}
@@ -524,34 +526,30 @@ export default function Home() {
               <div className="flex flex-wrap gap-4">
                 {topArtistCards.map((artist, i) => (
                   <motion.a
-                    key={artist.url}
-                    href={artist.url}
+                    key={artist.url ?? `${artist.name}-${i}`}
+                    href={artist.url ?? "#"}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group paper-card w-[calc(50%-0.5rem)] p-5 flex flex-col items-center text-center hover-bounce sm:w-auto"
+                    onClick={(event) => {
+                      if (!artist.url) event.preventDefault()
+                    }}
+                    className={`group paper-card p-5 flex flex-col items-center text-center hover-bounce w-[calc(50%_-_0.5rem)] sm:w-auto ${
+                      artist.url ? "" : "cursor-default"
+                    }`}
                     style={!isCompactSpotify ? { width: `${artist.cardWidth}px` } : undefined}
                     initial={{ opacity: 0, scale: 0.9 }}
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.06, duration: 0.35 }}
                   >
-                    <div
+                    <SpotifyArtwork
+                      src={artist.imageUrl}
+                      alt={artist.name}
+                      loading="lazy"
                       className="w-20 h-20 border-2 border-[#333] bg-[#1a1a1a] mb-3 flex items-center justify-center overflow-hidden group-hover:border-[#e8e8e8] transition-colors"
-                      style={{ borderRadius: "50%" }}
-                    >
-                      {artist.imageUrl ? (
-                        <img
-                          src={artist.imageUrl}
-                          alt={artist.name}
-                          className="w-full h-full object-cover"
-                          crossOrigin="anonymous"
-                          loading="lazy"
-                          onError={(e) => { e.currentTarget.style.display = 'none' }}
-                        />
-                      ) : (
-                        <Users className="h-8 w-8 text-[#444]" />
-                      )}
-                    </div>
+                      imgClassName="w-full h-full object-cover"
+                      fallback={<Users className="h-8 w-8 text-[#444]" />}
+                    />
                     <p className="text-sm font-bold text-[#e8e8e8] group-hover:underline truncate w-full">{artist.name}</p>
                     {artist.genreLabel && (
                       <p className="text-xs text-[#888] truncate w-full mt-1">{artist.genreLabel}</p>
@@ -583,10 +581,13 @@ export default function Home() {
               <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 {topTrackRows.map((track, i) => (
                   <motion.a
-                    key={track.songUrl + i}
-                    href={track.songUrl}
+                    key={track.songUrl ?? `${track.title}-${track.artist}-${i}`}
+                    href={track.songUrl ?? "#"}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={(event) => {
+                      if (!track.songUrl) event.preventDefault()
+                    }}
                     className="paper-card w-full p-4 flex items-center gap-4 hover-bounce group sm:w-auto"
                     style={!isCompactSpotify ? { width: `${track.cardWidth}px` } : undefined}
                     initial={{ opacity: 0, x: -10 }}
@@ -595,20 +596,14 @@ export default function Home() {
                     transition={{ delay: i * 0.04, duration: 0.3 }}
                   >
                     <span className="font-mono text-xs text-[#666] w-5 shrink-0">{track.rankLabel}</span>
-                    <div className="w-10 h-10 shrink-0 border border-[#333] bg-[#1a1a1a] flex items-center justify-center overflow-hidden">
-                      {track.albumImageUrl ? (
-                        <img 
-                          src={track.albumImageUrl} 
-                          alt={track.album} 
-                          className="w-full h-full object-cover" 
-                          crossOrigin="anonymous"
-                          loading="lazy"
-                          onError={(e) => { e.currentTarget.style.display = 'none' }}
-                        />
-                      ) : (
-                        <span className="text-[#444] text-xs">♪</span>
-                      )}
-                    </div>
+                    <SpotifyArtwork
+                      src={track.albumImageUrl}
+                      alt={track.album}
+                      loading="lazy"
+                      className="w-10 h-10 shrink-0 border border-[#333] bg-[#1a1a1a] flex items-center justify-center overflow-hidden"
+                      imgClassName="w-full h-full object-cover"
+                      fallback={<span className="text-[#444] text-xs">♪</span>}
+                    />
                     <div className="min-w-0">
                       <p className="text-sm font-bold text-[#e8e8e8] truncate group-hover:underline">{track.title}</p>
                       <p className="text-xs text-[#aaa] truncate">{track.artist}</p>
@@ -640,10 +635,13 @@ export default function Home() {
               <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
                 {recentTrackRows.map((track, i) => (
                   <motion.a
-                    key={track.songUrl + track.playedAt}
-                    href={track.songUrl}
+                    key={track.songUrl ?? `${track.title}-${track.playedAt}-${i}`}
+                    href={track.songUrl ?? "#"}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={(event) => {
+                      if (!track.songUrl) event.preventDefault()
+                    }}
                     className="paper-card w-full p-3 flex items-center gap-4 hover-bounce group sm:w-auto"
                     style={!isCompactSpotify ? { width: `${track.cardWidth}px` } : undefined}
                     initial={{ opacity: 0, x: -8 }}
@@ -651,20 +649,14 @@ export default function Home() {
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.03, duration: 0.25 }}
                   >
-                    <div className="w-8 h-8 shrink-0 border border-[#333] bg-[#1a1a1a] flex items-center justify-center overflow-hidden">
-                      {track.albumImageUrl ? (
-                        <img 
-                          src={track.albumImageUrl} 
-                          alt={track.album} 
-                          className="w-full h-full object-cover" 
-                          crossOrigin="anonymous"
-                          loading="lazy"
-                          onError={(e) => { e.currentTarget.style.display = 'none' }}
-                        />
-                      ) : (
-                        <span className="text-[#444] text-xs">♪</span>
-                      )}
-                    </div>
+                    <SpotifyArtwork
+                      src={track.albumImageUrl}
+                      alt={track.album}
+                      loading="lazy"
+                      className="w-8 h-8 shrink-0 border border-[#333] bg-[#1a1a1a] flex items-center justify-center overflow-hidden"
+                      imgClassName="w-full h-full object-cover"
+                      fallback={<span className="text-[#444] text-xs">♪</span>}
+                    />
                     <div className="min-w-0 flex-1">
                       <p className="text-sm text-[#e8e8e8] truncate group-hover:underline">{track.title}</p>
                       <p className="text-xs text-[#aaa] truncate">{track.artist}</p>

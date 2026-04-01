@@ -24,6 +24,8 @@ Copy the example file and add your Spotify credentials:
 cp .env.example .env.local
 ```
 
+`.env` also works if you prefer a single local env file.
+
 Required variables in `.env.local`:
 
 - `SPOTIFY_CLIENT_ID`

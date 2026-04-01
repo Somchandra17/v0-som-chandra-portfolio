@@ -40,6 +40,11 @@ export function PhotoCard({
       return
     }
 
+    if (typeof IntersectionObserver === "undefined") {
+      setIsMidViewport(true)
+      return
+    }
+
     const node = cardRef.current
     if (!node) return
 
@@ -60,10 +65,12 @@ export function PhotoCard({
 
   useEffect(() => {
     const node = cardRef.current
-    if (!node || typeof ResizeObserver === "undefined") return
+    if (!node) return
 
     const updateWidth = () => setCardWidth(Math.max(180, Math.floor(node.clientWidth)))
     updateWidth()
+
+    if (typeof ResizeObserver === "undefined") return
 
     const observer = new ResizeObserver((entries) => {
       const nextWidth = entries[0]?.contentRect.width ?? node.clientWidth

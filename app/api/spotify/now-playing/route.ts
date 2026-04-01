@@ -1,17 +1,16 @@
-import { cacheControl, getNowPlaying, getRecentlyPlayed } from "@/lib/spotify"
+import {
+  cacheControl,
+  getNowPlaying,
+  getRecentlyPlayed,
+  normalizeSpotifyTrack,
+  type NormalizedSpotifyTrack,
+} from "@/lib/spotify"
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
 
-type SpotifyTrack = {
-  name: string
-  artists: Array<{ name: string }>
-  album: { name: string; images?: Array<{ url: string }> }
-  external_urls: { spotify?: string }
-}
-
 function toNowPlayingPayload(
-  track: SpotifyTrack,
+  track: NormalizedSpotifyTrack,
   mode: "now_playing" | "last_played",
   playedAt?: string
 ) {
@@ -21,11 +20,11 @@ function toNowPlayingPayload(
     isCurrentlyPlaying: mode === "now_playing",
     mode,
     playedAt,
-    title: track.name,
-    artist: track.artists.map((a) => a.name).join(", "),
-    album: track.album.name,
-    albumImageUrl: track.album.images?.[0]?.url,
-    songUrl: track.external_urls.spotify,
+    title: track.title,
+    artist: track.artist,
+    album: track.album,
+    albumImageUrl: track.albumImageUrl,
+    songUrl: track.songUrl,
   }
 }
 
@@ -35,8 +34,9 @@ export async function GET() {
 
     if (response.status !== 204 && response.status < 400) {
       const song = await response.json()
-      if (song.currently_playing_type === "track" && song.item && song.is_playing) {
-        return Response.json(toNowPlayingPayload(song.item as SpotifyTrack, "now_playing"), {
+      const currentTrack = normalizeSpotifyTrack(song?.item)
+      if (song?.currently_playing_type === "track" && currentTrack && song?.is_playing) {
+        return Response.json(toNowPlayingPayload(currentTrack, "now_playing"), {
           headers: { "Cache-Control": cacheControl() },
         })
       }
@@ -49,7 +49,7 @@ export async function GET() {
 
     const recent = await recentResponse.json()
     const lastPlayed = recent?.items?.[0]
-    const lastTrack = lastPlayed?.track as SpotifyTrack | undefined
+    const lastTrack = normalizeSpotifyTrack(lastPlayed?.track)
     if (!lastTrack) {
       return Response.json({ isPlaying: false }, { headers: { "Cache-Control": cacheControl() } })
     }

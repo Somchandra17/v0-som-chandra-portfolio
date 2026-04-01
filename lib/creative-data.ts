@@ -36,6 +36,23 @@ export type NowPlayingData = {
   songUrl?: string
 }
 
+export type Track = {
+  title: string
+  artist: string
+  album: string
+  albumImageUrl?: string
+  songUrl?: string
+}
+
+export type RecentTrack = Track & { playedAt: string }
+
+export type Artist = {
+  name: string
+  genres: string[]
+  imageUrl?: string
+  url?: string
+}
+
 type GalleryImageJsonEntry = {
   id: number
   image?: string
@@ -196,6 +213,8 @@ export function getRelativePlayedText(playedAt?: string): string | null {
   const playedDate = new Date(playedAt)
   if (Number.isNaN(playedDate.getTime())) return null
   const diffSeconds = Math.round((playedDate.getTime() - Date.now()) / 1000)
+  const hasRelativeTimeFormat = typeof Intl !== "undefined" && typeof Intl.RelativeTimeFormat === "function"
+  if (!hasRelativeTimeFormat) return null
   const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" })
   const diffMinutes = Math.round(diffSeconds / 60)
   if (Math.abs(diffMinutes) < 60) return rtf.format(diffMinutes, "minute")
@@ -205,4 +224,14 @@ export function getRelativePlayedText(playedAt?: string): string | null {
   return rtf.format(diffDays, "day")
 }
 
-export const fetcher = (url: string) => fetch(url).then((r) => r.json())
+export async function fetcher(url: string) {
+  const response = await fetch(url)
+  const data = await response.json()
+
+  if (!response.ok) {
+    const message = typeof data?.error === "string" ? data.error : `Request failed (${response.status})`
+    throw new Error(message)
+  }
+
+  return data
+}

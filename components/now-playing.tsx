@@ -3,11 +3,32 @@
 import { motion } from "framer-motion"
 import { Disc3 } from "lucide-react"
 import useSWR from "swr"
+import { SpotifyArtwork } from "@/components/spotify-artwork"
 import { fetcher, getRelativePlayedText, type NowPlayingData } from "@/lib/creative-data"
 
 export function SpotifyNowPlayingContent({ nowPlaying }: { nowPlaying: NowPlayingData }) {
   const isNowPlaying = nowPlaying?.mode === "now_playing"
   const relativePlayed = getRelativePlayedText(nowPlaying?.playedAt)
+  const title = nowPlaying.title ?? "Unknown track"
+  const artist = nowPlaying.artist ?? "Unknown artist"
+  const album = nowPlaying.album ?? "Unknown album"
+  const content = (
+    <>
+      <SpotifyArtwork
+        src={nowPlaying.albumImageUrl}
+        alt={album || title}
+        loading="eager"
+        className="w-16 h-16 object-cover border border-[#333] shrink-0 bg-[#111] flex items-center justify-center overflow-hidden"
+        imgClassName="w-full h-full object-cover"
+        fallback={<span className="text-[#444] text-xs">♪</span>}
+      />
+      <div className="min-w-0">
+        <p className="text-base font-bold text-[#e8e8e8] truncate group-hover:underline">{title}</p>
+        <p className="text-sm text-[#aaa] truncate">{artist}</p>
+        <p className="text-xs text-[#666] truncate mt-0.5">{album}</p>
+      </div>
+    </>
+  )
 
   return (
     <>
@@ -28,26 +49,20 @@ export function SpotifyNowPlayingContent({ nowPlaying }: { nowPlaying: NowPlayin
           <span className="font-mono text-[10px] text-[#6f6f6f]">({relativePlayed})</span>
         )}
       </div>
-      <a
-        href={nowPlaying.songUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="paper-card p-5 flex items-center gap-5 hover-bounce group"
-      >
-        {nowPlaying.albumImageUrl && (
-          <img
-            src={nowPlaying.albumImageUrl}
-            alt={nowPlaying.album}
-            className="w-16 h-16 object-cover border border-[#333] shrink-0"
-            crossOrigin="anonymous"
-          />
-        )}
-        <div className="min-w-0">
-          <p className="text-base font-bold text-[#e8e8e8] truncate group-hover:underline">{nowPlaying.title}</p>
-          <p className="text-sm text-[#aaa] truncate">{nowPlaying.artist}</p>
-          <p className="text-xs text-[#666] truncate mt-0.5">{nowPlaying.album}</p>
+      {nowPlaying.songUrl ? (
+        <a
+          href={nowPlaying.songUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="paper-card p-5 flex items-center gap-5 hover-bounce group"
+        >
+          {content}
+        </a>
+      ) : (
+        <div className="paper-card p-5 flex items-center gap-5">
+          {content}
         </div>
-      </a>
+      )}
     </>
   )
 }

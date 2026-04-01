@@ -4,6 +4,40 @@ const TOP_TRACKS_ENDPOINT = "https://api.spotify.com/v1/me/top/tracks"
 const TOP_ARTISTS_ENDPOINT = "https://api.spotify.com/v1/me/top/artists"
 const RECENTLY_PLAYED_ENDPOINT = "https://api.spotify.com/v1/me/player/recently-played"
 
+type SpotifyImage = { url?: string | null } | null
+type SpotifyArtist = { name?: string | null } | null
+type SpotifyAlbum = {
+  name?: string | null
+  images?: SpotifyImage[] | null
+} | null
+type SpotifyTrackLike = {
+  name?: string | null
+  artists?: SpotifyArtist[] | null
+  album?: SpotifyAlbum
+  external_urls?: { spotify?: string | null } | null
+} | null
+type SpotifyArtistLike = {
+  name?: string | null
+  genres?: string[] | null
+  images?: SpotifyImage[] | null
+  external_urls?: { spotify?: string | null } | null
+} | null
+
+export type NormalizedSpotifyTrack = {
+  title: string
+  artist: string
+  album: string
+  albumImageUrl?: string
+  songUrl?: string
+}
+
+export type NormalizedSpotifyArtist = {
+  name: string
+  genres: string[]
+  imageUrl?: string
+  url?: string
+}
+
 type SpotifyCredentials = {
   clientId: string
   clientSecret: string
@@ -61,6 +95,59 @@ async function spotifyFetch(url: string) {
     },
     cache: "no-store",
   })
+}
+
+function firstSpotifyImage(images?: SpotifyImage[] | null) {
+  if (!Array.isArray(images)) return undefined
+  return images.find((image) => typeof image?.url === "string" && image.url.trim().length > 0)?.url?.trim()
+}
+
+function normalizeSpotifyUrl(url?: string | null) {
+  return typeof url === "string" && url.trim().length > 0 ? url.trim() : undefined
+}
+
+export function normalizeSpotifyTrack(track: unknown): NormalizedSpotifyTrack | null {
+  const source = typeof track === "object" && track !== null ? (track as SpotifyTrackLike) : null
+  const title = typeof source?.name === "string" ? source.name.trim() : ""
+  if (!title) return null
+
+  const artists = Array.isArray(source?.artists) ? source.artists : []
+  const artistNames = artists
+        .map((artist) => (typeof artist?.name === "string" ? artist.name.trim() : ""))
+        .filter((name) => name.length > 0)
+
+  const albumName = typeof source?.album?.name === "string" ? source.album.name.trim() : ""
+  const album = albumName.length > 0
+    ? albumName
+    : "Unknown album"
+
+  return {
+    title,
+    artist: artistNames.length > 0 ? artistNames.join(", ") : "Unknown artist",
+    album,
+    albumImageUrl: firstSpotifyImage(source?.album?.images),
+    songUrl: normalizeSpotifyUrl(source?.external_urls?.spotify),
+  }
+}
+
+export function normalizeSpotifyArtist(artist: unknown): NormalizedSpotifyArtist | null {
+  const source = typeof artist === "object" && artist !== null ? (artist as SpotifyArtistLike) : null
+  const name = typeof source?.name === "string" ? source.name.trim() : ""
+  if (!name) return null
+
+  const genres = Array.isArray(source?.genres)
+    ? source.genres
+        .filter((genre): genre is string => typeof genre === "string" && genre.trim().length > 0)
+        .map((genre) => genre.trim())
+        .slice(0, 2)
+    : []
+
+  return {
+    name,
+    genres,
+    imageUrl: firstSpotifyImage(source?.images),
+    url: normalizeSpotifyUrl(source?.external_urls?.spotify),
+  }
 }
 
 export function cacheControl(seconds?: number): string {
