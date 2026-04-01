@@ -229,21 +229,20 @@ export default function Home() {
               oh hey, you found this page
             </p>
 
-          <motion.h1 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight text-[#e8e8e8] leading-[1.15]">
-            <span className="block">crafting experiences</span>
-            <span className="block cursor-pointer" onClick={cycleName}>
-              {"at the intersection of "}
-              <TextMorph
-                text={nameConfig[nameMode].text}
-                className={nameMode === "nerdy" ? "font-mono" : ""}
-                style={{
-                  color: nameConfig[nameMode].color,
-                  textShadow: nameConfig[nameMode].shadow,
-                }}
-              />
-              {"."}
-            </span>
-          </motion.h1>
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight text-[#e8e8e8] leading-[1.15]">
+              <span className="block cursor-pointer" onClick={cycleName}>
+                {"i'm "}
+                <TextMorph
+                  text={nameConfig[nameMode].text}
+                  className={nameMode === "nerdy" ? "font-mono" : ""}
+                  style={{
+                    color: nameConfig[nameMode].color,
+                    textShadow: nameConfig[nameMode].shadow,
+                  }}
+                />
+                .
+              </span>
+            </h1>
 
             {/* Cycling hero tagline with pretext-measured highlight */}
             <div className="mt-3 h-10 md:h-12">
