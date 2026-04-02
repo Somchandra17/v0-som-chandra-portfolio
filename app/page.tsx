@@ -54,6 +54,8 @@ const socials = [
   { label: "somm.tf", href: "https://www.somm.tf", icon: ExternalLink },
 ]
 
+const SPOTIFY_SECTION_LIMIT = 6
+
 const funFacts = [
   "i break things for a living.",
   "i draw things nobody asked for.",
@@ -177,7 +179,7 @@ export default function Home() {
     pretextReady ? measureTextWidth(text, font) : fallbackWidth(text, fontSize)
   )
 
-  const topArtistCards = topArtists.slice(0, 5).map((artist) => {
+  const topArtistCards = topArtists.slice(0, SPOTIFY_SECTION_LIMIT).map((artist) => {
     const genreLabel = artist.genres.join(", ")
     const nameWidth = measure(artist.name, fonts.bold(14), 14)
     const genreWidth = genreLabel ? measure(genreLabel, fonts.body(12), 12) : 0
@@ -185,14 +187,14 @@ export default function Home() {
     return { ...artist, cardWidth, genreLabel }
   })
 
-  const topTrackRows = topTracks.slice(0, 5).map((track, i) => {
+  const topTrackRows = topTracks.slice(0, SPOTIFY_SECTION_LIMIT).map((track, i) => {
     const titleWidth = measure(track.title, fonts.bold(14), 14)
     const artistWidth = measure(track.artist, fonts.body(12), 12)
     const cardWidth = clamp(Math.ceil(Math.max(titleWidth, artistWidth) + 145), 260, 470)
     return { ...track, cardWidth, rankLabel: String(i + 1).padStart(2, "0") }
   })
 
-  const recentTrackRows = recentTracks.slice(0, 5).map((track) => {
+  const recentTrackRows = recentTracks.slice(0, SPOTIFY_SECTION_LIMIT).map((track) => {
     const titleWidth = measure(track.title, fonts.body(14), 14)
     const artistWidth = measure(track.artist, fonts.body(12), 12)
     const playedLabel = formatPlayedLabel(track.playedAt)

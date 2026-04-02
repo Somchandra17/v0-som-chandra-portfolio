@@ -3,6 +3,7 @@ const NOW_PLAYING_ENDPOINT = "https://api.spotify.com/v1/me/player/currently-pla
 const TOP_TRACKS_ENDPOINT = "https://api.spotify.com/v1/me/top/tracks"
 const TOP_ARTISTS_ENDPOINT = "https://api.spotify.com/v1/me/top/artists"
 const RECENTLY_PLAYED_ENDPOINT = "https://api.spotify.com/v1/me/player/recently-played"
+const SPOTIFY_LIST_LIMIT = 6
 
 type SpotifyImage = { url?: string | null } | null
 type SpotifyArtist = { name?: string | null } | null
@@ -163,15 +164,15 @@ export async function getNowPlaying() {
 }
 
 export async function getTopTracks() {
-  return spotifyFetch(`${TOP_TRACKS_ENDPOINT}?time_range=long_term&limit=5`)
+  return spotifyFetch(`${TOP_TRACKS_ENDPOINT}?time_range=long_term&limit=${SPOTIFY_LIST_LIMIT}`)
 }
 
 export async function getTopArtists() {
-  return spotifyFetch(`${TOP_ARTISTS_ENDPOINT}?time_range=long_term&limit=5`)
+  return spotifyFetch(`${TOP_ARTISTS_ENDPOINT}?time_range=long_term&limit=${SPOTIFY_LIST_LIMIT}`)
 }
 
 export async function getRecentlyPlayed() {
-  return spotifyFetch(`${RECENTLY_PLAYED_ENDPOINT}?limit=5`)
+  return spotifyFetch(`${RECENTLY_PLAYED_ENDPOINT}?limit=${SPOTIFY_LIST_LIMIT}`)
 }
 
 export async function getPlaylistTracks(playlistId: string) {
