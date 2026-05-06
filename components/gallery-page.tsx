@@ -7,6 +7,7 @@ import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { PageHeader } from "@/components/page-header"
 import { PageTransition } from "@/components/page-transition"
+import { LegalLinks } from "@/components/legal-links"
 import { PhotoCard } from "@/components/photo-card"
 import { NowPlaying } from "@/components/now-playing"
 import {
@@ -119,7 +120,7 @@ export function GalleryPage({ title, subtitle, tabKey, items, showSort = true }:
       <PageHeader title={title} subtitle={subtitle} breadcrumb={`som / creative / ${title}`} />
 
       <PageTransition>
-        <div className="relative min-h-screen">
+        <main id="main-content" className="relative min-h-screen">
           {/* Back link + sibling nav */}
           <div className="mx-auto max-w-4xl px-6 pt-6 flex flex-wrap items-center justify-between gap-3">
             <Link
@@ -219,12 +220,15 @@ export function GalleryPage({ title, subtitle, tabKey, items, showSort = true }:
 
           {/* Footer */}
           <footer className="relative z-10 border-t border-[#333]">
-            <div className="mx-auto max-w-4xl px-6 py-7 flex items-center justify-between">
-              <p className="font-mono text-xs text-[#666]">som chandra -- 2025</p>
+            <div className="mx-auto flex max-w-4xl flex-col gap-4 px-6 py-7 md:flex-row md:items-end md:justify-between">
+              <div className="space-y-2">
+                <p className="font-mono text-xs text-[#666]">som chandra -- 2025</p>
+                <LegalLinks />
+              </div>
               <p className="font-mono text-xs text-[#555]">the unhinged side</p>
             </div>
           </footer>
-        </div>
+        </main>
       </PageTransition>
 
       {/* Story Lightbox */}
@@ -245,12 +249,18 @@ function StoryLightbox({ item, onClose }: { item: PhotoItem; onClose: () => void
   const hasMultiple = allPhotos.length > 1
   const isDoodling = item.kind === "doodling"
   const pretextReady = usePretextReady()
+  const displayTitle = item.title?.trim() || (isDoodling ? "untitled sketch" : item.kind === "visual-detours" ? "untitled detour" : "untitled frame")
+  const kindLabel = isDoodling ? "doodling" : item.kind === "visual-detours" ? "visual detours" : "clicks"
+  const detailNote = isDoodling
+    ? "rough page from the sketchbook. no cleanup pass."
+    : "frame note"
+  const galleryHint = hasMultiple ? "arrow keys work here too" : "press esc to close"
 
   // Pre-measure story text for balanced presentation
   const storyMeasurement = useMemo(() => {
     if (!item.story) return null
     try {
-      const { height, lineCount } = measureText(item.story, fonts.body(14), 320, 22)
+      const { height, lineCount } = measureText(item.story, fonts.body(14), 340, 22)
       return { height, lineCount }
     } catch {
       return null
@@ -281,173 +291,218 @@ function StoryLightbox({ item, onClose }: { item: PhotoItem; onClose: () => void
 
   return (
     <motion.div
-      className="fixed inset-0 z-[300] bg-[#000]/95 backdrop-blur-md"
+      className="fixed inset-0 z-[300] bg-[#07090d]/96 backdrop-blur-md"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       onClick={onClose}
       role="dialog"
       aria-modal="true"
-      aria-label={`${item.title || "Gallery item"} lightbox`}
+      aria-label={`${displayTitle} lightbox`}
     >
-      {/* Close button */}
-      <button
-        onClick={onClose}
-        className="absolute top-4 right-4 z-20 border border-[#3a3a3a] bg-[#111]/80 p-2 hover:bg-[#1a1a1a] transition-colors"
-        aria-label="Close lightbox"
-        autoFocus
-      >
-        <X className="h-5 w-5 text-[#d5d5d5]" />
-      </button>
-
-      {/* Split layout: image left, story right */}
       <motion.div
-        className="absolute inset-0 flex flex-col lg:flex-row"
+        className="absolute inset-0 mx-auto grid max-w-[1400px] grid-cols-1 gap-3 p-3 md:gap-4 md:p-5 lg:grid-cols-[minmax(0,1.22fr)_360px]"
         initial={{ scale: 0.97, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.97, opacity: 0 }}
-        transition={{ duration: 0.25 }}
+        transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Image side */}
-        <div className="relative flex-1 flex items-center justify-center p-4 lg:p-8 min-h-0">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={photoIndex}
-              className="relative max-w-full max-h-full"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.2 }}
-            >
-              {allPhotos[photoIndex] ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={allPhotos[photoIndex]}
-                  alt={`${item.title} - ${photoIndex + 1}`}
-                  className="block max-w-full max-h-[60vh] lg:max-h-[85vh] w-auto h-auto object-contain"
-                />
-              ) : (
-                <div className="flex items-center justify-center w-64 h-64 bg-[#111]">
-                  <Camera className="h-12 w-12 text-[#333]" />
-                </div>
+        <section className="section-shell flex min-h-0 flex-col overflow-hidden">
+          <div className="flex items-center justify-between gap-3 border-b border-[#20242c] px-4 py-3 md:px-5">
+            <div className="flex min-w-0 flex-wrap items-center gap-2">
+              <span className="data-chip px-2.5 py-1 font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[#d7dbe2]">
+                {kindLabel}
+              </span>
+              {hasMultiple && (
+                <span className="data-chip tabular px-2.5 py-1 font-mono text-[0.62rem] text-[#9199a5]">
+                  frame {String(photoIndex + 1).padStart(2, "0")} / {String(allPhotos.length).padStart(2, "0")}
+                </span>
               )}
-            </motion.div>
-          </AnimatePresence>
+            </div>
 
-          {/* Multi-photo nav */}
+            <div className="flex items-center gap-2">
+              <span className="hidden font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[#666] md:inline">
+                {galleryHint}
+              </span>
+              <button
+                onClick={onClose}
+                className="border border-[#303640] bg-[#101319]/80 p-2 transition-colors hover:border-[#4a5260] hover:bg-[#141820] active:translate-y-px"
+                aria-label="Close lightbox"
+                autoFocus
+              >
+                <X className="h-5 w-5 text-[#d5d5d5]" />
+              </button>
+            </div>
+          </div>
+
+          <div className="subtle-grid relative flex min-h-[42dvh] flex-1 items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_50%_22%,rgba(240,198,207,0.08),transparent_24%),linear-gradient(180deg,#090b10_0%,#06070b_100%)] p-3 md:p-6">
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,transparent,rgba(0,0,0,0.26))]" />
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={photoIndex}
+                className="relative z-10 max-h-full max-w-full overflow-hidden border border-[#2b3039] bg-[#090b10] shadow-[0_28px_90px_rgba(0,0,0,0.34)]"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+              >
+                {allPhotos[photoIndex] ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={allPhotos[photoIndex]}
+                    alt={`${displayTitle} - ${photoIndex + 1}`}
+                    className="block h-auto max-h-[58dvh] w-auto max-w-full object-contain md:max-h-[66dvh] lg:max-h-[78dvh]"
+                  />
+                ) : (
+                  <div className="flex h-64 w-64 items-center justify-center bg-[#111]">
+                    {isDoodling ? (
+                      <PenTool className="h-12 w-12 text-[#333]" />
+                    ) : (
+                      <Camera className="h-12 w-12 text-[#333]" />
+                    )}
+                  </div>
+                )}
+              </motion.div>
+            </AnimatePresence>
+
+            {hasMultiple && (
+              <>
+                <button
+                  onClick={goPrev}
+                  className="absolute left-3 top-1/2 z-20 -translate-y-1/2 border border-[#303640] bg-[#0d1016]/88 p-2.5 transition-colors hover:border-[#505867] hover:bg-[#141820] active:translate-y-[-50%]"
+                  aria-label="Previous photo"
+                >
+                  <ChevronLeft className="h-5 w-5 text-[#d7dbe2]" />
+                </button>
+                <button
+                  onClick={goNext}
+                  className="absolute right-3 top-1/2 z-20 -translate-y-1/2 border border-[#303640] bg-[#0d1016]/88 p-2.5 transition-colors hover:border-[#505867] hover:bg-[#141820] active:translate-y-[-50%]"
+                  aria-label="Next photo"
+                >
+                  <ChevronRight className="h-5 w-5 text-[#d7dbe2]" />
+                </button>
+              </>
+            )}
+          </div>
+
           {hasMultiple && (
-            <>
-              <button
-                onClick={goPrev}
-                className="absolute left-2 lg:left-4 top-1/2 -translate-y-1/2 border border-[#333] bg-[#0a0a0a]/80 p-2 hover:bg-[#1a1a1a] transition-colors"
-                aria-label="Previous photo"
-              >
-                <ChevronLeft className="h-5 w-5 text-[#ccc]" />
-              </button>
-              <button
-                onClick={goNext}
-                className="absolute right-2 lg:right-4 top-1/2 -translate-y-1/2 border border-[#333] bg-[#0a0a0a]/80 p-2 hover:bg-[#1a1a1a] transition-colors"
-                aria-label="Next photo"
-              >
-                <ChevronRight className="h-5 w-5 text-[#ccc]" />
-              </button>
-              {/* Dot indicators */}
-              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
-                {allPhotos.map((_, i) => (
+            <div className="border-t border-[#20242c] px-3 py-3 md:px-4">
+              <div className="flex gap-2 overflow-x-auto pb-1">
+                {allPhotos.map((src, i) => (
                   <button
                     key={i}
                     onClick={() => setPhotoIndex(i)}
-                    className={`w-1.5 h-1.5 rounded-full transition-all ${
-                      i === photoIndex ? "bg-[#f0c6cf] scale-125" : "bg-[#555]"
+                    className={`group/shrink relative shrink-0 border transition-all ${
+                      i === photoIndex
+                        ? "border-[#f0c6cf] bg-[#13151b]"
+                        : "border-[#2d323b] bg-[#0c0f14] hover:border-[#555d69]"
                     }`}
                     aria-label={`Go to photo ${i + 1}`}
-                  />
+                  >
+                    <div className="flex items-center gap-2 pr-3">
+                      <div className="h-14 w-14 overflow-hidden border-r border-[#242932] bg-[#111]">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={src}
+                          alt={`Thumbnail ${i + 1}`}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                      <div className="min-w-[72px] text-left">
+                        <p className="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-[#666]">frame</p>
+                        <p className="tabular mt-1 text-sm text-[#d7dbe2]">{String(i + 1).padStart(2, "0")}</p>
+                      </div>
+                    </div>
+                  </button>
                 ))}
               </div>
-            </>
+            </div>
           )}
-        </div>
+        </section>
 
-        {/* Story side -- only for non-doodling items */}
-        {!isDoodling && (
-          <div className="lg:w-[380px] shrink-0 border-t lg:border-t-0 lg:border-l border-[#222] bg-[#0a0a0a]/60 p-6 lg:p-8 flex flex-col justify-center overflow-y-auto max-h-[40vh] lg:max-h-full">
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15, duration: 0.3 }}
-              className="space-y-5"
-            >
-              {/* Meta tags */}
-              <div className="flex flex-wrap items-center gap-3 text-xs">
+        <aside className="note-frame flex min-h-0 flex-col overflow-hidden bg-[#0b0d12]/84">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15, duration: 0.3 }}
+            className="flex min-h-0 flex-1 flex-col"
+          >
+            <div className="border-b border-[#242932] px-5 py-4 md:px-6">
+              <p className="eyebrow">gallery note</p>
+              <h3 className="mt-3 text-2xl font-bold tracking-[-0.05em] text-[#e8e8e8] md:text-[2rem]">
+                {displayTitle}
+              </h3>
+            </div>
+
+            <div className="flex-1 space-y-5 overflow-y-auto px-5 py-5 md:px-6">
+              <div className="flex flex-wrap items-center gap-2 text-xs">
+                <span className="data-chip px-2.5 py-1 font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[#aab1bc]">
+                  {kindLabel}
+                </span>
                 {item.location && (
-                  <span className="inline-flex items-center gap-1.5 font-mono text-[#999]">
+                  <span className="data-chip inline-flex items-center gap-1.5 px-2.5 py-1 font-mono text-[0.62rem] text-[#999]">
                     <MapPin className="h-3 w-3 text-[#f0c6cf]" />
                     {item.location}
                   </span>
                 )}
                 {item.date && (
-                  <span className="inline-flex items-center gap-1.5 font-mono text-[#999]">
+                  <span className="data-chip inline-flex items-center gap-1.5 px-2.5 py-1 font-mono text-[0.62rem] text-[#999]">
                     <Calendar className="h-3 w-3 text-[#f0c6cf]" />
                     {item.date}
                   </span>
                 )}
-                {hasMultiple && (
-                  <span className="font-mono text-[#666]">
-                    {photoIndex + 1} / {allPhotos.length}
-                  </span>
-                )}
               </div>
 
-              {/* Title */}
-              <h3 className="text-xl lg:text-2xl font-bold text-[#e8e8e8] tracking-tight leading-snug">
-                {item.title}
-              </h3>
-
-              {/* Description */}
-              {item.desc && item.desc !== "demo caption" && (
-                <p className="text-sm text-[#bbb] leading-relaxed">{item.desc}</p>
+              {item.desc && item.desc !== "demo caption" ? (
+                <p className="max-w-[34ch] text-sm leading-relaxed text-[#c2c7cf]">{item.desc}</p>
+              ) : (
+                <p className="max-w-[34ch] text-sm leading-relaxed text-[#8f97a3]">{detailNote}</p>
               )}
 
-              {/* Story -- height pre-measured with pretext */}
-              {item.story && (
+              {item.story ? (
                 <div className="border-l-2 border-[#f0c6cf]/30 pl-4 py-1">
-                  <p className="font-mono text-[0.6rem] uppercase tracking-widest text-[#666] mb-2">the story</p>
-                  <p 
-                    className="text-sm text-[#aaa] leading-relaxed"
+                  <p className="mb-2 font-mono text-[0.6rem] uppercase tracking-widest text-[#666]">the story</p>
+                  <p
+                    className="max-w-[36ch] text-sm leading-relaxed text-[#aaa]"
                     style={storyMeasurement ? { minHeight: `${storyMeasurement.height}px` } : undefined}
                   >
                     {item.story}
                   </p>
                 </div>
-              )}
+              ) : null}
 
-              {/* Thumbnail strip for multi-photo */}
-              {hasMultiple && (
-                <div className="flex gap-2 pt-2 overflow-x-auto">
-                  {allPhotos.map((src, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setPhotoIndex(i)}
-                      className={`shrink-0 w-12 h-12 overflow-hidden border transition-all ${
-                        i === photoIndex
-                          ? "border-[#f0c6cf] opacity-100"
-                          : "border-[#333] opacity-50 hover:opacity-80"
-                      }`}
-                    >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={src}
-                        alt={`Thumbnail ${i + 1}`}
-                        className="w-full h-full object-cover"
-                      />
-                    </button>
-                  ))}
-                </div>
-              )}
-            </motion.div>
-          </div>
-        )}
+              <div className="border-t border-[#242932] pt-4">
+                <p className="mb-2 font-mono text-[0.6rem] uppercase tracking-widest text-[#666]">
+                  {hasMultiple ? "sequence" : "viewer"}
+                </p>
+                {hasMultiple ? (
+                  <div className="grid gap-2">
+                    {allPhotos.map((_, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => setPhotoIndex(i)}
+                        className={`flex items-center justify-between border px-3 py-2 text-left transition-colors ${
+                          i === photoIndex
+                            ? "border-[#f0c6cf] bg-[#141118] text-[#f6d8de]"
+                            : "border-[#2d323b] bg-[#0d1016] text-[#aab1bc] hover:border-[#505867] hover:text-[#e8e8e8]"
+                        }`}
+                      >
+                        <span className="font-mono text-[0.65rem] uppercase tracking-[0.16em]">frame {String(i + 1).padStart(2, "0")}</span>
+                        <span className="tabular font-mono text-[0.65rem] text-[#7d8591]">{i === photoIndex ? "open" : "view"}</span>
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="max-w-[34ch] text-sm leading-relaxed text-[#8f97a3]">
+                    one frame, full size, with the notes parked off to the side instead of on top of the image.
+                  </p>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        </aside>
       </motion.div>
     </motion.div>
   )

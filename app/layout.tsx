@@ -18,9 +18,23 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'hey, it\'s som',
+  title: {
+    default: "som chandra",
+    template: "%s / som chandra",
+  },
   description:
-    'a pretty corner over internet',
+    "A split portfolio for application security work, terminal experiments, photos, sketches, and other late-night side quests.",
+  openGraph: {
+    title: "som chandra",
+    description: "Application security work on one side, photos and sketches on the other.",
+    siteName: "som chandra",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "som chandra",
+    description: "Application security work on one side, photos and sketches on the other.",
+  },
   icons: {
     icon: [
       { url: '/icon-light-32x32.png', media: '(prefers-color-scheme: light)' },
@@ -46,6 +60,9 @@ export default function RootLayout({
       <body
         className={`${spaceGrotesk.variable} ${geistMono.variable} font-sans antialiased bg-[#0a0a0a] text-[#e8e8e8]`}
       >
+        <a href="#main-content" className="skip-link">
+          skip to content
+        </a>
         <LayoutShell>{children}</LayoutShell>
         <Analytics />
         <SpeedInsights />

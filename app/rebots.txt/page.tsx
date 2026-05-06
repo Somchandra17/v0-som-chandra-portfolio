@@ -36,13 +36,15 @@ export default function RebotsTxtPage() {
     <>
       <PageHeader title="rebots.txt" subtitle="chaotic terminal mode" />
       <PageTransition>
-        <section className="relative z-10 mx-auto max-w-4xl px-6 py-10">
-          <div className="paper-card p-5 md:p-7">
-            <pre className="overflow-x-auto whitespace-pre text-sm leading-relaxed text-[#d7d7d7]">
-              {rebotsContent}
-            </pre>
-          </div>
-        </section>
+        <main id="main-content" className="relative min-h-screen">
+          <section className="relative z-10 mx-auto max-w-4xl px-6 py-10">
+            <div className="paper-card p-5 md:p-7">
+              <pre className="overflow-x-auto whitespace-pre text-sm leading-relaxed text-[#d7d7d7]">
+                {rebotsContent}
+              </pre>
+            </div>
+          </section>
+        </main>
       </PageTransition>
     </>
   )

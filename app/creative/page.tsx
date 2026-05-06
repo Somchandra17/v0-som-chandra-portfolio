@@ -3,6 +3,7 @@
 import { useState, useMemo, type ReactNode } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
+import { LegalLinks } from "@/components/legal-links"
 import { PageHeader } from "@/components/page-header"
 import { PageTransition } from "@/components/page-transition"
 import { NowPlaying } from "@/components/now-playing"
@@ -59,10 +60,16 @@ const typoPattern = new RegExp(`\\b(${Array.from(intentionalTypos.keys()).join("
 
 function IntentionalTypo({ wrong, correct, roast }: { wrong: string; correct: string; roast: string }) {
   return (
-    <span className="relative inline-block group/typo cursor-help">
-      <span className="underline decoration-wavy decoration-pink-300/90 underline-offset-2">{wrong}</span>
-      <span className="pointer-events-none absolute left-1/2 top-full z-30 mt-1 hidden w-max max-w-[240px] -translate-x-1/2 rounded-sm border border-pink-200/70 bg-pink-100 px-2 py-1 text-[11px] leading-snug text-[#4a2f39] shadow-[0_8px_20px_rgba(236,72,153,0.18)] group-hover/typo:block">
-        <strong>{correct}</strong>
+    <span className="group/typo relative inline-flex align-baseline">
+      <button
+        type="button"
+        className="cursor-help border-0 bg-transparent p-0 text-inherit underline decoration-wavy decoration-pink-300/90 underline-offset-2 focus:outline-none"
+        aria-label={`${wrong}. correct spelling: ${correct}. ${roast}`}
+      >
+        {wrong}
+      </button>
+      <span className="pointer-events-none absolute left-1/2 top-full z-30 mt-1 w-max max-w-[240px] -translate-x-1/2 translate-y-1 border border-pink-200/70 bg-pink-100 px-2 py-1 text-[11px] leading-snug text-[#4a2f39] opacity-0 shadow-[0_8px_20px_rgba(236,72,153,0.18)] transition duration-200 group-hover/typo:translate-y-0 group-hover/typo:opacity-100 group-focus-within/typo:translate-y-0 group-focus-within/typo:opacity-100">
+        <span className="font-semibold">{correct}</span>
         {" — "}
         {roast}
       </span>
@@ -161,6 +168,13 @@ const fadeUp = {
   transition: { duration: 0.5 },
 }
 
+const thoughtLayoutClasses = [
+  "md:col-span-7",
+  "md:col-span-5 md:mt-10",
+  "md:col-span-5",
+  "md:col-span-7 md:-mt-4",
+]
+
 export default function CreativePage() {
   const [activeSection, setActiveSection] = useState<Section>("sidequests")
   const [hasClicked, setHasClicked] = useState(false)
@@ -227,18 +241,21 @@ export default function CreativePage() {
       <PageHeader title="the unhinged side" subtitle="visual detors / clicks / doodling / late-night scribbles" breadcrumb="som / creative" />
 
       <PageTransition>
-        <div className="relative min-h-screen">
+        <main id="main-content" className="relative min-h-screen">
 
           {/* Spelling disclaimer */}
           <div className="mx-auto max-w-5xl px-6 pt-6">
-            <motion.p
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5, duration: 0.8 }}
-              className="font-mono text-[0.65rem] text-[#1a1a1a] italic text-right bg-pink-200/80 px-3 py-1.5 rounded-sm inline-block float-right"
+              className="note-frame ml-auto max-w-md px-3 py-2"
             >
-              {"* some typos are intentional. hover the squiggles for the fix + a tiny roast."}
-            </motion.p>
+              <p className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[#d8b6bf]">proofreading policy</p>
+              <p className="mt-1 text-[0.72rem] leading-relaxed text-[#a5989d]">
+                {"some typos are intentional. hover the squiggles for the fix and a tiny roast. on phones, tap them."}
+              </p>
+            </motion.div>
             <div className="clear-both" />
           </div>
 
@@ -247,9 +264,9 @@ export default function CreativePage() {
           {/* -- Split-screen: Nav + Bio -- */}
           <section className="relative z-10 mx-auto max-w-5xl px-6 py-10">
             <motion.div {...fadeUp}>
-              <p className="font-mono text-xs tracking-widest uppercase text-[#999] mb-6">the other half</p>
+              <p className="eyebrow mb-6">the other half</p>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[420px]">
+              <div className="grid min-h-[420px] grid-cols-1 lg:grid-cols-[0.92fr_1.08fr]">
                 {/* Left side: nav items with image reveal */}
                 <div className="relative flex flex-col justify-center gap-0">
                   {/* Floating image reveal -- shared, positioned relative to nav container */}
@@ -299,10 +316,10 @@ export default function CreativePage() {
                           }
                         }}
                         className="group relative block"
-                      >
-                        <div className="flex items-center gap-4 py-5 px-2">
-                          <motion.h2
-                            className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight"
+                        >
+                          <div className="flex items-center gap-4 py-5 px-2">
+                            <motion.h2
+                            className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-[-0.05em]"
                             animate={{ color: isActive ? "#e8e8e8" : "#444" }}
                             transition={{ duration: 0.3 }}
                           >
@@ -343,7 +360,7 @@ export default function CreativePage() {
 
                 {/* Right side: bio content -- grid column locks width */}
                 <div 
-                  className="flex flex-col justify-center lg:border-l lg:border-[#222] lg:pl-10 mt-6 lg:mt-0 overflow-hidden"
+                  className="mt-6 flex flex-col justify-center overflow-hidden lg:mt-0 lg:pl-10"
                   style={{ minHeight: `${maxBioHeight}px` }}
                 >
                   <AnimatePresence mode="wait">
@@ -353,12 +370,12 @@ export default function CreativePage() {
                       animate={{ opacity: 1, filter: "blur(0px)" }}
                       exit={{ opacity: 0, filter: "blur(6px)" }}
                       transition={{ duration: 0.25 }}
-                      className="space-y-4"
+                      className="note-frame space-y-4 px-5 py-5 md:px-7 md:py-6"
                     >
                       <h3 className="text-lg md:text-xl font-bold text-[#e8e8e8] tracking-tight leading-snug">
                         {renderWithTypos(active.heading)}
                       </h3>
-                      <p className="text-sm text-[#666] italic">
+                      <p className="text-sm text-[#7d8591] italic">
                         {renderWithTypos(active.subtitle)}
                       </p>
 
@@ -369,7 +386,7 @@ export default function CreativePage() {
                       </div>
 
                       <div className="border-l-2 border-[#555] pl-4 py-2">
-                        <p className="text-xs font-mono tracking-wider text-[#999] uppercase mb-1">by the way</p>
+                        <p className="eyebrow mb-1">by the way</p>
                         <p className="text-sm text-[#aaa]">{renderWithTypos(active.byTheWay)}</p>
                       </div>
                     </motion.div>
@@ -382,22 +399,23 @@ export default function CreativePage() {
           {/* -- Thoughts -- */}
           <section className="relative z-10 mx-auto max-w-5xl px-6 py-14">
             <motion.div {...fadeUp}>
-              <div className="border-t border-[#333] pt-10">
-                <p className="font-mono text-xs tracking-widest uppercase text-[#999] mb-3">thoughts</p>
-                <h2 className="text-2xl md:text-3xl font-bold text-[#e8e8e8] tracking-tight mb-2">
+              <div className="pt-10">
+                <div className="section-rule mb-10" />
+                <p className="eyebrow mb-3">thoughts</p>
+                <h2 className="section-title text-2xl md:text-3xl font-bold text-[#e8e8e8] mb-2">
                   {renderWithTypos("things i wrote at questionble hours.")}
                 </h2>
-                <p className="text-sm text-[#666] mb-8 italic">
+                <p className="text-sm text-[#7d8591] mb-8 italic">
                   {renderWithTypos("(3 am brain is a diffrent person)")}
                 </p>
               </div>
             </motion.div>
 
-            <div className="space-y-5">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-12">
               {thoughts.map((t, i) => (
                 <motion.article
                   key={t.title}
-                  className="paper-card p-5 md:p-7 hover-bounce"
+                  className={`paper-card p-5 md:p-7 hover-bounce ${thoughtLayoutClasses[i % thoughtLayoutClasses.length]}`}
                   initial={{ opacity: 0, y: 16 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-40px" }}
@@ -420,18 +438,23 @@ export default function CreativePage() {
 
           {/* Footer */}
           <footer className="relative z-10 border-t border-[#333]">
-            <div className="mx-auto max-w-5xl px-6 py-7 flex items-center justify-between">
-              <p className="font-mono text-xs text-[#666]">som chandra -- 2025</p>
+            <div className="mx-auto flex max-w-5xl flex-col gap-4 px-6 py-7 md:flex-row md:items-end md:justify-between">
+              <div className="space-y-2">
+                <p className="font-mono text-xs text-[#666]">som chandra -- 2025</p>
+                <LegalLinks />
+              </div>
               <p className="font-mono text-xs text-[#555]">the unhinged side</p>
             </div>
             <div className="mx-auto max-w-5xl px-6 pb-7">
-              <p className="font-mono text-[0.65rem] text-[#1a1a1a] italic text-right bg-pink-200/80 px-3 py-1.5 rounded-sm inline-block float-right">
-                {'* those roast was from Grok i know it sucks lol ai "'}
-              </p>
+              <div className="note-frame ml-auto max-w-sm px-3 py-2">
+                <p className="text-right font-mono text-[0.62rem] text-[#b997a0]">
+                  {'* the roast lines are intentionally dumb. that is the bit.'}
+                </p>
+              </div>
               <div className="clear-both" />
             </div>
           </footer>
-        </div>
+        </main>
       </PageTransition>
     </>
   )

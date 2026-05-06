@@ -40,27 +40,32 @@ export function Loader({ onComplete }: { onComplete: () => void }) {
 
   return (
     <motion.div
-      className="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-[#000000]"
+      className="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-[#080a0e]"
       animate={phase === "done" ? { opacity: 0, y: -30 } : { opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: "easeInOut" }}
     >
+      <div className="pointer-events-none absolute inset-0 opacity-50">
+        <div className="absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.18),transparent)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.02),transparent_32%)]" />
+      </div>
+
       <AnimatePresence mode="wait">
         {phase === "messages" && (
           <motion.div
             key="messages"
-            className="flex flex-col items-center"
+            className="note-frame flex min-w-[min(30rem,calc(100vw-3rem))] flex-col items-center px-7 py-8"
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3 }}
           >
             {/* Pulsing dot */}
             <motion.div
-              className="w-3 h-3 rounded-full bg-[#f0c6cf] mb-8"
+              className="mb-8 h-3 w-3 bg-[#f0c6cf]"
               animate={{
-                scale: [1, 1.4, 1],
+                scale: [1, 1.32, 1],
                 opacity: [0.6, 1, 0.6],
               }}
               transition={{ duration: 1.4, repeat: Infinity, ease: [0.45, 0, 0.55, 1] }}
-              style={{ boxShadow: "0 0 20px rgba(240, 198, 207, 0.6)" }}
+              style={{ boxShadow: "0 0 14px rgba(240, 198, 207, 0.35)" }}
             />
 
             {/* Message */}
@@ -71,7 +76,7 @@ export function Loader({ onComplete }: { onComplete: () => void }) {
                 animate={{ opacity: 1, y: 0, filter: "blur(0px)", scale: 1 }}
                 exit={{ opacity: 0, y: -8, filter: "blur(4px)", scale: 0.98 }}
                 transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                className="font-mono text-sm text-[#e8e8e8]"
+                className="text-center font-mono text-sm text-[#e8e8e8]"
               >
                 {messages[msgIndex]}
               </motion.p>
@@ -82,15 +87,12 @@ export function Loader({ onComplete }: { onComplete: () => void }) {
               {messages.map((_, i) => (
                 <motion.div
                   key={i}
-                  className="h-1 rounded-full"
+                  className="h-1"
                   animate={{
-                    width: i <= msgIndex ? 16 : 6,
+                    width: i <= msgIndex ? 22 : 8,
                     backgroundColor: i <= msgIndex ? "#f0c6cf" : "#333",
                   }}
                   transition={{ duration: 0.3 }}
-                  style={{
-                    boxShadow: i <= msgIndex ? "0 0 6px rgba(240, 198, 207, 0.3)" : "none",
-                  }}
                 />
               ))}
             </div>
@@ -100,7 +102,7 @@ export function Loader({ onComplete }: { onComplete: () => void }) {
         {phase === "name" && (
           <motion.div
             key="name"
-            className="flex flex-col items-center"
+            className="note-frame flex min-w-[min(30rem,calc(100vw-3rem))] flex-col items-center px-7 py-9"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.05 }}
@@ -125,7 +127,7 @@ export function Loader({ onComplete }: { onComplete: () => void }) {
             </motion.h1>
 
             <motion.p
-              className="font-mono text-xs text-[#555] mt-3"
+              className="mt-3 font-mono text-xs text-[#6a7280]"
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5, duration: 0.4 }}
