@@ -7,7 +7,6 @@ import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { PageHeader } from "@/components/page-header"
 import { PageTransition } from "@/components/page-transition"
-import { LegalLinks } from "@/components/legal-links"
 import { PhotoCard } from "@/components/photo-card"
 import { NowPlaying } from "@/components/now-playing"
 import {
@@ -120,7 +119,7 @@ export function GalleryPage({ title, subtitle, tabKey, items, showSort = true }:
       <PageHeader title={title} subtitle={subtitle} breadcrumb={`som / creative / ${title}`} />
 
       <PageTransition>
-        <main id="main-content" className="relative min-h-screen">
+        <div className="relative min-h-screen">
           {/* Back link + sibling nav */}
           <div className="mx-auto max-w-4xl px-6 pt-6 flex flex-wrap items-center justify-between gap-3">
             <Link
@@ -220,15 +219,12 @@ export function GalleryPage({ title, subtitle, tabKey, items, showSort = true }:
 
           {/* Footer */}
           <footer className="relative z-10 border-t border-[#333]">
-            <div className="mx-auto flex max-w-4xl flex-col gap-4 px-6 py-7 md:flex-row md:items-end md:justify-between">
-              <div className="space-y-2">
-                <p className="font-mono text-xs text-[#666]">som chandra -- 2025</p>
-                <LegalLinks />
-              </div>
+            <div className="mx-auto max-w-4xl px-6 py-7 flex items-center justify-between">
+              <p className="font-mono text-xs text-[#666]">som chandra -- 2025</p>
               <p className="font-mono text-xs text-[#555]">the unhinged side</p>
             </div>
           </footer>
-        </main>
+        </div>
       </PageTransition>
 
       {/* Story Lightbox */}
@@ -251,10 +247,8 @@ function StoryLightbox({ item, onClose }: { item: PhotoItem; onClose: () => void
   const pretextReady = usePretextReady()
   const displayTitle = item.title?.trim() || (isDoodling ? "untitled sketch" : item.kind === "visual-detours" ? "untitled detour" : "untitled frame")
   const kindLabel = isDoodling ? "doodling" : item.kind === "visual-detours" ? "visual detours" : "clicks"
-  const detailNote = isDoodling
-    ? "rough page from the sketchbook. no cleanup pass."
-    : "frame note"
-  const galleryHint = hasMultiple ? "arrow keys work here too" : "press esc to close"
+  const detailNote = isDoodling ? "rough page from the sketchbook. no cleanup pass." : "frame note"
+  const viewerHint = hasMultiple ? "arrow keys work here too" : "press esc to close"
 
   // Pre-measure story text for balanced presentation
   const storyMeasurement = useMemo(() => {
@@ -301,21 +295,21 @@ function StoryLightbox({ item, onClose }: { item: PhotoItem; onClose: () => void
       aria-label={`${displayTitle} lightbox`}
     >
       <motion.div
-        className="absolute inset-0 mx-auto grid max-w-[1400px] grid-cols-1 gap-3 p-3 md:gap-4 md:p-5 lg:grid-cols-[minmax(0,1.22fr)_360px]"
+        className="absolute inset-0 mx-auto grid max-w-[1400px] grid-cols-1 gap-3 p-3 md:gap-4 md:p-5 lg:grid-cols-[minmax(0,1.18fr)_360px]"
         initial={{ scale: 0.97, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.97, opacity: 0 }}
         transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
         onClick={(e) => e.stopPropagation()}
       >
-        <section className="section-shell flex min-h-0 flex-col overflow-hidden">
-          <div className="flex items-center justify-between gap-3 border-b border-[#20242c] px-4 py-3 md:px-5">
+        <section className="paper-card flex min-h-0 flex-col overflow-hidden border border-[#252a31] bg-[#0a0c10]">
+          <div className="flex items-center justify-between gap-3 border-b border-[#222831] px-4 py-3 md:px-5">
             <div className="flex min-w-0 flex-wrap items-center gap-2">
-              <span className="data-chip px-2.5 py-1 font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[#d7dbe2]">
+              <span className="border border-[#2f3540] bg-[#11151b] px-2.5 py-1 font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[#d7dbe2]">
                 {kindLabel}
               </span>
               {hasMultiple && (
-                <span className="data-chip tabular px-2.5 py-1 font-mono text-[0.62rem] text-[#9199a5]">
+                <span className="border border-[#2f3540] bg-[#11151b] px-2.5 py-1 font-mono text-[0.62rem] text-[#9199a5]">
                   frame {String(photoIndex + 1).padStart(2, "0")} / {String(allPhotos.length).padStart(2, "0")}
                 </span>
               )}
@@ -323,11 +317,11 @@ function StoryLightbox({ item, onClose }: { item: PhotoItem; onClose: () => void
 
             <div className="flex items-center gap-2">
               <span className="hidden font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[#666] md:inline">
-                {galleryHint}
+                {viewerHint}
               </span>
               <button
                 onClick={onClose}
-                className="border border-[#303640] bg-[#101319]/80 p-2 transition-colors hover:border-[#4a5260] hover:bg-[#141820] active:translate-y-px"
+                className="border border-[#303640] bg-[#101319]/80 p-2 transition-colors hover:border-[#4a5260] hover:bg-[#141820]"
                 aria-label="Close lightbox"
                 autoFocus
               >
@@ -336,8 +330,8 @@ function StoryLightbox({ item, onClose }: { item: PhotoItem; onClose: () => void
             </div>
           </div>
 
-          <div className="subtle-grid relative flex min-h-[42dvh] flex-1 items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_50%_22%,rgba(240,198,207,0.08),transparent_24%),linear-gradient(180deg,#090b10_0%,#06070b_100%)] p-3 md:p-6">
-            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,transparent,rgba(0,0,0,0.26))]" />
+          <div className="relative flex min-h-[42dvh] flex-1 items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_50%_18%,rgba(240,198,207,0.08),transparent_24%),linear-gradient(180deg,#090b10_0%,#06070b_100%)] p-3 md:p-6">
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,transparent,rgba(0,0,0,0.28))]" />
             <AnimatePresence mode="wait">
               <motion.div
                 key={photoIndex}
@@ -370,14 +364,14 @@ function StoryLightbox({ item, onClose }: { item: PhotoItem; onClose: () => void
               <>
                 <button
                   onClick={goPrev}
-                  className="absolute left-3 top-1/2 z-20 -translate-y-1/2 border border-[#303640] bg-[#0d1016]/88 p-2.5 transition-colors hover:border-[#505867] hover:bg-[#141820] active:translate-y-[-50%]"
+                  className="absolute left-3 top-1/2 z-20 -translate-y-1/2 border border-[#303640] bg-[#0d1016]/88 p-2.5 transition-colors hover:border-[#505867] hover:bg-[#141820]"
                   aria-label="Previous photo"
                 >
                   <ChevronLeft className="h-5 w-5 text-[#d7dbe2]" />
                 </button>
                 <button
                   onClick={goNext}
-                  className="absolute right-3 top-1/2 z-20 -translate-y-1/2 border border-[#303640] bg-[#0d1016]/88 p-2.5 transition-colors hover:border-[#505867] hover:bg-[#141820] active:translate-y-[-50%]"
+                  className="absolute right-3 top-1/2 z-20 -translate-y-1/2 border border-[#303640] bg-[#0d1016]/88 p-2.5 transition-colors hover:border-[#505867] hover:bg-[#141820]"
                   aria-label="Next photo"
                 >
                   <ChevronRight className="h-5 w-5 text-[#d7dbe2]" />
@@ -387,13 +381,13 @@ function StoryLightbox({ item, onClose }: { item: PhotoItem; onClose: () => void
           </div>
 
           {hasMultiple && (
-            <div className="border-t border-[#20242c] px-3 py-3 md:px-4">
+            <div className="border-t border-[#222831] px-3 py-3 md:px-4">
               <div className="flex gap-2 overflow-x-auto pb-1">
                 {allPhotos.map((src, i) => (
                   <button
                     key={i}
                     onClick={() => setPhotoIndex(i)}
-                    className={`group/shrink relative shrink-0 border transition-all ${
+                    className={`shrink-0 border transition-all ${
                       i === photoIndex
                         ? "border-[#f0c6cf] bg-[#13151b]"
                         : "border-[#2d323b] bg-[#0c0f14] hover:border-[#555d69]"
@@ -411,7 +405,7 @@ function StoryLightbox({ item, onClose }: { item: PhotoItem; onClose: () => void
                       </div>
                       <div className="min-w-[72px] text-left">
                         <p className="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-[#666]">frame</p>
-                        <p className="tabular mt-1 text-sm text-[#d7dbe2]">{String(i + 1).padStart(2, "0")}</p>
+                        <p className="mt-1 font-mono text-sm text-[#d7dbe2]">{String(i + 1).padStart(2, "0")}</p>
                       </div>
                     </div>
                   </button>
@@ -421,7 +415,7 @@ function StoryLightbox({ item, onClose }: { item: PhotoItem; onClose: () => void
           )}
         </section>
 
-        <aside className="note-frame flex min-h-0 flex-col overflow-hidden bg-[#0b0d12]/84">
+        <aside className="paper-card flex min-h-0 flex-col overflow-hidden border border-[#252a31] bg-[#0b0d12]/88">
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -429,25 +423,25 @@ function StoryLightbox({ item, onClose }: { item: PhotoItem; onClose: () => void
             className="flex min-h-0 flex-1 flex-col"
           >
             <div className="border-b border-[#242932] px-5 py-4 md:px-6">
-              <p className="eyebrow">gallery note</p>
-              <h3 className="mt-3 text-2xl font-bold tracking-[-0.05em] text-[#e8e8e8] md:text-[2rem]">
+              <p className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[#8d93a0]">gallery note</p>
+              <h3 className="mt-3 text-2xl font-bold tracking-tight text-[#e8e8e8] md:text-[2rem]">
                 {displayTitle}
               </h3>
             </div>
 
             <div className="flex-1 space-y-5 overflow-y-auto px-5 py-5 md:px-6">
               <div className="flex flex-wrap items-center gap-2 text-xs">
-                <span className="data-chip px-2.5 py-1 font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[#aab1bc]">
+                <span className="border border-[#2f3540] bg-[#11151b] px-2.5 py-1 font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[#aab1bc]">
                   {kindLabel}
                 </span>
                 {item.location && (
-                  <span className="data-chip inline-flex items-center gap-1.5 px-2.5 py-1 font-mono text-[0.62rem] text-[#999]">
+                  <span className="inline-flex items-center gap-1.5 border border-[#2f3540] bg-[#11151b] px-2.5 py-1 font-mono text-[0.62rem] text-[#999]">
                     <MapPin className="h-3 w-3 text-[#f0c6cf]" />
                     {item.location}
                   </span>
                 )}
                 {item.date && (
-                  <span className="data-chip inline-flex items-center gap-1.5 px-2.5 py-1 font-mono text-[0.62rem] text-[#999]">
+                  <span className="inline-flex items-center gap-1.5 border border-[#2f3540] bg-[#11151b] px-2.5 py-1 font-mono text-[0.62rem] text-[#999]">
                     <Calendar className="h-3 w-3 text-[#f0c6cf]" />
                     {item.date}
                   </span>
@@ -460,7 +454,7 @@ function StoryLightbox({ item, onClose }: { item: PhotoItem; onClose: () => void
                 <p className="max-w-[34ch] text-sm leading-relaxed text-[#8f97a3]">{detailNote}</p>
               )}
 
-              {item.story ? (
+              {item.story && (
                 <div className="border-l-2 border-[#f0c6cf]/30 pl-4 py-1">
                   <p className="mb-2 font-mono text-[0.6rem] uppercase tracking-widest text-[#666]">the story</p>
                   <p
@@ -470,7 +464,7 @@ function StoryLightbox({ item, onClose }: { item: PhotoItem; onClose: () => void
                     {item.story}
                   </p>
                 </div>
-              ) : null}
+              )}
 
               <div className="border-t border-[#242932] pt-4">
                 <p className="mb-2 font-mono text-[0.6rem] uppercase tracking-widest text-[#666]">
@@ -490,13 +484,13 @@ function StoryLightbox({ item, onClose }: { item: PhotoItem; onClose: () => void
                         }`}
                       >
                         <span className="font-mono text-[0.65rem] uppercase tracking-[0.16em]">frame {String(i + 1).padStart(2, "0")}</span>
-                        <span className="tabular font-mono text-[0.65rem] text-[#7d8591]">{i === photoIndex ? "open" : "view"}</span>
+                        <span className="font-mono text-[0.65rem] text-[#7d8591]">{i === photoIndex ? "open" : "view"}</span>
                       </button>
                     ))}
                   </div>
                 ) : (
                   <p className="max-w-[34ch] text-sm leading-relaxed text-[#8f97a3]">
-                    one frame, full size, with the notes parked off to the side instead of on top of the image.
+                    one frame, full size, with the notes parked off to the side instead of sitting on the image.
                   </p>
                 )}
               </div>
