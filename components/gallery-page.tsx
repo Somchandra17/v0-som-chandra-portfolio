@@ -295,141 +295,144 @@ function StoryLightbox({ item, onClose }: { item: PhotoItem; onClose: () => void
       aria-label={`${displayTitle} lightbox`}
     >
       <motion.div
-        className="absolute inset-0 mx-auto grid max-w-[1400px] grid-cols-1 gap-3 p-3 md:gap-4 md:p-5 lg:grid-cols-[minmax(0,1.18fr)_360px]"
+        className="absolute inset-0 overflow-y-auto overscroll-y-contain"
         initial={{ scale: 0.97, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.97, opacity: 0 }}
         transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
         onClick={(e) => e.stopPropagation()}
       >
-        <section className="paper-card flex min-h-0 flex-col overflow-hidden border border-[#252a31] bg-[#0a0c10]">
-          <div className="flex items-center justify-between gap-3 border-b border-[#222831] px-4 py-3 md:px-5">
-            <div className="flex min-w-0 flex-wrap items-center gap-2">
-              <span className="border border-[#2f3540] bg-[#11151b] px-2.5 py-1 font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[#d7dbe2]">
-                {kindLabel}
-              </span>
-              {hasMultiple && (
-                <span className="border border-[#2f3540] bg-[#11151b] px-2.5 py-1 font-mono text-[0.62rem] text-[#9199a5]">
-                  frame {String(photoIndex + 1).padStart(2, "0")} / {String(allPhotos.length).padStart(2, "0")}
+        <div
+          className="mx-auto flex min-h-full w-full max-w-[1400px] flex-col gap-3 p-2 pb-4 pt-2 sm:p-3 sm:pb-5 md:gap-4 md:p-5 lg:grid lg:grid-cols-[minmax(0,1.18fr)_360px] lg:overflow-hidden"
+        >
+          <section className="paper-card flex min-h-0 flex-col overflow-hidden border border-[#252a31] bg-[#0a0c10]">
+            <div className="flex items-center justify-between gap-3 border-b border-[#222831] px-4 py-3 md:px-5">
+              <div className="flex min-w-0 flex-wrap items-center gap-2">
+                <span className="border border-[#2f3540] bg-[#11151b] px-2.5 py-1 font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[#d7dbe2]">
+                  {kindLabel}
                 </span>
+                {hasMultiple && (
+                  <span className="border border-[#2f3540] bg-[#11151b] px-2.5 py-1 font-mono text-[0.62rem] text-[#9199a5]">
+                    frame {String(photoIndex + 1).padStart(2, "0")} / {String(allPhotos.length).padStart(2, "0")}
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="hidden font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[#666] md:inline">
+                  {viewerHint}
+                </span>
+                <button
+                  onClick={onClose}
+                  className="border border-[#303640] bg-[#101319]/80 p-2 transition-colors hover:border-[#4a5260] hover:bg-[#141820]"
+                  aria-label="Close lightbox"
+                  autoFocus
+                >
+                  <X className="h-5 w-5 text-[#d5d5d5]" />
+                </button>
+              </div>
+            </div>
+
+            <div className="relative flex min-h-[34svh] items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_50%_18%,rgba(240,198,207,0.08),transparent_24%),linear-gradient(180deg,#090b10_0%,#06070b_100%)] p-2 sm:min-h-[40svh] sm:p-3 md:min-h-[42dvh] md:p-6 lg:flex-1">
+              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,transparent,rgba(0,0,0,0.28))]" />
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={photoIndex}
+                  className="relative z-10 max-h-full max-w-full overflow-hidden border border-[#2b3039] bg-[#090b10] shadow-[0_28px_90px_rgba(0,0,0,0.34)]"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  {allPhotos[photoIndex] ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={allPhotos[photoIndex]}
+                      alt={`${displayTitle} - ${photoIndex + 1}`}
+                      className="block h-auto max-h-[48svh] w-auto max-w-full object-contain sm:max-h-[56svh] md:max-h-[66dvh] lg:max-h-[78dvh]"
+                    />
+                  ) : (
+                    <div className="flex h-64 w-64 items-center justify-center bg-[#111]">
+                      {isDoodling ? (
+                        <PenTool className="h-12 w-12 text-[#333]" />
+                      ) : (
+                        <Camera className="h-12 w-12 text-[#333]" />
+                      )}
+                    </div>
+                  )}
+                </motion.div>
+              </AnimatePresence>
+
+              {hasMultiple && (
+                <>
+                  <button
+                    onClick={goPrev}
+                    className="absolute left-3 top-1/2 z-20 -translate-y-1/2 border border-[#303640] bg-[#0d1016]/88 p-2.5 transition-colors hover:border-[#505867] hover:bg-[#141820]"
+                    aria-label="Previous photo"
+                  >
+                    <ChevronLeft className="h-5 w-5 text-[#d7dbe2]" />
+                  </button>
+                  <button
+                    onClick={goNext}
+                    className="absolute right-3 top-1/2 z-20 -translate-y-1/2 border border-[#303640] bg-[#0d1016]/88 p-2.5 transition-colors hover:border-[#505867] hover:bg-[#141820]"
+                    aria-label="Next photo"
+                  >
+                    <ChevronRight className="h-5 w-5 text-[#d7dbe2]" />
+                  </button>
+                </>
               )}
             </div>
 
-            <div className="flex items-center gap-2">
-              <span className="hidden font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[#666] md:inline">
-                {viewerHint}
-              </span>
-              <button
-                onClick={onClose}
-                className="border border-[#303640] bg-[#101319]/80 p-2 transition-colors hover:border-[#4a5260] hover:bg-[#141820]"
-                aria-label="Close lightbox"
-                autoFocus
-              >
-                <X className="h-5 w-5 text-[#d5d5d5]" />
-              </button>
-            </div>
-          </div>
-
-          <div className="relative flex min-h-[42dvh] flex-1 items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_50%_18%,rgba(240,198,207,0.08),transparent_24%),linear-gradient(180deg,#090b10_0%,#06070b_100%)] p-3 md:p-6">
-            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,transparent,rgba(0,0,0,0.28))]" />
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={photoIndex}
-                className="relative z-10 max-h-full max-w-full overflow-hidden border border-[#2b3039] bg-[#090b10] shadow-[0_28px_90px_rgba(0,0,0,0.34)]"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
-              >
-                {allPhotos[photoIndex] ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={allPhotos[photoIndex]}
-                    alt={`${displayTitle} - ${photoIndex + 1}`}
-                    className="block h-auto max-h-[58dvh] w-auto max-w-full object-contain md:max-h-[66dvh] lg:max-h-[78dvh]"
-                  />
-                ) : (
-                  <div className="flex h-64 w-64 items-center justify-center bg-[#111]">
-                    {isDoodling ? (
-                      <PenTool className="h-12 w-12 text-[#333]" />
-                    ) : (
-                      <Camera className="h-12 w-12 text-[#333]" />
-                    )}
-                  </div>
-                )}
-              </motion.div>
-            </AnimatePresence>
-
             {hasMultiple && (
-              <>
-                <button
-                  onClick={goPrev}
-                  className="absolute left-3 top-1/2 z-20 -translate-y-1/2 border border-[#303640] bg-[#0d1016]/88 p-2.5 transition-colors hover:border-[#505867] hover:bg-[#141820]"
-                  aria-label="Previous photo"
-                >
-                  <ChevronLeft className="h-5 w-5 text-[#d7dbe2]" />
-                </button>
-                <button
-                  onClick={goNext}
-                  className="absolute right-3 top-1/2 z-20 -translate-y-1/2 border border-[#303640] bg-[#0d1016]/88 p-2.5 transition-colors hover:border-[#505867] hover:bg-[#141820]"
-                  aria-label="Next photo"
-                >
-                  <ChevronRight className="h-5 w-5 text-[#d7dbe2]" />
-                </button>
-              </>
-            )}
-          </div>
-
-          {hasMultiple && (
-            <div className="border-t border-[#222831] px-3 py-3 md:px-4">
-              <div className="flex gap-2 overflow-x-auto pb-1">
-                {allPhotos.map((src, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setPhotoIndex(i)}
-                    className={`shrink-0 border transition-all ${
-                      i === photoIndex
-                        ? "border-[#f0c6cf] bg-[#13151b]"
-                        : "border-[#2d323b] bg-[#0c0f14] hover:border-[#555d69]"
-                    }`}
-                    aria-label={`Go to photo ${i + 1}`}
-                  >
-                    <div className="flex items-center gap-2 pr-3">
-                      <div className="h-14 w-14 overflow-hidden border-r border-[#242932] bg-[#111]">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={src}
-                          alt={`Thumbnail ${i + 1}`}
-                          className="h-full w-full object-cover"
-                        />
+              <div className="border-t border-[#222831] px-3 py-3 md:px-4">
+                <div className="flex gap-2 overflow-x-auto pb-1">
+                  {allPhotos.map((src, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setPhotoIndex(i)}
+                      className={`shrink-0 border transition-all ${
+                        i === photoIndex
+                          ? "border-[#f0c6cf] bg-[#13151b]"
+                          : "border-[#2d323b] bg-[#0c0f14] hover:border-[#555d69]"
+                      }`}
+                      aria-label={`Go to photo ${i + 1}`}
+                    >
+                      <div className="flex items-center gap-2 pr-3">
+                        <div className="h-14 w-14 overflow-hidden border-r border-[#242932] bg-[#111]">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={src}
+                            alt={`Thumbnail ${i + 1}`}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                        <div className="min-w-[72px] text-left">
+                          <p className="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-[#666]">frame</p>
+                          <p className="mt-1 font-mono text-sm text-[#d7dbe2]">{String(i + 1).padStart(2, "0")}</p>
+                        </div>
                       </div>
-                      <div className="min-w-[72px] text-left">
-                        <p className="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-[#666]">frame</p>
-                        <p className="mt-1 font-mono text-sm text-[#d7dbe2]">{String(i + 1).padStart(2, "0")}</p>
-                      </div>
-                    </div>
-                  </button>
-                ))}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
-        </section>
+            )}
+          </section>
 
-        <aside className="paper-card flex min-h-0 flex-col overflow-hidden border border-[#252a31] bg-[#0b0d12]/88">
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15, duration: 0.3 }}
-            className="flex min-h-0 flex-1 flex-col"
-          >
-            <div className="border-b border-[#242932] px-5 py-4 md:px-6">
-              <p className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[#8d93a0]">gallery note</p>
-              <h3 className="mt-3 text-2xl font-bold tracking-tight text-[#e8e8e8] md:text-[2rem]">
-                {displayTitle}
-              </h3>
-            </div>
+          <aside className="paper-card flex min-h-0 flex-col overflow-hidden border border-[#252a31] bg-[#0b0d12]/88 lg:min-h-0">
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15, duration: 0.3 }}
+              className="flex flex-1 flex-col lg:min-h-0"
+            >
+              <div className="border-b border-[#242932] px-5 py-4 md:px-6">
+                <p className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[#8d93a0]">gallery note</p>
+                <h3 className="mt-3 text-2xl font-bold tracking-tight text-[#e8e8e8] md:text-[2rem]">
+                  {displayTitle}
+                </h3>
+              </div>
 
-            <div className="flex-1 space-y-5 overflow-y-auto px-5 py-5 md:px-6">
+            <div className="space-y-5 px-5 py-5 md:px-6 lg:flex-1 lg:overflow-y-auto">
               <div className="flex flex-wrap items-center gap-2 text-xs">
                 <span className="border border-[#2f3540] bg-[#11151b] px-2.5 py-1 font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[#aab1bc]">
                   {kindLabel}
@@ -497,6 +500,7 @@ function StoryLightbox({ item, onClose }: { item: PhotoItem; onClose: () => void
             </div>
           </motion.div>
         </aside>
+        </div>
       </motion.div>
     </motion.div>
   )
