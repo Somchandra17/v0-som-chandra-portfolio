@@ -153,6 +153,11 @@ export function PhotoCard({
             )}
           </div>
         )}
+        <div className="pointer-events-none absolute left-3 top-3 z-10">
+          <div className="border border-[#2c3138] bg-[#0a0d11]/84 px-2.5 py-1 font-mono text-[0.6rem] uppercase tracking-[0.16em] text-[#c9ced8] backdrop-blur-sm">
+            {String(index + 1).padStart(3, "0")}
+          </div>
+        </div>
         <div className={`pointer-events-none absolute inset-0 transition-opacity duration-300 ${overlayVisibilityClass}`}>
           <div className="absolute inset-0 bg-gradient-to-t from-[#050505]/90 via-[#050505]/50 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-3">
