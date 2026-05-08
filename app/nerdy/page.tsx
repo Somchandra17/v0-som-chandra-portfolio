@@ -96,7 +96,7 @@ const projects = [
     name: "Burp AI Agent",
     desc: "Merged upstream contribution to a Burp Suite extension for AI-assisted analysis, MCP tooling, privacy controls, and passive or active scanning. I added NVIDIA NIM backend support, settings persistence, and cleaner HTTP 429 handling.",
     tech: ["Kotlin", "Burp Suite", "AI", "Open Source"],
-    link: "https://github.com/six2dez/burp-ai-agent/pull/44",
+    link: "https://github.com/six2dez/burp-ai-agent",
   },
   {
     name: "TrashDroid",
