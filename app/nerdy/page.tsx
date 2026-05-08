@@ -6,7 +6,7 @@ import { PageHeader } from "@/components/page-header"
 import { PageTransition } from "@/components/page-transition"
 import { SpotifyNowPlayingContent } from "@/components/now-playing"
 import { fetcher, type NowPlayingData } from "@/lib/creative-data"
-import { ExternalLink, Shield, Terminal, Flag, Bug, Github, Linkedin, Mail, Globe } from "lucide-react"
+import { ExternalLink, Shield, Terminal, Flag, Bug, Github, Linkedin, Mail } from "lucide-react"
 
 const linkHub = [
   {
@@ -36,13 +36,6 @@ const linkHub = [
     href: "mailto:somchandra.infosec@gmail.com",
     icon: Mail,
     aside: "for bugs, jobs, or bad ideas",
-  },
-  {
-    label: "site",
-    value: "somm.tf",
-    href: "https://www.somm.tf",
-    icon: Globe,
-    aside: "the rest of the personality split",
   },
 ]
 
