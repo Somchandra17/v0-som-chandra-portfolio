@@ -6,90 +6,130 @@ import { PageHeader } from "@/components/page-header"
 import { PageTransition } from "@/components/page-transition"
 import { SpotifyNowPlayingContent } from "@/components/now-playing"
 import { fetcher, type NowPlayingData } from "@/lib/creative-data"
-import { ExternalLink, Shield, Terminal, Flag, Bug } from "lucide-react"
+import { ExternalLink, Shield, Terminal, Flag, Bug, Github, Linkedin, Mail, Globe } from "lucide-react"
+
+const linkHub = [
+  {
+    label: "github",
+    value: "Somchandra17",
+    href: "https://github.com/somchandra17",
+    icon: Github,
+    aside: "where the side quests live",
+  },
+  {
+    label: "tryhackme",
+    value: "0xs0m",
+    href: "https://tryhackme.com/p/0xs0m",
+    icon: Terminal,
+    aside: "ranked chaos, but documented",
+  },
+  {
+    label: "linkedin",
+    value: "somchandra17",
+    href: "https://linkedin.com/in/somchandra17",
+    icon: Linkedin,
+    aside: "the polite version of me",
+  },
+  {
+    label: "mail",
+    value: "somchandra.infosec@gmail.com",
+    href: "mailto:somchandra.infosec@gmail.com",
+    icon: Mail,
+    aside: "for bugs, jobs, or bad ideas",
+  },
+  {
+    label: "site",
+    value: "somm.tf",
+    href: "https://www.somm.tf",
+    icon: Globe,
+    aside: "the rest of the personality split",
+  },
+]
 
 const experience = [
   {
     role: "Cyber Security Engineer",
     company: "MoveInSync",
-    period: "Jun 2025 -- Present",
-    location: "Bengaluru, Karnataka",
+    period: "Jun, 2025 -- Present",
+    location: "Bengaluru, Karnataka, India",
     aside: "(the one where I actually get paid to break things)",
     bullets: [
-      "Conducted end-to-end VAPT for multiple applications including gray-box testing, static/dynamic analysis, and false-positive verification",
-      "Designed internal tools: Swagger-UI Vulnerability Finder, Subdomain Takeover Tool, and Endpoint Detection Tool with SQLite sync",
-      "Secured Android app against rooted device exploitation and Frida-based attacks by integrating Google Play Integrity API",
-      "Performed Nessus AMI Scans, applied compliance patches, tuned configurations, and validated results to reduce false positives",
-      "Supported external vendor VAPT (Rudra, Coforge, etc.) by coordinating with stakeholders and validating tickets",
+      "Conduct end-to-end VAPT across web, API, Android, iOS, and infrastructure surfaces using gray-box testing, manual validation, static and dynamic analysis, Burp Suite, Postman, Frida, MobSF, JADX, apktool, and Nessus",
+      "Turn vulnerabilities into developer-usable Jira tickets with evidence, reproduction steps, exploitability context, affected assets, remediation guidance, and closure validation",
+      "Built internal AppSec automation for API inventory, external exposure review, endpoint risk detection, SQLite-backed result tracking, and repeatable validation",
+      "Hardened Android flows against rooted-device abuse and Frida runtime attacks by integrating Google Play Integrity API and revalidating SSL pinning, WebView, and API-header controls",
+      "Coordinate external VAPT work with vendors like Rudra and Coforge across test accounts, builds, finding triage, duplicate cleanup, fix validation, and stakeholder alignment",
+      "Run Nessus AMI and compliance scans, tune plugins and checks, and cut down noisy findings before developer handoff",
     ],
   },
   {
     role: "Application Security Intern",
     company: "MoveInSync",
-    period: "Jan 2025 -- May 2025",
-    location: "Bengaluru, Karnataka",
+    period: "Jan, 2025 -- May, 2025",
+    location: "Bengaluru, Karnataka, India",
     aside: "(they liked me enough to keep me)",
     bullets: [
-      "Assisted in API and application security testing, performing enumeration, manual validation, and raising tickets",
-      "Initiated tool development for Swagger endpoint enumeration and subdomain takeover checks",
-      "Built foundation skills in reporting, documentation, and collaborating with developers",
+      "Supported API, web, and mobile testing through endpoint enumeration, manual validation, evidence capture, and reproducible ticket creation",
+      "Performed pre-assessment sanity testing for Android and iOS builds before external VAPT engagements",
+      "Prototyped API discovery and exposure checks that later fed reusable internal security automation",
+      "Assisted with Nessus review, API triage, reporting, documentation, and developer follow-through to remediation closure",
     ],
   },
   {
     role: "Cyber Security R&D Intern",
     company: "Securaeon Initiative",
-    period: "Feb 2022 -- Jul 2022",
-    location: "Remote/Kolkata",
+    period: "Feb, 2022 -- Jul, 2022",
+    location: "Remote/Kolkata, West Bengal",
     aside: "(writing walkthroughs at 2 AM)",
     bullets: [
-      "Created content, walkthroughs, and proof of concepts for development of upcoming products and courses",
+      "Created security walkthroughs, proof-of-concept material, and practical lab content for upcoming cybersecurity products and courses",
     ],
   },
   {
     role: "Security Researcher",
     company: "Bugcrowd",
-    period: "Oct 2021 -- Dec 2021",
+    period: "Oct, 2021 -- Dec, 2021",
     location: "Freelance",
     aside: "(legally breaking into things for strangers)",
     bullets: [
-      "Conducted vulnerability assessments and reported security issues for multiple Open Bug Bounty programs",
-      "Collaborated with internal security teams to ensure timely resolution of reported vulnerabilities",
+      "Reported web security vulnerabilities through open bug bounty programs, including findings later recognized in Hall of Fame listings and responsible-disclosure acknowledgments",
+      "Communicated impact, proof of concept, and remediation context to program security teams to support timely validation and closure",
     ],
   },
 ]
 
 const projects = [
   {
+    name: "Burp AI Agent",
+    desc: "Merged upstream contribution to a Burp Suite extension for AI-assisted analysis, MCP tooling, privacy controls, and passive or active scanning. I added NVIDIA NIM backend support, settings persistence, and cleaner HTTP 429 handling.",
+    tech: ["Kotlin", "Burp Suite", "AI", "Open Source"],
+    link: "https://github.com/six2dez/burp-ai-agent/pull/44",
+  },
+  {
+    name: "TrashDroid",
+    desc: "Terminal-first Android DAST framework that orchestrates ADB, drozer, apktool, sqlite3, logcat, screenshots, and filesystem analysis across 9 mobile assessment phases with AI-ready reporting.",
+    tech: ["Python", "Android", "DAST", "CLI"],
+    link: "https://github.com/Somchandra17/TrashDroid",
+  },
+  {
     name: "TrashRecon",
-    desc: "Comprehensive Python recon framework. Automates 8 phases of info gathering with 15+ security tools including puredns, subfinder, amass, httpx. Containerized with Docker.",
-    tech: ["Python", "Docker", "OSINT", "DNS"],
+    desc: "Dockerized recon framework chaining 17 tools across 10 phases for attack-surface mapping, screenshots, takeover checks, endpoint crawling, exposed-key checks, nuclei scans, and resumable output.",
+    tech: ["Python", "Docker", "OSINT", "Recon"],
     link: "https://github.com/Somchandra17/TrashRecon",
   },
   {
-    name: "API-Digger",
-    desc: "Automated Swagger UI vuln scanner. Finds exposed API docs, detects versions with headless browser automation, multi-threaded for speed.",
-    tech: ["Python", "Feroxbuster", "Chrome Headless"],
-    link: "https://github.com/Somchandra17/API-Digger",
-  },
-  {
     name: "RootAppChecker",
-    desc: "Android app that detects rooted devices using 7 different methods including native C/JNI checks, Magisk detection, and mount path analysis.",
-    tech: ["Java", "Android", "C/JNI", "Security"],
+    desc: "Android root-detection app using Java plus native C/JNI checks for root files, SU binaries, BusyBox, Magisk traces, root apps, system properties, and integrity signals.",
+    tech: ["Java", "Android", "C/JNI", "Mobile Security"],
     link: "https://github.com/Somchandra17/RootAppChecker",
-  },
-  {
-    name: "PC-Info RCE",
-    desc: "Static NodeJS web page vulnerable to Command Injection through User-Agent for RCE. Complete Boot-To-Root machine with misconfigured cronjob.",
-    tech: ["NodeJS", "RCE", "CTF"],
-    link: "https://github.com/Somchandra17/PCinfo-RCE",
   },
 ]
 
 const skills: Record<string, string[]> = {
-  "Mobile Security": ["Mobile VAPT", "Root/Jailbreak Detection", "SSL Pinning/Bypass", "Frida", "Google Play Integrity", "MobSF", "ADB"],
-  "Security Testing": ["Burp Suite", "OWASP ZAP", "Nessus", "Nmap", "Metasploit", "Wireshark", "Nikto", "testssl"],
-  "Languages": ["Python", "Bash", "Java", "JavaScript", "Kotlin", "MySQL", "NodeJS"],
-  "DevOps & Cloud": ["Docker", "Kubernetes", "Linux", "Git", "Jenkins", "Azure", "AWS EC2/AMI"],
+  "Application Security": ["Web/API/Mobile VAPT", "OWASP Top 10", "OWASP MASVS", "Gray-box Testing", "Manual Exploitation", "Vulnerability Triage", "Remediation Review"],
+  "Mobile Security": ["Android/iOS Testing", "Root/Jailbreak Detection", "SSL Pinning Validation", "Frida", "WebView Security", "Google Play Integrity", "Anti-tampering"],
+  "Security Tools": ["Burp Suite", "OWASP ZAP", "Nessus", "Nmap", "nuclei", "MobSF", "JADX", "apktool", "drozer", "ADB", "Ghidra", "Wireshark"],
+  "Automation & Dev": ["Python", "Bash", "Kotlin", "Java", "JavaScript", "Node.js", "C/JNI", "SQLite", "MySQL", "REST", "GraphQL", "Docker", "Git", "Linux"],
 }
 
 const certs = [
@@ -105,6 +145,7 @@ const achievements = [
   "20+ Acknowledgements from NCIIPC India (auth bypass, XSS, SQLi, ATO)",
   "5th Place, OWASPLPU CTF 2022",
   "9th Place, WTFCTF 2022",
+  "34th Place, RuCTF 2022",
 ]
 
 const fadeUp = {
@@ -150,11 +191,49 @@ export default function NerdyPage() {
               </p>
               <div className="max-w-2xl space-y-4 text-sm md:text-base text-[#ccc] leading-relaxed margin-line">
                 <p>
-                  {"B.Tech in CSE (Cybersecurity & Blockchain) from LPU, CGPA 7.73. Currently at MoveInSync in Bengaluru, doing end-to-end VAPT, building internal security tools, and making sure Android apps don't fall apart when someone roots their phone."}
+                  {"Application Security / Cyber Security Engineer focused on web, API, Android, and iOS VAPT. I spend most days doing gray-box testing, runtime analysis, vulnerability validation, and writing the kind of remediation notes that developers pretend not to hate."}
                 </p>
                 <p>
-                  {"Before this, I was hunting bugs on Bugcrowd, writing walkthroughs at Securaeon, and collecting Hall of Fames from companies that probably wish I hadn't found those vulnerabilities."}
+                  {"Right now that means shipping AppSec work at MoveInSync, building internal automation, and making sure rooted phones, weak WebViews, or exposed endpoints don't quietly ruin everyone's week. Before that, I was hunting bugs on Bugcrowd, building weird tools, and collecting Hall of Fames from companies that definitely would have preferred a quieter email."}
                 </p>
+              </div>
+            </motion.div>
+
+            <motion.div
+              className="mt-8 paper-card p-5 md:p-6"
+              initial={{ opacity: 0, y: 14 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ delay: 0.12, duration: 0.45 }}
+            >
+              <div className="flex items-center justify-between gap-4 flex-wrap mb-4">
+                <div>
+                  <p className="font-mono text-xs tracking-widest uppercase text-[#999] mb-1">link bunker</p>
+                  <p className="text-sm text-[#666]">{"everything public, in one place, so nobody has to go treasure hunting."}</p>
+                </div>
+                <p className="font-mono text-xs text-[#666]">{"$ whoami --everywhere"}</p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {linkHub.map((link) => {
+                  const Icon = link.icon
+                  return (
+                    <a
+                      key={link.label}
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group border border-[#333] px-4 py-3 transition-colors hover:border-[#666] hover:bg-[#101010]"
+                    >
+                      <div className="flex items-center gap-2 text-[#999] mb-2">
+                        <Icon className="h-3.5 w-3.5" />
+                        <span className="font-mono text-[11px] tracking-[0.22em] uppercase">{link.label}</span>
+                      </div>
+                      <p className="text-sm font-medium text-[#e8e8e8] break-all">{link.value}</p>
+                      <p className="text-xs text-[#666] mt-1">{link.aside}</p>
+                    </a>
+                  )
+                })}
               </div>
             </motion.div>
 
@@ -168,7 +247,7 @@ export default function NerdyPage() {
               {[
                 { num: "Top 1%", label: "TryHackMe global" },
                 { num: "20+", label: "NCIIPC acks" },
-                { num: "P1", label: "Mastercard HoF" },
+                { num: "#44", label: "merged upstream PR" },
               ].map((s) => (
                 <div key={s.label} className="paper-card px-4 py-3 hover-bounce">
                   <p className="text-lg md:text-xl font-bold text-[#e8e8e8]">{s.num}</p>
@@ -357,7 +436,7 @@ export default function NerdyPage() {
           {/* Footer */}
           <footer className="relative z-10 border-t border-[#333]">
             <div className="mx-auto max-w-4xl px-6 py-7 flex items-center justify-between">
-              <p className="font-mono text-xs text-[#666]">som chandra, 2025</p>
+              <p className="font-mono text-xs text-[#666]">som chandra, 2026</p>
               <p className="font-mono text-xs text-[#555]">{"$ cat resume.txt"}</p>
             </div>
           </footer>
