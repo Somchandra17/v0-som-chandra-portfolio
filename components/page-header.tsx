@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import Image from "next/image"
 import { motion } from "framer-motion"
 import { ArrowLeft } from "lucide-react"
 
@@ -27,13 +26,6 @@ export function PageHeader({ title, subtitle, subtitleSmallCaps, titleSmallCaps,
           className="draw-underline flex items-center gap-2 text-sm font-mono text-[#777] hover:text-[#e8e8e8] transition-colors"
           data-hover
         >
-          <Image
-            src="/logo.png"
-            alt="Som's logo"
-            width={32}
-            height={32}
-            className="rounded-full"
-          />
           <ArrowLeft className="h-4 w-4" />
           back home
         </Link>
