@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, type MouseEvent } from "react"
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion"
 import Link from "next/link"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import useSWR from "swr"
 import { MusicDCTF } from "@/components/musicd-ctf"
@@ -224,9 +225,19 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
           >
-            <p className="font-mono text-xs tracking-widest uppercase text-[#999] mb-6">
-              oh hey, you found this page
-            </p>
+            <div className="flex items-center gap-4 mb-6">
+              <Image
+                src="/logo.png"
+                alt="Som's logo"
+                width={64}
+                height={64}
+                className="rounded-full"
+                priority
+              />
+              <p className="font-mono text-xs tracking-widest uppercase text-[#999]">
+                oh hey, you found this page
+              </p>
+            </div>
 
             <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight text-[#e8e8e8] leading-[1.15]">
               <button
