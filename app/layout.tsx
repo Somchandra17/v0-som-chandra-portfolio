@@ -22,8 +22,8 @@ export const metadata: Metadata = {
   description:
     'a pretty corner over internet',
   icons: {
-    icon: '/logo.png',
-    apple: '/logo.png',
+    icon: '/favicon.ico',
+    apple: '/favicon.ico',
   },
 }
 
