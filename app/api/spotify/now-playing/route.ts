@@ -43,7 +43,7 @@ export async function GET() {
     }
 
     const recentResponse = await getRecentlyPlayed()
-    if (recentResponse.status > 400) {
+    if (recentResponse.status >= 400) {
       return Response.json({ isPlaying: false }, { headers: { "Cache-Control": cacheControl() } })
     }
 
