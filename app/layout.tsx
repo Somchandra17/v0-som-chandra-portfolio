@@ -17,14 +17,58 @@ const geistMono = Geist_Mono({
   display: 'swap',
 })
 
+const SITE_URL = 'https://www.somm.tf'
+
 export const metadata: Metadata = {
-  title: 'hey, it\'s som',
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "hey, it's som",
+    template: '%s — som',
+  },
   description:
-    'a pretty corner over internet',
+    'Som Chandra — Cyber Security Engineer by day, photographer and doodler by night. Two worlds, one website: resume, hacking projects, bug bounty Hall of Fames, photos, and sketches.',
+  keywords: [
+    'Som Chandra', 'cyber security engineer', 'application security', 'VAPT',
+    'penetration testing', 'bug bounty', 'mobile security', 'portfolio',
+  ],
+  authors: [{ name: 'Som Chandra', url: SITE_URL }],
+  creator: 'Som Chandra',
+  alternates: { canonical: '/' },
   icons: {
     icon: '/favicon.ico',
     apple: '/favicon.ico',
   },
+  openGraph: {
+    type: 'website',
+    siteName: "som's corner",
+    url: SITE_URL,
+    title: "hey, it's som",
+    description:
+      'Cyber Security Engineer by day, photographer and doodler by night. Two worlds, one website.',
+    images: [{ url: '/logo.png', width: 1200, height: 630, alt: 'som' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "hey, it's som",
+    description:
+      'Cyber Security Engineer by day, photographer and doodler by night.',
+    images: ['/logo.png'],
+  },
+  robots: { index: true, follow: true },
+}
+
+const personJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Som Chandra',
+  url: SITE_URL,
+  jobTitle: 'Cyber Security Engineer',
+  worksFor: { '@type': 'Organization', name: 'MoveInSync' },
+  sameAs: [
+    'https://github.com/somchandra17',
+    'https://linkedin.com/in/somchandra17',
+    'https://tryhackme.com/p/0xs0m',
+  ],
 }
 
 export const viewport: Viewport = {
@@ -42,6 +86,10 @@ export default function RootLayout({
       <body
         className={`${spaceGrotesk.variable} ${geistMono.variable} font-sans antialiased bg-[#0a0a0a] text-[#e8e8e8]`}
       >
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
+        />
         <LayoutShell>{children}</LayoutShell>
         <Analytics />
         <SpeedInsights />

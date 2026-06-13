@@ -15,3 +15,5 @@ Disallow: /draft/
 
 # still run linux daily n tweak stuff i shoudl leave alone
 # u found my old htb side quests
+
+Sitemap: https://www.somm.tf/sitemap.xml

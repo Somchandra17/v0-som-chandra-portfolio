@@ -228,7 +228,7 @@ export default function Home() {
               oh hey, you found this page
             </p>
 
-            <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight text-[#e8e8e8] leading-[1.15]">
+            <h1 className="text-[clamp(2.75rem,9vw,5.5rem)] font-bold tracking-[-0.03em] text-[#e8e8e8] leading-[1.03]">
               <button
                 type="button"
                 className="block cursor-pointer border-0 bg-transparent p-0 text-left"

@@ -4,6 +4,7 @@ import { motion } from "framer-motion"
 import useSWR from "swr"
 import { PageHeader } from "@/components/page-header"
 import { PageTransition } from "@/components/page-transition"
+import { SectionHeader } from "@/components/section-header"
 import { SpotifyNowPlayingContent } from "@/components/now-playing"
 import { fetcher, type NowPlayingData } from "@/lib/creative-data"
 import { ExternalLink, Shield, Terminal, Flag, Bug, Github, Linkedin, Mail } from "lucide-react"
@@ -175,13 +176,12 @@ export default function NerdyPage() {
           {/* -- About -- */}
           <section className="relative z-10 mx-auto max-w-4xl px-6 pt-14 pb-10">
             <motion.div {...fadeUp}>
-              <p className="font-mono text-xs tracking-widest uppercase text-[#999] mb-3">about</p>
-              <h2 className="text-2xl md:text-3xl font-bold text-[#e8e8e8] tracking-tight mb-2">
-                cybersecurity engineer who breaks things for a living.
-              </h2>
-              <p className="text-sm text-[#666] mb-5 italic">
-                {"(legally... mostly)"}
-              </p>
+              <SectionHeader
+                kicker="about"
+                title="cybersecurity engineer who breaks things for a living."
+                aside="(legally... mostly)"
+                className="mb-5"
+              />
               <div className="max-w-2xl space-y-4 text-sm md:text-base text-[#ccc] leading-relaxed margin-line">
                 <p>
                   {"Application Security / Cyber Security Engineer focused on web, API, Android, and iOS VAPT. I spend most days doing gray-box testing, runtime analysis, vulnerability validation, and writing the kind of remediation notes that developers pretend not to hate."}
@@ -255,11 +255,12 @@ export default function NerdyPage() {
           {/* -- Experience -- */}
           <section className="relative z-10 mx-auto max-w-4xl px-6 py-14">
             <motion.div {...fadeUp}>
-              <p className="font-mono text-xs tracking-widest uppercase text-[#999] mb-3">experience</p>
-              <h2 className="text-2xl md:text-3xl font-bold text-[#e8e8e8] tracking-tight mb-2">
-                {"places that let me in."}
-              </h2>
-              <p className="text-sm text-[#666] mb-8 italic">{"(on purpose, I mean)"}</p>
+              <SectionHeader
+                kicker="experience"
+                title="places that let me in."
+                aside="(on purpose, I mean)"
+                className="mb-8"
+              />
             </motion.div>
 
             <div className="space-y-6">
@@ -301,11 +302,12 @@ export default function NerdyPage() {
           {/* -- Projects -- */}
           <section className="relative z-10 mx-auto max-w-4xl px-6 py-14">
             <motion.div {...fadeUp}>
-              <p className="font-mono text-xs tracking-widest uppercase text-[#999] mb-3">projects</p>
-              <h2 className="text-2xl md:text-3xl font-bold text-[#e8e8e8] tracking-tight mb-2">
-                things i built at 2 AM.
-              </h2>
-              <p className="text-sm text-[#666] mb-8 italic">{"(fueled by questionable decisions and instant noodles)"}</p>
+              <SectionHeader
+                kicker="projects"
+                title="things i built at 2 AM."
+                aside="(fueled by questionable decisions and instant noodles)"
+                className="mb-8"
+              />
             </motion.div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -345,11 +347,12 @@ export default function NerdyPage() {
           {/* -- Skills -- */}
           <section className="relative z-10 mx-auto max-w-4xl px-6 py-14">
             <motion.div {...fadeUp}>
-              <p className="font-mono text-xs tracking-widest uppercase text-[#999] mb-3">skills</p>
-              <h2 className="text-2xl md:text-3xl font-bold text-[#e8e8e8] tracking-tight mb-2">
-                my toolbox.
-              </h2>
-              <p className="text-sm text-[#666] mb-8 italic">{"(or at least what I claim on LinkedIn)"}</p>
+              <SectionHeader
+                kicker="skills"
+                title="my toolbox."
+                aside="(or at least what I claim on LinkedIn)"
+                className="mb-8"
+              />
             </motion.div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">

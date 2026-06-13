@@ -6,6 +6,7 @@ import Link from "next/link"
 import { PageHeader } from "@/components/page-header"
 import { PageTransition } from "@/components/page-transition"
 import { NowPlaying } from "@/components/now-playing"
+import { SectionHeader } from "@/components/section-header"
 import { ArrowRight } from "lucide-react"
 import { thoughts, formatMonthYear } from "@/lib/creative-data"
 import { measureText, fonts } from "@/lib/pretext"
@@ -361,13 +362,11 @@ export default function CreativePage() {
           <section className="relative z-10 mx-auto max-w-5xl px-6 py-14">
             <motion.div {...fadeUp}>
               <div className="border-t border-[#333] pt-10">
-                <p className="font-mono text-xs tracking-widest uppercase text-[#999] mb-3">thoughts</p>
-                <h2 className="text-2xl md:text-3xl font-bold text-[#e8e8e8] tracking-tight mb-2">
-                  {renderWithTypos("things i wrote at questionble hours.")}
-                </h2>
-                <p className="text-sm text-[#666] mb-8 italic">
-                  {renderWithTypos("(3 am brain is a diffrent person)")}
-                </p>
+                <SectionHeader
+                  kicker="thoughts"
+                  title={renderWithTypos("things i wrote at questionble hours.")}
+                  aside={renderWithTypos("(3 am brain is a diffrent person)")}
+                />
               </div>
             </motion.div>
 
