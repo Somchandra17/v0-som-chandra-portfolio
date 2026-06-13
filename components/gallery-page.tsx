@@ -21,13 +21,11 @@ import {
 import { measureText, fonts, usePretextReady } from "@/lib/pretext"
 
 const siblingLinks: { key: Tab; label: string; href: string }[] = [
-  { key: "sidequests", label: "visual detours", href: "/creative/visual-detours" },
   { key: "photos", label: "clicks", href: "/creative/clicks" },
   { key: "sketches", label: "doodling", href: "/creative/doodling" },
 ]
 
 const galleryNotesByTab: Record<Tab, string> = {
-  sidequests: "Loose frames, wrong turns, and accidental compositions kept as-is instead of cleaned up.",
   photos: "A contact sheet of kept moments. Open any frame and keep moving without dropping back to the grid.",
   sketches: "Paper scraps, half-finished lines, and the bits that looked honest enough to survive the erase pass.",
 }
@@ -343,8 +341,8 @@ function StoryLightbox({
   const hasSequence = canBrowseItems || hasMultiple
   const isDoodling = item.kind === "doodling"
   const displayTitle =
-    item.title?.trim() || (isDoodling ? "untitled sketch" : item.kind === "visual-detours" ? "untitled detour" : "untitled frame")
-  const kindLabel = isDoodling ? "doodling" : item.kind === "visual-detours" ? "visual detours" : "clicks"
+    item.title?.trim() || (isDoodling ? "untitled sketch" : "untitled frame")
+  const kindLabel = isDoodling ? "doodling" : "clicks"
   const viewerHint = hasSequence ? "drag sideways or use the rail" : "press esc to close"
   const isAtSequenceStart = currentItemIndex === 0 && photoIndex === 0
   const isAtSequenceEnd = currentItemIndex === items.length - 1 && photoIndex === frameCount - 1

@@ -49,10 +49,6 @@ const intentionalTypos = new Map<string, { correct: string; roast: string }>([
   ["recieve", { correct: "receive", roast: "i usualy recieve one useful idea... ya i murder this word every single time" }],
   ["becuase", { correct: "because", roast: "i keep the messy pages too becuase... cus spelling because is too hard for me" }],
   ["lil", { correct: "little", roast: "a lil chaotic... i even shorten little wrong lol" }],
-  ["experimnts", { correct: "experiments", roast: "most experimnts happen... missing half the letters as usual" }],
-  ["cooperats", { correct: "cooperates", roast: "my brain cooperats... ya even my brain spells wrong at 3 am" }],
-  ["tweakin", { correct: "tweaking", roast: "keep tweakin setups... fingers gave up on the g again" }],
-  ["hesitent", { correct: "hesitant", roast: "jus less hesitent... i even spell hesitant wrong while talking about being less hesitant lol" }],
 ])
 
 const typoPattern = new RegExp(`\\b(${Array.from(intentionalTypos.keys()).join("|")})\\b`, "gi")
@@ -86,7 +82,7 @@ function renderWithTypos(text: string): ReactNode {
 }
 
 // ── Section data ───────────────────────────────────────────────────
-type Section = "sidequests" | "photos" | "sketches"
+type Section = "photos" | "sketches"
 
 const sections: {
   key: Section
@@ -98,24 +94,6 @@ const sections: {
   description: string[]
   byTheWay: string
 }[] = [
-  {
-    key: "sidequests",
-    label: "visual detors",
-    href: "/creative/visual-detours",
-    images: [
-      "/creative/pictures/sidequest/1.jpeg",
-      "/creative/pictures/sidequest/2.jpg",
-    ],
-    heading: "when im not starin at screens im probly doing something questionble.",
-    subtitle: "(side quests r secretly the main quest)",
-    description: [
-      "i live for side quests the stranger they r the better the story later.",
-      "most experimnts happen between 2 am n 5 am when the internet is quiet n my brain cooperats.",
-      "i still run linux daily n keep tweakin setups i shoudl probly leave alone.",
-      "some ideas fail instantly n some turn into projects both r useful n kinda fun.",
-    ],
-    byTheWay: "i used to be the quiet kid in evry room now i talk more build more n ship faster same person jus less hesitent.",
-  },
   {
     key: "photos",
     label: "clicks",
@@ -162,7 +140,7 @@ const fadeUp = {
 }
 
 export default function CreativePage() {
-  const [activeSection, setActiveSection] = useState<Section>("sidequests")
+  const [activeSection, setActiveSection] = useState<Section>("photos")
   const [hasClicked, setHasClicked] = useState(false)
 
   const active = sections.find((s) => s.key === activeSection) ?? sections[0]
@@ -224,7 +202,7 @@ export default function CreativePage() {
 
   return (
     <>
-      <PageHeader title="the unhinged side" subtitle="visual detors / clicks / doodling / late-night scribbles" breadcrumb="som / creative" />
+      <PageHeader title="the unhinged side" subtitle="clicks / doodling / late-night scribbles" breadcrumb="som / creative" />
 
       <PageTransition>
         <div className="relative min-h-screen">

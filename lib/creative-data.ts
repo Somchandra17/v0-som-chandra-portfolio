@@ -1,10 +1,10 @@
 import galleryRaw from "@/data/gallery.json"
 
 // ── Types ──────────────────────────────────────────────────────────
-export type Tab = "photos" | "sketches" | "sidequests"
+export type Tab = "photos" | "sketches"
 export type SortField = "date" | "location"
 export type SortDirection = "asc" | "desc"
-export type ImageEntryType = "photography" | "doodling" | "visual-detours"
+export type ImageEntryType = "photography" | "doodling"
 
 export interface PhotoItem {
   id: number
@@ -65,7 +65,6 @@ type GalleryImageJsonEntry = {
 
 type PhotographyJsonEntry = GalleryImageJsonEntry & { type: "photography" }
 type DoodlingJsonEntry = GalleryImageJsonEntry & { type: "doodling" }
-type VisualDetoursJsonEntry = GalleryImageJsonEntry & { type: "visual-detours" }
 type ThoughtJsonEntry = {
   id: number
   type: "thoughts"
@@ -77,7 +76,6 @@ type ThoughtJsonEntry = {
 type GalleryJsonEntry =
   | PhotographyJsonEntry
   | DoodlingJsonEntry
-  | VisualDetoursJsonEntry
   | ThoughtJsonEntry
 
 // ── Date parsing ───────────────────────────────────────────────────
@@ -125,7 +123,7 @@ export function formatMonthYear(value?: string): string {
 // ── Data loading ───────────────────────────────────────────────────
 const galleryData = [...(galleryRaw as GalleryJsonEntry[])].sort((a, b) => a.id - b.id)
 
-function makePhotoItemKey(entry: PhotographyJsonEntry | DoodlingJsonEntry | VisualDetoursJsonEntry) {
+function makePhotoItemKey(entry: PhotographyJsonEntry | DoodlingJsonEntry) {
   return [
     entry.type,
     entry.id,
@@ -137,7 +135,7 @@ function makePhotoItemKey(entry: PhotographyJsonEntry | DoodlingJsonEntry | Visu
   ].join("::")
 }
 
-function toPhotoItem(entry: PhotographyJsonEntry | DoodlingJsonEntry | VisualDetoursJsonEntry, title: string): PhotoItem {
+function toPhotoItem(entry: PhotographyJsonEntry | DoodlingJsonEntry, title: string): PhotoItem {
   const isDoodling = entry.type === "doodling"
   return {
     id: entry.id,
@@ -161,14 +159,9 @@ export const sketchGallery = galleryData
   .filter((entry): entry is Extract<GalleryJsonEntry, { type: "doodling" }> => entry.type === "doodling")
   .map((entry) => toPhotoItem(entry, ""))
 
-export const sidequestGallery = galleryData
-  .filter((entry): entry is Extract<GalleryJsonEntry, { type: "visual-detours" }> => entry.type === "visual-detours")
-  .map((entry) => toPhotoItem(entry, entry.location ?? ""))
-
 export const imageGalleryByTab: Record<Tab, PhotoItem[]> = {
   photos: photoGallery,
   sketches: sketchGallery,
-  sidequests: sidequestGallery,
 }
 
 export const thoughts = galleryData
