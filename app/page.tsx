@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef, type MouseEvent } from "react"
-import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion"
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import useSWR from "swr"
@@ -10,6 +10,9 @@ import { TextMorph } from "@/components/text-morph"
 import { PretextHighlight } from "@/components/pretext-highlight"
 import { SpotifyNowPlayingContent } from "@/components/now-playing"
 import { SpotifyArtwork } from "@/components/spotify-artwork"
+import { ParticleField } from "@/components/cosmic/particle-field"
+import { ParallaxLayer } from "@/components/cosmic/parallax-layer"
+import { SakuraAsset } from "@/components/cosmic/sakura-asset"
 import { fonts, measureTextWidth, usePretextReady } from "@/lib/pretext"
 import { fetcher, type Artist, type NowPlayingData, type RecentTrack, type Track } from "@/lib/creative-data"
 import {
@@ -134,9 +137,8 @@ export default function Home() {
   const [heroIdx, setHeroIdx] = useState(0)
 
   const heroRef = useRef<HTMLElement>(null)
-  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] })
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0])
-  const heroY = useTransform(scrollYProgress, [0, 1], [0, -60])
+  const heroInnerRef = useRef<HTMLDivElement>(null)
+  const reducedMotion = useReducedMotion()
 
   const { data: nowPlaying } = useSWR<NowPlayingData>("/api/spotify/now-playing", fetcher, { refreshInterval: 30000 })
   const { data: topTracksData } = useSWR<{ tracks: Track[] }>("/api/spotify/top-tracks", fetcher)
@@ -172,6 +174,33 @@ export default function Home() {
     return () => media.removeListener(update)
   }, [])
 
+  // Hero scroll-exit. One GSAP scrub = the sole scroll-position reader, so it
+  // never fights Lenis (which now owns the scroll value). Replaces the old
+  // Framer useScroll/useTransform binding.
+  useEffect(() => {
+    if (reducedMotion) return
+    const section = heroRef.current
+    const inner = heroInnerRef.current
+    if (!section || !inner) return
+    let revert: (() => void) | undefined
+    void (async () => {
+      const [gsapMod, stMod] = await Promise.all([import("gsap"), import("gsap/ScrollTrigger")])
+      const gsap = gsapMod.gsap ?? gsapMod.default
+      const ScrollTrigger = stMod.ScrollTrigger ?? stMod.default
+      gsap.registerPlugin(ScrollTrigger)
+      const ctx = gsap.context(() => {
+        gsap.to(inner, {
+          opacity: 0,
+          y: -70,
+          ease: "none",
+          scrollTrigger: { trigger: section, start: "top top", end: "bottom top", scrub: true },
+        })
+      })
+      revert = () => ctx.revert()
+    })()
+    return () => revert?.()
+  }, [reducedMotion])
+
   const topTracks = topTracksData?.tracks || []
   const topArtists = topArtistsData?.artists || []
   const recentTracks = recentData?.tracks || []
@@ -206,11 +235,45 @@ export default function Home() {
   return (
     <main className="relative min-h-screen">
 
+      {/* Deep-space ground + ambient particles (homepage only). Both fixed,
+          behind content. Gradient z-0, petals/stars/dust z-5, content z-10. */}
+      <div className="cosmic-bg pointer-events-none fixed inset-0 z-0" aria-hidden />
+      <ParticleField />
+
       {/* ---- HERO: fills viewport ---- */}
-      <section ref={heroRef} className="relative">
+      <section ref={heroRef} className="relative min-h-screen overflow-hidden">
+        {/* cosmic backdrop — galaxy (far, faint) + sakura branch (near), parallax + cursor depth */}
+        <div className="cosmic-layer inset-0 z-[1]" aria-hidden>
+          <ParallaxLayer
+            speed={36}
+            mouse={28}
+            className="absolute left-1/2 top-[38%] w-[min(125vw,1500px)] -translate-x-1/2 -translate-y-1/2"
+          >
+            <SakuraAsset
+              name="galaxy"
+              priority
+              sizes="125vw"
+              className="h-auto w-full opacity-[0.45] animate-galaxy-spin drop-glow-violet mask-fade-radial"
+            />
+          </ParallaxLayer>
+        </div>
+        <div className="cosmic-layer inset-0 z-[2]" aria-hidden>
+          <ParallaxLayer
+            speed={88}
+            mouse={34}
+            className="absolute -right-12 -top-10 w-[min(62vw,440px)] origin-top-right rotate-[8deg]"
+          >
+            <SakuraAsset
+              name="branch-a"
+              sizes="(max-width: 768px) 62vw, 440px"
+              className="h-auto w-full opacity-80 drop-glow-sakura"
+            />
+          </ParallaxLayer>
+        </div>
+
         <motion.div
+          ref={heroInnerRef}
           className="relative z-10 mx-auto max-w-5xl px-6 flex flex-col justify-center min-h-screen"
-          style={{ opacity: heroOpacity, y: heroY }}
         >
           <motion.div
             className="mb-10 h-px bg-[#e8e8e8]"
@@ -309,10 +372,11 @@ export default function Home() {
               >
                 <Link href="/nerdy" onClick={handleNerdyOpen}>
                   <motion.div
-                    className="paper-card relative p-7 md:p-9 min-h-[220px] flex flex-col justify-between overflow-hidden hover-wiggle"
+                    whileHover={{ y: -6 }}
+                    className="cosmic-card crt-scanlines isolate relative p-7 md:p-9 min-h-[220px] flex flex-col justify-between overflow-hidden"
                     animate={nameMode === "nerdy" ? {
                       borderColor: "#7fb07f",
-                      boxShadow: "0 0 20px rgba(127, 176, 127, 0.3)"
+                      boxShadow: "0 0 34px rgba(127, 176, 127, 0.36)"
                     } : {
                       borderColor: "#2a2a2a",
                       boxShadow: "none"
@@ -321,6 +385,18 @@ export default function Home() {
                     style={{ border: "1px solid" }}
                   >
                     <div className="tape-top" />
+                    {/* CRT terminal backdrop — faint code fragments, intensifies on hover */}
+                    <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden>
+                      <pre className="absolute right-1 top-1 m-0 select-none whitespace-pre font-mono text-[9px] leading-[1.6] text-accent-nerdy/15 transition-colors duration-500 group-hover:text-accent-nerdy/30">{`$ whoami
+0xs0m
+$ nmap -sV 10.0.0.1
+[+] 22/tcp  open  ssh
+[+] 443/tcp open  https
+$ ./exploit --pwn
+[*] shell acquired
+while (true) { hack(); }`}</pre>
+                      <div className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" style={{ background: "radial-gradient(130% 100% at 50% 125%, rgba(127,176,127,0.18), transparent 70%)" }} />
+                    </div>
                     <div>
                       <div className="flex items-center gap-3 mb-3">
                         <motion.div
@@ -389,10 +465,11 @@ export default function Home() {
               >
                 <Link href="/creative">
                   <motion.div
-                    className="paper-card relative p-7 md:p-9 min-h-[220px] flex flex-col justify-between overflow-hidden hover-wiggle"
+                    whileHover={{ y: -6 }}
+                    className="cosmic-card isolate relative p-7 md:p-9 min-h-[220px] flex flex-col justify-between overflow-hidden"
                     animate={hoverSide === "creative" ? {
                       borderColor: "#f0c6cf",
-                      boxShadow: "0 0 20px rgba(240, 198, 207, 0.3)"
+                      boxShadow: "0 0 34px rgba(240, 198, 207, 0.36)"
                     } : {
                       borderColor: "#2a2a2a",
                       boxShadow: "none"
@@ -401,6 +478,15 @@ export default function Home() {
                     style={{ border: "1px solid" }}
                   >
                     <div className="tape-top" />
+                    {/* cosmic darkroom backdrop — peony blooms from the corner on hover */}
+                    <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden>
+                      <SakuraAsset
+                        name="peony"
+                        sizes="220px"
+                        className="absolute -bottom-12 -right-10 h-auto w-[200px] opacity-25 drop-glow-sakura transition-all duration-700 ease-out group-hover:opacity-55 group-hover:-translate-y-2 group-hover:-rotate-[4deg]"
+                      />
+                      <div className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" style={{ background: "radial-gradient(130% 100% at 78% 122%, rgba(240,198,207,0.18), transparent 70%)" }} />
+                    </div>
                     <div>
                       <div className="flex items-center gap-3 mb-3">
                         <motion.div
@@ -492,6 +578,32 @@ export default function Home() {
 
 
       {/* ==== BELOW THE FOLD ==== */}
+
+      {/* hero → music transition: a river of petals descends, carrying you down
+          into the soundtrack. The river asset used as a structural connective spine. */}
+      <motion.div
+        className="pointer-events-none relative z-[3] flex justify-center overflow-hidden"
+        style={{ height: "clamp(8rem, 20vh, 14rem)" }}
+        aria-hidden
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true, margin: "-10%" }}
+        transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <div className="absolute left-1/2 top-[-45%] h-[210%] w-[230px] -translate-x-1/2">
+          <SakuraAsset name="river" sizes="230px" className="h-full w-full object-cover opacity-75 blend-screen mask-fade-y" />
+        </div>
+      </motion.div>
+
+      {/* ===== MUSIC ZONE: one cohesive nebula atmosphere behind the soundtrack ===== */}
+      <div className="relative">
+        <div className="pointer-events-none absolute inset-0 z-[1] overflow-hidden" aria-hidden>
+          <SakuraAsset
+            name="nebula"
+            sizes="120vw"
+            className="absolute inset-0 h-full w-full object-cover opacity-40 blend-screen mask-fade-y animate-cosmic-drift"
+          />
+        </div>
 
       {/* ---- NOW PLAYING ---- */}
       {nowPlaying?.isPlaying && (
@@ -672,8 +784,34 @@ export default function Home() {
         </section>
       )}
 
-      {/* ---- PLAYLIST (from API, sorted recently added) ---- */}
-      <section className="relative z-10 mx-auto max-w-5xl px-6 pb-10">
+      </div>
+      {/* ===== /MUSIC ZONE ===== */}
+
+      {/* music → experiments: a sakura branch arcs across — a structural threshold */}
+      <motion.div
+        className="pointer-events-none relative z-[3] mx-auto flex max-w-6xl items-center justify-center overflow-hidden"
+        style={{ height: "clamp(7rem, 16vh, 11rem)" }}
+        aria-hidden
+        initial={{ opacity: 0, y: 26 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-15%" }}
+        transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <SakuraAsset name="branch-b" sizes="92vw" className="h-auto w-[min(92vw,1100px)] -rotate-2 opacity-60 mask-fade-x drop-glow-sakura" />
+      </motion.div>
+
+      {/* ---- PLAYLIST / the engineer's playground — the galaxy emerges behind the terminal ---- */}
+      <section className="relative isolate z-10 mx-auto max-w-5xl px-6 pb-10">
+        {/* the galaxy emerges; the terminal floats in space */}
+        <div className="cosmic-layer inset-0 -z-10 flex items-center justify-center" aria-hidden>
+          <ParallaxLayer speed={70} mouse={10} className="w-[min(135vw,1150px)]">
+            <SakuraAsset
+              name="galaxy"
+              sizes="(max-width: 768px) 135vw, 1150px"
+              className="h-auto w-full opacity-50 animate-galaxy-spin drop-glow-violet mask-fade-radial"
+            />
+          </ParallaxLayer>
+        </div>
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -686,8 +824,23 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* ---- SOCIALS ---- */}
-      <section className="relative z-10 mx-auto max-w-5xl px-6 pb-14">
+      {/* ---- CONVERGENCE: socials + the final bloom ---- */}
+      <section className="relative isolate z-10 mx-auto max-w-5xl px-6 pb-14 pt-12 md:pt-24">
+        {/* the universe converges — a single blossom blooms */}
+        <motion.div
+          className="cosmic-layer inset-x-0 -bottom-28 -z-10 flex justify-center"
+          aria-hidden
+          initial={{ opacity: 0, scale: 0.6, rotate: -8 }}
+          whileInView={{ opacity: 0.55, scale: 1, rotate: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 1.3, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <SakuraAsset
+            name="peony"
+            sizes="(max-width: 768px) 92vw, 600px"
+            className="h-auto w-[min(92vw,600px)] drop-glow-sakura"
+          />
+        </motion.div>
         <motion.div
           className="border-t border-[#333] pt-10"
           initial={{ opacity: 0, y: 16 }}

@@ -32,6 +32,33 @@
   --world: var(--accent-creative);
   --world-dim: var(--accent-creative-dim);
 
+  /* ============================================================
+     COSMIC SAKURA — homepage ambient + creative-world layer.
+     Extends the palette; never overrides the ink spine.
+     ============================================================ */
+  /* Cosmic grounds — deep space, layered subtly over #0a0a0a */
+  --cosmic-void: #07060d;
+  --cosmic-deep: #0d0a18;
+  --cosmic-plum: #170f28;
+
+  /* Sakura ramp — anchored on --accent-creative (#f0c6cf = sakura-300) */
+  --sakura-100: #ffe6f0;
+  --sakura-200: #f7ccdd;
+  --sakura-300: #f0c6cf;
+  --sakura-400: #e89bb6;
+  --sakura-500: #d9779b;
+  --sakura-600: #b85a86;
+
+  /* Cosmic accents */
+  --nebula-violet: #8b6fc4;
+  --stardust-gold: #e6c79a;
+  --aurora-teal: #6fb3a8;
+
+  /* Glow channels (raw rgb triplets, consumed via rgba(var(--glow-…), a)) */
+  --glow-sakura: 240, 198, 207;
+  --glow-violet: 139, 111, 196;
+  --glow-gold: 230, 199, 154;
+
   /* shadcn surface mappings (kept for any base components) */
   --background: var(--ink-900);
   --foreground: var(--ink-100);
@@ -102,6 +129,20 @@
   --color-accent-nerdy: var(--accent-nerdy);
   --color-accent-creative: var(--accent-creative);
 
+  /* Cosmic Sakura → text-sakura-300, bg-cosmic-deep, border-sakura-500, text-nebula-violet … */
+  --color-cosmic-void: var(--cosmic-void);
+  --color-cosmic-deep: var(--cosmic-deep);
+  --color-cosmic-plum: var(--cosmic-plum);
+  --color-sakura-100: var(--sakura-100);
+  --color-sakura-200: var(--sakura-200);
+  --color-sakura-300: var(--sakura-300);
+  --color-sakura-400: var(--sakura-400);
+  --color-sakura-500: var(--sakura-500);
+  --color-sakura-600: var(--sakura-600);
+  --color-nebula-violet: var(--nebula-violet);
+  --color-stardust-gold: var(--stardust-gold);
+  --color-aurora-teal: var(--aurora-teal);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -168,6 +209,43 @@
   50%, 100% { opacity: 0; }
 }
 
+/* ---- Cosmic Sakura motion (ambient; all transform/opacity only) ---- */
+
+@keyframes cosmic-drift {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(-14px, 10px, 0); }
+}
+
+@keyframes cosmic-float {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, -10px, 0); }
+}
+
+@keyframes cosmic-twinkle {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+
+@keyframes cosmic-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes cosmic-glow {
+  0%, 100% { box-shadow: 0 0 16px 2px rgba(var(--glow-sakura), 0.22); }
+  50% { box-shadow: 0 0 30px 6px rgba(var(--glow-sakura), 0.5); }
+}
+
+@keyframes cosmic-bloom {
+  0% { opacity: 0; transform: scale(0.55) rotate(-6deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+
+@keyframes cosmic-sheen {
+  0%, 100% { background-position: 130% 0%; }
+  50% { background-position: -30% 100%; }
+}
+
 /* ---- Base ---- */
 
 @layer base {
@@ -178,9 +256,9 @@
     @apply bg-background text-foreground;
     cursor: auto;
   }
-  html {
-    scroll-behavior: smooth;
-  }
+  /* NOTE: no `scroll-behavior: smooth` here — Lenis owns smoothing on routes
+     that mount SmoothScrollProvider, and native smooth fights lenis.scrollTo().
+     The reduced-motion block below forces `scroll-behavior: auto` regardless. */
   ::selection {
     background: var(--world);
     color: var(--ink-900);
@@ -206,6 +284,13 @@
     scroll-behavior: auto;
   }
 }
+
+/* ---- Lenis smooth scroll (classes only present while SmoothScrollProvider runs) ---- */
+html.lenis,
+html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }
 
 /* ---- Utilities ---- */
 
@@ -344,6 +429,23 @@
     animation: caret-blink 1.1s step-end infinite;
   }
 
+  /* Subtle CRT scanlines for the terminal screen — very low contrast,
+     sits above scrolling content but never veils readability */
+  .crt-scanlines::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.028),
+      rgba(255, 255, 255, 0.028) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+  }
+
   /* Thin scrollbar for playlist */
   .scrollbar-thin::-webkit-scrollbar {
     width: 4px;
@@ -361,5 +463,82 @@
   .scrollbar-thin {
     scrollbar-width: thin;
     scrollbar-color: var(--ink-500) transparent;
+  }
+
+  /* ============================================================
+     COSMIC SAKURA utilities
+     ============================================================ */
+
+  /* Deep-space ground for the homepage (sits above the black curved-paper-bg) */
+  .cosmic-bg {
+    background:
+      radial-gradient(120% 85% at 50% -8%,
+        var(--cosmic-plum) 0%,
+        var(--cosmic-deep) 36%,
+        var(--cosmic-void) 68%,
+        #000 100%);
+  }
+
+  /* Base for fixed/absolute decorative + parallax layers */
+  .cosmic-layer {
+    position: absolute;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* Soft blooms / glows */
+  .glow-sakura { box-shadow: 0 0 40px 4px rgba(var(--glow-sakura), 0.28); }
+  .glow-violet { box-shadow: 0 0 44px 6px rgba(var(--glow-violet), 0.26); }
+  .text-glow-sakura { text-shadow: 0 0 18px rgba(var(--glow-sakura), 0.45); }
+  .drop-glow-sakura { filter: drop-shadow(0 0 26px rgba(var(--glow-sakura), 0.32)); }
+  .drop-glow-violet { filter: drop-shadow(0 0 30px rgba(var(--glow-violet), 0.30)); }
+
+  /* Lighten/screen blend for assets that carry a dark ground (river, streams)
+     so the ground dissolves into space and only the bright petals/dust remain */
+  .blend-screen { mix-blend-mode: screen; }
+  .blend-lighten { mix-blend-mode: lighten; }
+
+  /* Premium glass — the cosmos refracts through the card. Homepage only;
+     /nerdy keeps the opaque brutalist .paper-card. The top gradient is a baked-in
+     glass highlight (no box-shadow, so Framer's animated glow/border stay free). */
+  .cosmic-card {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0) 42%),
+      color-mix(in oklab, var(--ink-800) 56%, transparent);
+    backdrop-filter: blur(14px) saturate(128%);
+    -webkit-backdrop-filter: blur(14px) saturate(128%);
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  /* faint always-on sheen sweep — the "almost invisible animated border" */
+  .cosmic-card-sheen {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: linear-gradient(115deg, transparent 30%, rgba(240, 198, 207, 0.06) 48%, transparent 62%);
+    background-size: 250% 250%;
+    animation: cosmic-sheen 9s ease-in-out infinite;
+  }
+
+  /* Ambient animation utilities (transform/opacity only) */
+  .animate-twinkle { animation: cosmic-twinkle 4s ease-in-out infinite; }
+  .animate-cosmic-float { animation: cosmic-float 9s ease-in-out infinite; }
+  .animate-cosmic-drift { animation: cosmic-drift 16s ease-in-out infinite; }
+  .animate-cosmic-glow { animation: cosmic-glow 3.5s ease-in-out infinite; }
+  .animate-galaxy-spin { animation: cosmic-spin 150s linear infinite; }
+
+  /* Edge-fade masks so streams/galaxy dissolve into the void instead of hard-cropping */
+  .mask-fade-x {
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 18%, #000 82%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 18%, #000 82%, transparent);
+  }
+  .mask-fade-y {
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent);
+  }
+  .mask-fade-radial {
+    -webkit-mask-image: radial-gradient(closest-side, #000 60%, transparent 100%);
+    mask-image: radial-gradient(closest-side, #000 60%, transparent 100%);
   }
 }

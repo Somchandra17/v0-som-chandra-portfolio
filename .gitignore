@@ -32,3 +32,8 @@ next-env.d.ts
 /.cursor/
 /.codegraph/
 /.codex/
+
+# local tooling / OS junk
+.DS_Store
+**/.DS_Store
+.claude/

@@ -110,29 +110,29 @@ function createInitialHistory(cwd = HOME_DIR): CommandHistory {
 function getToneClass(tone: OutputTone = "default") {
   switch (tone) {
     case "guide":
-      return "text-[#9eb0c8]"
+      return "text-ink-200"
     case "hint":
       return "text-[#d7c38a]"
     case "success":
-      return "text-[#7fb07f]"
+      return "text-world"
     case "warning":
       return "text-[#c7a07e]"
     case "error":
       return "text-[#d08a8a]"
     default:
-      return "text-[#8a8a8a]"
+      return "text-ink-300"
   }
 }
 
 function TerminalPrompt({ cwd }: { cwd: string }) {
   return (
     <>
-      <span className="text-[#7ec699]">som</span>
-      <span className="text-[#666]">@</span>
-      <span className="text-[#6cb6ff]">musicd</span>
-      <span className="text-[#666]">:</span>
-      <span className="text-[#c678dd]">{buildPromptPath(cwd)}</span>
-      <span className="text-[#e8e8e8]">$ </span>
+      <span className="text-world">som</span>
+      <span className="text-ink-500">@</span>
+      <span className="text-world">musicd</span>
+      <span className="text-ink-500">:</span>
+      <span className="text-ink-300">{buildPromptPath(cwd)}</span>
+      <span className="text-ink-100">$ </span>
     </>
   )
 }
@@ -605,18 +605,19 @@ type "help" for available commands`
 
   return (
     <motion.div
+      data-world="nerdy"
       initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5 }}
     >
       <div className="mb-2 flex items-center gap-3">
-        <span className="text-[#ccc]">▌</span>
-        <p className="font-mono text-xs uppercase tracking-widest text-[#ccc]">
+        <span className="text-world">▌</span>
+        <p className="font-mono text-xs uppercase tracking-widest text-ink-200">
           {solved ? "god playlist unlocked" : "musicd v0.1"}
         </p>
       </div>
-      <p className="mb-6 text-sm text-[#888]">
+      <p className="mb-6 text-sm text-ink-400">
         {solved
           ? "you found the weak spot in the daemon and unlocked the playlist."
           : "a tiny terminal puzzle dressed up like a sketchy music daemon. still the same idea, just less hostile to people who do not live in bash."}
@@ -624,24 +625,27 @@ type "help" for available commands`
 
       {!solved ? (
         <div
-          className="paper-card cursor-text overflow-hidden border border-[#555] bg-[#0a0a0a] font-mono text-xs"
+          className="paper-card crt-scanlines relative cursor-text overflow-hidden border-ink-500 bg-ink-900 font-mono text-xs"
           onClick={handleTerminalClick}
         >
-          <div className="border-b border-[#333] px-4 py-3">
+          <div className="relative z-[3] border-b border-ink-600 bg-ink-850 px-4 py-3">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-2">
                 <div className="flex gap-1.5">
-                  <span className="h-2.5 w-2.5 border border-[#6a6a6a] bg-[#2a2a2a]" />
-                  <span className="h-2.5 w-2.5 border border-[#6a6a6a] bg-[#2a2a2a]" />
-                  <span className="h-2.5 w-2.5 border border-[#6a6a6a] bg-[#2a2a2a]" />
+                  <span className="h-2.5 w-2.5 border border-ink-500 bg-ink-700" />
+                  <span className="h-2.5 w-2.5 border border-ink-500 bg-ink-700" />
+                  <span className="h-2.5 w-2.5 border border-ink-500 bg-ink-700" />
                 </div>
-                <span className="ml-2 text-[0.7rem] text-[#666]">som@musicd-server: {buildPromptPath(currentDir)}</span>
+                <span className="ml-3 inline-flex items-center gap-2 text-[0.7rem] text-ink-400">
+                  <span className="h-1.5 w-1.5 animate-pulse bg-world" aria-hidden="true" />
+                  som@musicd-server: {buildPromptPath(currentDir)}
+                </span>
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                <span className="border border-[#2d2d2d] px-2 py-1 text-[0.62rem] uppercase tracking-[0.14em] text-[#9b9b9b]">
+                <span className="border border-ink-600 px-2 py-1 text-[0.62rem] uppercase tracking-[0.14em] text-ink-300">
                   unsolved
                 </span>
-                <span className="border border-[#2d2d2d] px-2 py-1 text-[0.62rem] uppercase tracking-[0.14em] text-[#9b9b9b]">
+                <span className="border border-ink-600 px-2 py-1 text-[0.62rem] uppercase tracking-[0.14em] text-ink-300">
                   hint level {hintLevel}/5
                 </span>
                 <button
@@ -650,7 +654,7 @@ type "help" for available commands`
                     event.stopPropagation()
                     resetTerminal()
                   }}
-                  className="inline-flex items-center gap-1 border border-[#2d2d2d] px-2 py-1 text-[0.62rem] uppercase tracking-[0.14em] text-[#9b9b9b] transition-colors hover:border-[#666] hover:text-[#e8e8e8]"
+                  className="inline-flex items-center gap-1 border border-ink-600 px-2 py-1 text-[0.62rem] uppercase tracking-[0.14em] text-ink-300 transition-colors hover:border-world hover:text-ink-100"
                   aria-label="Reset terminal challenge"
                 >
                   <RefreshCw className="h-3 w-3" />
@@ -660,31 +664,31 @@ type "help" for available commands`
             </div>
           </div>
 
-          <div className="border-b border-[#232323] bg-[#0d0d0d] px-4 py-4">
+          <div className="relative z-[3] border-b border-ink-700 bg-ink-850 px-4 py-4">
             <div className="grid gap-3 md:grid-cols-[1.25fr_1fr]">
-              <div className="border border-[#242424] bg-[#101010] p-3">
+              <div className="border border-ink-600 bg-ink-800 p-3">
                 <div className="mb-2 flex items-center gap-2">
-                  <TerminalSquare className="h-3.5 w-3.5 text-[#b8b8b8]" />
-                  <p className="font-mono text-[0.65rem] uppercase tracking-[0.16em] text-[#b8b8b8]">
+                  <TerminalSquare className="h-3.5 w-3.5 text-ink-300" />
+                  <p className="font-mono text-[0.65rem] uppercase tracking-[0.16em] text-ink-300">
                     not a terminal person?
                   </p>
                 </div>
-                <p className="text-[0.72rem] leading-relaxed text-[#8c8c8c]">
+                <p className="text-[0.72rem] leading-relaxed text-ink-400">
                   That is fine. Treat this like a tiny investigation, not a shell exam. Inspect files, read what the daemon does,
                   and ask for stronger hints whenever you want.
                 </p>
               </div>
-              <div className="border border-[#242424] bg-[#101010] p-3">
+              <div className="border border-ink-600 bg-ink-800 p-3">
                 <div className="mb-2 flex items-center gap-2">
-                  <CircleHelp className="h-3.5 w-3.5 text-[#b8b8b8]" />
-                  <p className="font-mono text-[0.65rem] uppercase tracking-[0.16em] text-[#b8b8b8]">
+                  <CircleHelp className="h-3.5 w-3.5 text-ink-300" />
+                  <p className="font-mono text-[0.65rem] uppercase tracking-[0.16em] text-ink-300">
                     recommended path
                   </p>
                 </div>
-                <p className="text-[0.72rem] leading-relaxed text-[#8c8c8c]">
-                  Start with <span className="text-[#d9d9d9]">help</span>, then inspect{" "}
-                  <span className="text-[#d9d9d9]">README.txt</span> and{" "}
-                  <span className="text-[#d9d9d9]">daemon.sh</span>. The exploit lives in how one command builds its file path.
+                <p className="text-[0.72rem] leading-relaxed text-ink-400">
+                  Start with <span className="text-world">help</span>, then inspect{" "}
+                  <span className="text-world">README.txt</span> and{" "}
+                  <span className="text-world">daemon.sh</span>. The exploit lives in how one command builds its file path.
                 </p>
               </div>
             </div>
@@ -698,25 +702,25 @@ type "help" for available commands`
                     event.stopPropagation()
                     handleQuickAction(action.command)
                   }}
-                  className="border border-[#2f2f2f] bg-transparent px-3 py-2 text-left transition-colors hover:border-[#666] hover:text-[#e8e8e8]"
+                  className="group/starter border border-ink-600 bg-transparent px-3 py-2 text-left transition-colors hover:border-world"
                   aria-label={`Run ${action.command}`}
                 >
-                  <span className="block font-mono text-[0.62rem] uppercase tracking-[0.14em] text-[#cfcfcf]">
+                  <span className="block font-mono text-[0.62rem] uppercase tracking-[0.14em] text-ink-200 transition-colors group-hover/starter:text-world">
                     {action.label}
                   </span>
-                  <span className="mt-1 block text-[0.68rem] text-[#7f7f7f]">{action.command}</span>
-                  <span className="mt-1 block text-[0.65rem] text-[#606060]">{action.note}</span>
+                  <span className="mt-1 block text-[0.68rem] text-ink-400">{action.command}</span>
+                  <span className="mt-1 block text-[0.65rem] text-ink-500">{action.note}</span>
                 </button>
               ))}
             </div>
           </div>
 
-          <div ref={terminalRef} className="h-80 overflow-y-auto px-4 py-4 pr-2 scrollbar-thin">
+          <div ref={terminalRef} data-lenis-prevent className="relative z-[1] h-80 overflow-y-auto bg-ink-900 px-4 py-4 pr-2 scrollbar-thin">
             <div className="space-y-3">
               {history.map((item, index) => (
                 <div key={`${index}-${item.cwd}-${item.input || "system"}`} className="space-y-1">
                   {item.input && (
-                    <p className="text-[#e8e8e8]">
+                    <p className="text-ink-100">
                       <TerminalPrompt cwd={item.cwd} />
                       {item.input}
                     </p>
@@ -731,7 +735,7 @@ type "help" for available commands`
             </div>
           </div>
 
-          <div className="border-t border-[#333] px-4 py-3">
+          <div className="relative z-[3] border-t border-ink-600 bg-ink-850 px-4 py-3">
             <form onSubmit={handleSubmit} className="flex items-center gap-2">
               <div className="min-w-0 flex flex-1 items-center">
                 <TerminalPrompt cwd={currentDir} />
@@ -742,7 +746,7 @@ type "help" for available commands`
                   onChange={(event) => setInput(event.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder='try "help", "cat daemon.sh", or "hint"'
-                  className="min-w-0 flex-1 bg-transparent font-mono text-xs text-[#e8e8e8] caret-[#e8e8e8] outline-none placeholder:text-[#555]"
+                  className="min-w-0 flex-1 bg-transparent font-mono text-xs text-ink-100 caret-world outline-none placeholder:text-ink-500"
                   autoFocus
                   autoComplete="off"
                   autoCorrect="off"
@@ -752,13 +756,13 @@ type "help" for available commands`
               </div>
               <button
                 type="submit"
-                className="inline-flex shrink-0 items-center gap-1 border border-[#333] px-3 py-1.5 text-[0.62rem] uppercase tracking-[0.14em] text-[#b6b6b6] transition-colors hover:border-[#666] hover:text-[#e8e8e8]"
+                className="inline-flex shrink-0 items-center gap-1 border border-ink-600 px-3 py-1.5 text-[0.62rem] uppercase tracking-[0.14em] text-ink-300 transition-colors hover:border-world hover:text-ink-100"
               >
                 <ArrowRight className="h-3 w-3" />
                 run
               </button>
             </form>
-            <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-[0.65rem] text-[#4f4f4f]">
+            <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-[0.65rem] text-ink-500">
               <p>enter: run · tab: autocomplete · up/down: history</p>
               <p>hint gets stronger each time you use it</p>
             </div>
@@ -766,17 +770,20 @@ type "help" for available commands`
         </div>
       ) : (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-          <div className="paper-card overflow-hidden border border-[#555] bg-[#0a0a0a] font-mono text-xs">
-            <div className="border-b border-[#333] px-4 py-3">
+          <div className="paper-card crt-scanlines relative overflow-hidden border-ink-500 bg-ink-900 font-mono text-xs">
+            <div className="relative z-[3] border-b border-ink-600 bg-ink-850 px-4 py-3">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
-                  <span className="h-2.5 w-2.5 border border-[#5d785d] bg-[#233223]" />
-                  <span className="text-[0.7rem] text-[#666]">musicd-server // challenge solved</span>
+                  <span className="h-2.5 w-2.5 border border-world bg-world/20" />
+                  <span className="inline-flex items-center gap-2 text-[0.7rem] text-ink-400">
+                    musicd-server <span className="text-ink-600">//</span>{" "}
+                    <span className="text-world">challenge solved</span>
+                  </span>
                 </div>
                 <button
                   type="button"
                   onClick={resetTerminal}
-                  className="inline-flex items-center gap-1 border border-[#2d2d2d] px-2 py-1 text-[0.62rem] uppercase tracking-[0.14em] text-[#9b9b9b] transition-colors hover:border-[#666] hover:text-[#e8e8e8]"
+                  className="inline-flex items-center gap-1 border border-ink-600 px-2 py-1 text-[0.62rem] uppercase tracking-[0.14em] text-ink-300 transition-colors hover:border-world hover:text-ink-100"
                 >
                   <RefreshCw className="h-3 w-3" />
                   replay
@@ -784,18 +791,18 @@ type "help" for available commands`
               </div>
             </div>
 
-            <div className="space-y-4 px-4 py-4">
-              <div className="border border-[#243224] bg-[#0f140f] p-3">
-                <p className="text-[#7fb07f]">Now playing: you found the weak spot.</p>
-                <p className="mt-2 text-[0.75rem] leading-relaxed text-[#9a9a9a]">
+            <div className="relative z-[1] space-y-4 px-4 py-4">
+              <div className="border border-world/30 bg-world/[0.06] p-3">
+                <p className="text-world">Now playing: you found the weak spot.</p>
+                <p className="mt-2 text-[0.75rem] leading-relaxed text-ink-300">
                   The daemon trusted user input when building a file path. That let you walk out of the songs directory and
                   read something it was never meant to load.
                 </p>
               </div>
 
-              <div className="border border-[#242424] bg-[#101010] p-3">
-                <p className="mb-2 text-[0.65rem] uppercase tracking-[0.16em] text-[#7e7e7e]">winning command</p>
-                <code className="text-[0.78rem] text-[#e8e8e8]">load ../../flag.txt</code>
+              <div className="border border-ink-600 bg-ink-800 p-3">
+                <p className="mb-2 text-[0.65rem] uppercase tracking-[0.16em] text-ink-400">winning command</p>
+                <code className="text-[0.78rem] text-ink-100">load ../../flag.txt</code>
               </div>
 
               <div className="flex flex-wrap gap-2">
@@ -803,14 +810,14 @@ type "help" for available commands`
                   href={PLAYLIST_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 border border-[#1d5c32] px-3 py-2 text-[0.7rem] uppercase tracking-[0.14em] text-[#7fb07f] transition-colors hover:border-[#2e8b57] hover:text-[#a5d6a7]"
+                  className="inline-flex items-center gap-2 border border-world/60 px-3 py-2 text-[0.7rem] uppercase tracking-[0.14em] text-world transition-colors hover:border-world hover:bg-world/10"
                 >
                   open playlist
                 </a>
                 <button
                   type="button"
                   onClick={resetTerminal}
-                  className="inline-flex items-center gap-2 border border-[#333] px-3 py-2 text-[0.7rem] uppercase tracking-[0.14em] text-[#a8a8a8] transition-colors hover:border-[#666] hover:text-[#e8e8e8]"
+                  className="inline-flex items-center gap-2 border border-ink-600 px-3 py-2 text-[0.7rem] uppercase tracking-[0.14em] text-ink-300 transition-colors hover:border-world hover:text-ink-100"
                 >
                   run it again
                 </button>
