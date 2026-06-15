@@ -56,7 +56,7 @@ export function ParallaxLayer({
           {
             y: -speed,
             ease: "none",
-            scrollTrigger: { trigger: el, start: "top bottom", end: "bottom top", scrub: true },
+            scrollTrigger: { trigger: el, start: "top bottom", end: "bottom top", scrub: 1 },
           },
         )
       })

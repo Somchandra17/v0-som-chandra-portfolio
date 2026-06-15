@@ -193,7 +193,7 @@ export default function Home() {
           opacity: 0,
           y: -70,
           ease: "none",
-          scrollTrigger: { trigger: section, start: "top top", end: "bottom top", scrub: true },
+          scrollTrigger: { trigger: section, start: "top top", end: "bottom top", scrub: 0.8 },
         })
       })
       revert = () => ctx.revert()
@@ -601,7 +601,7 @@ while (true) { hack(); }`}</pre>
           <SakuraAsset
             name="nebula"
             sizes="120vw"
-            className="absolute inset-0 h-full w-full object-cover opacity-40 blend-screen mask-fade-y animate-cosmic-drift"
+            className="absolute inset-0 h-full w-full object-cover opacity-40 blend-screen animate-cosmic-drift [mask-image:linear-gradient(to_bottom,transparent,#000_9%,#000_95%,transparent)] [-webkit-mask-image:linear-gradient(to_bottom,transparent,#000_9%,#000_95%,transparent)] [filter:sepia(0.5)_hue-rotate(252deg)_saturate(1.5)_brightness(1.05)]"
           />
         </div>
 
