@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation"
 import { AnimatePresence, motion } from "framer-motion"
 import { PaperOverlay } from "@/components/grain-overlay"
 import { Loader } from "@/components/loader"
-import { SmoothScrollProvider, getLenis } from "@/components/motion/smooth-scroll-provider"
 
 export function LayoutShell({ children }: { children: ReactNode }) {
   const pathname = usePathname()
@@ -43,13 +42,7 @@ export function LayoutShell({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!checked || loading) return
-    // Lenis owns scroll when active; native scrollTo fights it.
-    const lenis = getLenis()
-    if (lenis) {
-      lenis.scrollTo(0, { immediate: true })
-    } else {
-      window.scrollTo({ top: 0, left: 0, behavior: "auto" })
-    }
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" })
   }, [pathname, checked, loading])
 
   const handleLoadComplete = useCallback(() => {
@@ -74,16 +67,14 @@ export function LayoutShell({ children }: { children: ReactNode }) {
 
       <AnimatePresence>
         {!loading && (
-          <SmoothScrollProvider>
-            <motion.div
-              className="float-content"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-            >
-              {children}
-            </motion.div>
-          </SmoothScrollProvider>
+          <motion.div
+            className="float-content"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            {children}
+          </motion.div>
         )}
       </AnimatePresence>
     </>

@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useEffect, useRef, type MouseEvent } from "react"
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
+import { motion, AnimatePresence, useReducedMotion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion"
+import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import useSWR from "swr"
@@ -11,13 +12,13 @@ import { PretextHighlight } from "@/components/pretext-highlight"
 import { SpotifyNowPlayingContent } from "@/components/now-playing"
 import { SpotifyArtwork } from "@/components/spotify-artwork"
 import { ParticleField } from "@/components/cosmic/particle-field"
-import { ParallaxLayer } from "@/components/cosmic/parallax-layer"
-import { SakuraAsset } from "@/components/cosmic/sakura-asset"
+import { FloatingSvgs } from "@/components/cosmic/floating-svgs"
 import { fonts, measureTextWidth, usePretextReady } from "@/lib/pretext"
 import { fetcher, type Artist, type NowPlayingData, type RecentTrack, type Track } from "@/lib/creative-data"
 import {
   Terminal, Pen, Github, Linkedin, Mail, ExternalLink,
   ArrowRight, ArrowDown, Music, Headphones, Users, Clock,
+  Briefcase
 } from "lucide-react"
 
 function clamp(value: number, min: number, max: number) {
@@ -83,16 +84,7 @@ const heroLines = [
   "sudo make me a sandwich",
   "renaming variables for the 5th time today",
   "accidentally opened vim. send help.",
-  "refactoring code I wrote 2 weeks ago like it's someone else's",
-  "explaining to friends what I do for a living",
-  "git blame: it was me all along",
-  "spent an hour on my hyprland",
-  "dark mode everything. my eyes thank me.",
-  "i speak broken grammar",
-  "my rubber duck deserves a raise",
-  "drawing things no one asked for since 2002",
-  "i photograph things instead of experiencing them",
-  "arguing with a yaml file"
+  "refactoring code I wrote 2 weeks ago like it's someone else's"
 ]
 
 export default function Home() {
@@ -137,8 +129,13 @@ export default function Home() {
   const [heroIdx, setHeroIdx] = useState(0)
 
   const heroRef = useRef<HTMLElement>(null)
-  const heroInnerRef = useRef<HTMLDivElement>(null)
-  const reducedMotion = useReducedMotion()
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"]
+  });
+  
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+  const heroY = useTransform(scrollYProgress, [0, 1], [0, -100]);
 
   const { data: nowPlaying } = useSWR<NowPlayingData>("/api/spotify/now-playing", fetcher, { refreshInterval: 30000 })
   const { data: topTracksData } = useSWR<{ tracks: Track[] }>("/api/spotify/top-tracks", fetcher)
@@ -146,6 +143,45 @@ export default function Home() {
   const { data: recentData } = useSWR<{ tracks: RecentTrack[] }>("/api/spotify/recently-played", fetcher)
   const pretextReady = usePretextReady()
   const [isCompactSpotify, setIsCompactSpotify] = useState(false)
+
+  const mouseX = useMotionValue(0)
+  const mouseY = useMotionValue(0)
+  const prefersReduced = useReducedMotion()
+
+  // Spring animations for smooth parallax
+  const springConfig = { damping: 30, stiffness: 100 }
+  const parallaxX = useSpring(useTransform(mouseX, [-0.5, 0.5], [-10, 10]), springConfig)
+  const parallaxY = useSpring(useTransform(mouseY, [-0.5, 0.5], [-10, 10]), springConfig)
+  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [4, -4]), springConfig)
+  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-4, 4]), springConfig)
+
+  useEffect(() => {
+    // Card tilt only on fine pointers, and never under reduced motion.
+    if (prefersReduced || !window.matchMedia("(pointer: fine)").matches) return
+    let rafId = 0
+    let pending = false
+    let lastX = 0
+    let lastY = 0
+    const flush = () => {
+      pending = false
+      mouseX.set(lastX)
+      mouseY.set(lastY)
+    }
+    const handleMouseMove = (e: globalThis.MouseEvent) => {
+      // Normalize to -0.5 -> 0.5
+      lastX = e.clientX / window.innerWidth - 0.5
+      lastY = e.clientY / window.innerHeight - 0.5
+      if (!pending) {
+        pending = true
+        rafId = requestAnimationFrame(flush)
+      }
+    }
+    window.addEventListener("mousemove", handleMouseMove)
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove)
+      cancelAnimationFrame(rafId)
+    }
+  }, [mouseX, mouseY, prefersReduced])
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -173,33 +209,6 @@ export default function Home() {
     media.addListener(update)
     return () => media.removeListener(update)
   }, [])
-
-  // Hero scroll-exit. One GSAP scrub = the sole scroll-position reader, so it
-  // never fights Lenis (which now owns the scroll value). Replaces the old
-  // Framer useScroll/useTransform binding.
-  useEffect(() => {
-    if (reducedMotion) return
-    const section = heroRef.current
-    const inner = heroInnerRef.current
-    if (!section || !inner) return
-    let revert: (() => void) | undefined
-    void (async () => {
-      const [gsapMod, stMod] = await Promise.all([import("gsap"), import("gsap/ScrollTrigger")])
-      const gsap = gsapMod.gsap ?? gsapMod.default
-      const ScrollTrigger = stMod.ScrollTrigger ?? stMod.default
-      gsap.registerPlugin(ScrollTrigger)
-      const ctx = gsap.context(() => {
-        gsap.to(inner, {
-          opacity: 0,
-          y: -70,
-          ease: "none",
-          scrollTrigger: { trigger: section, start: "top top", end: "bottom top", scrub: 0.8 },
-        })
-      })
-      revert = () => ctx.revert()
-    })()
-    return () => revert?.()
-  }, [reducedMotion])
 
   const topTracks = topTracksData?.tracks || []
   const topArtists = topArtistsData?.artists || []
@@ -233,50 +242,18 @@ export default function Home() {
   })
 
   return (
-    <main className="relative min-h-screen">
-
-      {/* Deep-space ground + ambient particles (homepage only). Both fixed,
-          behind content. Gradient z-0, petals/stars/dust z-5, content z-10. */}
-      <div className="cosmic-bg pointer-events-none fixed inset-0 z-0" aria-hidden />
+    <main className="relative min-h-screen bg-[#07060d]">
       <ParticleField />
+      <FloatingSvgs hoverSide={hoverSide} />
 
       {/* ---- HERO: fills viewport ---- */}
-      <section ref={heroRef} className="relative min-h-screen overflow-hidden">
-        {/* cosmic backdrop — galaxy (far, faint) + sakura branch (near), parallax + cursor depth */}
-        <div className="cosmic-layer inset-0 z-[1]" aria-hidden>
-          <ParallaxLayer
-            speed={36}
-            mouse={28}
-            className="absolute left-1/2 top-[38%] w-[min(125vw,1500px)] -translate-x-1/2 -translate-y-1/2"
-          >
-            <SakuraAsset
-              name="galaxy"
-              priority
-              sizes="125vw"
-              className="h-auto w-full opacity-[0.45] animate-galaxy-spin drop-glow-violet mask-fade-radial"
-            />
-          </ParallaxLayer>
-        </div>
-        <div className="cosmic-layer inset-0 z-[2]" aria-hidden>
-          <ParallaxLayer
-            speed={88}
-            mouse={34}
-            className="absolute -right-12 -top-10 w-[min(62vw,440px)] origin-top-right rotate-[8deg]"
-          >
-            <SakuraAsset
-              name="branch-a"
-              sizes="(max-width: 768px) 62vw, 440px"
-              className="h-auto w-full opacity-80 drop-glow-sakura"
-            />
-          </ParallaxLayer>
-        </div>
-
+      <section ref={heroRef} className="relative min-h-screen flex items-center justify-center pt-10">
         <motion.div
-          ref={heroInnerRef}
-          className="relative z-10 mx-auto max-w-5xl px-6 flex flex-col justify-center min-h-screen"
+          className="relative z-10 mx-auto w-full max-w-5xl px-6 flex flex-col justify-center"
+          style={{ opacity: prefersReduced ? 1 : heroOpacity, y: prefersReduced ? 0 : heroY }}
         >
           <motion.div
-            className="mb-10 h-px bg-[#e8e8e8]"
+            className="mb-10 h-px bg-[#2a2a2a]"
             initial={{ width: 0, opacity: 0 }}
             animate={{ width: "100%", opacity: 1 }}
             transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
@@ -291,51 +268,53 @@ export default function Home() {
               oh hey, you found this page
             </p>
 
-            <h1 className="text-[clamp(2.75rem,9vw,5.5rem)] font-bold tracking-[-0.03em] text-[#e8e8e8] leading-[1.03]">
+            <h1 className="text-[clamp(3.5rem,9vw,6.5rem)] font-bold tracking-[-0.03em] text-[#e8e8e8] leading-[1.03]">
               <button
                 type="button"
-                className="block cursor-pointer border-0 bg-transparent p-0 text-left"
+                className="block cursor-pointer border-0 bg-transparent p-0 text-left flex items-baseline gap-3 relative z-20"
                 onClick={cycleName}
                 aria-label="Toggle between som and 0xs0m"
               >
-                {"i'm "}
-                <TextMorph
-                  text={nameConfig[nameMode].text}
-                  className={nameMode === "nerdy" ? "font-mono" : ""}
-                  style={{
-                    color: nameConfig[nameMode].color,
-                    textShadow: nameConfig[nameMode].shadow,
-                  }}
-                />
-                .
+                <span>{"i'm"}</span>
+                <span className="flex items-baseline">
+                  <TextMorph
+                    text={nameConfig[nameMode].text}
+                    className={nameMode === "nerdy" ? "font-mono" : ""}
+                    style={{
+                      color: nameConfig[nameMode].color,
+                      textShadow: nameConfig[nameMode].shadow,
+                    }}
+                  />
+                  <span style={{ color: nameConfig[nameMode].color, textShadow: nameConfig[nameMode].shadow }}>.</span>
+                </span>
               </button>
             </h1>
 
             {/* Cycling hero tagline with pretext-measured highlight */}
-            <div className="mt-3 h-10 md:h-12">
+            <div className="mt-4 h-10 md:h-12 relative z-20">
               <PretextHighlight
                 lines={heroLines}
                 currentIndex={heroIdx}
                 fontSize={24}
-                bgColor="#e8e8e8"
-                textColor="#0a0a0a"
+                bgColor="#e2d2c1"
+                textColor="#111"
                 paddingX={8}
-                paddingY={2}
+                paddingY={4}
               />
             </div>
 
             {/* Auto-cycling fun fact */}
-            <div className="mt-6 h-6 overflow-hidden">
+            <div className="mt-8 h-6 overflow-hidden relative z-20">
               <AnimatePresence mode="wait">
                 <motion.p
                   key={factIdx}
-                  className="font-mono text-sm text-[#666]"
+                  className="font-mono text-sm text-[#888]"
                   initial={{ opacity: 0, y: 14, x: -4 }}
                   animate={{ opacity: 1, y: 0, x: 0 }}
                   exit={{ opacity: 0, y: -10, x: 4 }}
                   transition={{ duration: 0.28, ease: "easeOut" }}
                 >
-                  {"// "}
+                  {"/ "}
                   {funFacts[factIdx]}
                 </motion.p>
               </AnimatePresence>
@@ -343,15 +322,15 @@ export default function Home() {
           </motion.div>
 
           <motion.div
-            className="mt-10 h-px bg-[#333]"
+            className="mt-14 h-px bg-gradient-to-r from-transparent via-[#333] to-transparent"
             initial={{ width: 0 }}
-            animate={{ width: "50%" }}
-            transition={{ duration: 0.7, delay: 0.7 }}
+            animate={{ width: "60%" }}
+            transition={{ duration: 1.5, delay: 0.7, ease: "easeInOut" }}
           />
 
           {/* ---- THE CHOICE ---- */}
           <motion.div
-            className="mt-12"
+            className="mt-12 relative z-20"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.9 }}
@@ -360,7 +339,7 @@ export default function Home() {
               pick a side
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6 max-w-2xl">
               {/* NERDY */}
               <motion.div
                 initial={{ opacity: 0, y: 24 }}
@@ -368,34 +347,31 @@ export default function Home() {
                 transition={{ duration: 0.5, delay: 1 }}
                 onHoverStart={() => { setHoverSide("nerdy"); if (!isHoverLocked) setNameMode("nerdy") }}
                 onHoverEnd={() => { setHoverSide(null); if (!isHoverLocked) setNameMode("default") }}
-                className="group"
+                className="group h-full"
               >
-                <Link href="/nerdy" onClick={handleNerdyOpen}>
-                  <motion.div
-                    whileHover={{ y: -6 }}
-                    className="cosmic-card crt-scanlines isolate relative p-7 md:p-9 min-h-[220px] flex flex-col justify-between overflow-hidden"
-                    animate={nameMode === "nerdy" ? {
+                <motion.div style={{ x: parallaxX, y: parallaxY, rotateX, rotateY, perspective: 1000 }} className="h-full">
+                  <Link href="/nerdy" onClick={handleNerdyOpen} className="block h-full cursor-pointer">
+                    <motion.div
+                      whileHover={{ y: -8, scale: 1.02 }}
+                      className="paper-card crt-scanlines isolate relative p-7 md:p-9 min-h-[220px] h-full flex flex-col justify-between overflow-hidden"
+                      animate={nameMode === "nerdy" ? {
                       borderColor: "#7fb07f",
-                      boxShadow: "0 0 34px rgba(127, 176, 127, 0.36)"
+                      boxShadow: "0 0 34px rgba(127, 176, 127, 0.16)"
                     } : {
                       borderColor: "#2a2a2a",
                       boxShadow: "none"
                     }}
                     transition={{ duration: 0.5 }}
-                    style={{ border: "1px solid" }}
                   >
                     <div className="tape-top" />
-                    {/* CRT terminal backdrop — faint code fragments, intensifies on hover */}
+                    {/* CRT terminal backdrop */}
                     <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden>
-                      <pre className="absolute right-1 top-1 m-0 select-none whitespace-pre font-mono text-[9px] leading-[1.6] text-accent-nerdy/15 transition-colors duration-500 group-hover:text-accent-nerdy/30">{`$ whoami
+                      <pre className="absolute right-1 top-1 m-0 select-none whitespace-pre font-mono text-[9px] leading-[1.6] text-[#7fb07f]/10 transition-colors duration-500 group-hover:text-[#7fb07f]/20">{`$ whoami
 0xs0m
 $ nmap -sV 10.0.0.1
 [+] 22/tcp  open  ssh
 [+] 443/tcp open  https
-$ ./exploit --pwn
-[*] shell acquired
-while (true) { hack(); }`}</pre>
-                      <div className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" style={{ background: "radial-gradient(130% 100% at 50% 125%, rgba(127,176,127,0.18), transparent 70%)" }} />
+$ ./exploit --pwn`}</pre>
                     </div>
                     <div>
                       <div className="flex items-center gap-3 mb-3">
@@ -405,17 +381,16 @@ while (true) { hack(); }`}</pre>
                             borderColor: "#7fb07f",
                             color: "#7fb07f"
                           } : {
-                            borderColor: "#333",
+                            borderColor: "#444",
                             color: "#e8e8e8"
                           }}
                           transition={{ duration: 0.5 }}
-                          style={{ border: "1px solid" }}
                         >
                           <Terminal className="h-4 w-4" />
                         </motion.div>
                         <motion.span
                           className="font-mono text-xs"
-                          animate={nameMode === "nerdy" ? { color: "#7fb07f" } : { color: "#666" }}
+                          animate={nameMode === "nerdy" ? { color: "#7fb07f" } : { color: "#888" }}
                           transition={{ duration: 0.5 }}
                         >
                           {"> whoami"}
@@ -429,29 +404,19 @@ while (true) { hack(); }`}</pre>
                         the nerdy side
                       </motion.h2>
                       <p className="text-sm text-[#aaa] leading-relaxed max-w-xs">
-                        {"resume, hacking stuff, certs, all that serious jazz."}
+                        resume, hacking stuff, certs, all that serious jazz.
                       </p>
                       <p className="mt-3 text-xs font-mono text-[#666] group-hover:text-[#e8e8e8] transition-colors italic">
-                        {"psst -- wanna hire me?"}
+                        psst -- wanna hire me?
                       </p>
                     </div>
-                    <div className="mt-4 flex items-center gap-2 text-sm font-mono text-[#666] group-hover:text-[#e8e8e8] transition-colors">
+                    <div className="mt-6 flex items-center gap-2 text-sm font-mono text-[#666] group-hover:text-[#e8e8e8] transition-colors">
                       <span>go there</span>
                       <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
                     </div>
-                    <motion.div
-                      className="absolute bottom-0 left-0 h-[2px] bg-[#e8e8e8] group-hover:w-full transition-all duration-500"
-                      animate={nameMode === "nerdy" ? {
-                        width: "100%",
-                        backgroundColor: "#7fb07f"
-                      } : {
-                        width: "0%",
-                        backgroundColor: "#e8e8e8"
-                      }}
-                      transition={{ duration: 0.5 }}
-                    />
                   </motion.div>
                 </Link>
+                </motion.div>
               </motion.div>
 
               {/* CREATIVE */}
@@ -459,34 +424,25 @@ while (true) { hack(); }`}</pre>
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 1.15 }}
-                onHoverStart={() => { setHoverSide("creative") }}
-                onHoverEnd={() => { setHoverSide(null) }}
-                className="group"
+                onHoverStart={() => setHoverSide("creative")}
+                onHoverEnd={() => setHoverSide(null)}
+                className="group h-full"
               >
-                <Link href="/creative">
-                  <motion.div
-                    whileHover={{ y: -6 }}
-                    className="cosmic-card isolate relative p-7 md:p-9 min-h-[220px] flex flex-col justify-between overflow-hidden"
-                    animate={hoverSide === "creative" ? {
+                <motion.div style={{ x: parallaxX, y: parallaxY, rotateX, rotateY, perspective: 1000 }} className="h-full">
+                  <Link href="/creative" className="block h-full cursor-pointer">
+                    <motion.div
+                      whileHover={{ y: -8, scale: 1.02 }}
+                      className="paper-card isolate relative p-7 md:p-9 min-h-[220px] h-full flex flex-col justify-between overflow-hidden"
+                      animate={hoverSide === "creative" ? {
                       borderColor: "#f0c6cf",
-                      boxShadow: "0 0 34px rgba(240, 198, 207, 0.36)"
+                      boxShadow: "0 0 34px rgba(240, 198, 207, 0.16)"
                     } : {
                       borderColor: "#2a2a2a",
                       boxShadow: "none"
                     }}
                     transition={{ duration: 0.5 }}
-                    style={{ border: "1px solid" }}
                   >
                     <div className="tape-top" />
-                    {/* cosmic darkroom backdrop — peony blooms from the corner on hover */}
-                    <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden>
-                      <SakuraAsset
-                        name="peony"
-                        sizes="220px"
-                        className="absolute -bottom-12 -right-10 h-auto w-[200px] opacity-25 drop-glow-sakura transition-all duration-700 ease-out group-hover:opacity-55 group-hover:-translate-y-2 group-hover:-rotate-[4deg]"
-                      />
-                      <div className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" style={{ background: "radial-gradient(130% 100% at 78% 122%, rgba(240,198,207,0.18), transparent 70%)" }} />
-                    </div>
                     <div>
                       <div className="flex items-center gap-3 mb-3">
                         <motion.div
@@ -495,17 +451,16 @@ while (true) { hack(); }`}</pre>
                             borderColor: "#f0c6cf",
                             color: "#f0c6cf"
                           } : {
-                            borderColor: "#333",
+                            borderColor: "#444",
                             color: "#e8e8e8"
                           }}
                           transition={{ duration: 0.5 }}
-                          style={{ border: "1px solid" }}
                         >
                           <Pen className="h-4 w-4" />
                         </motion.div>
                         <motion.span
                           className="font-mono text-xs"
-                          animate={hoverSide === "creative" ? { color: "#f0c6cf" } : { color: "#666" }}
+                          animate={hoverSide === "creative" ? { color: "#f0c6cf" } : { color: "#888" }}
                           transition={{ duration: 0.5 }}
                         >
                           ~
@@ -519,32 +474,22 @@ while (true) { hack(); }`}</pre>
                         the unhinged side
                       </motion.h2>
                       <p className="text-sm text-[#aaa] leading-relaxed max-w-xs">
-                        {"photos, sketches, late-night scribbles. the fun stuff."}
+                        photos, sketches, late-night scribbles. the fun stuff.
                       </p>
                       <p className="mt-3 text-xs font-mono text-[#666] group-hover:text-[#e8e8e8] transition-colors italic">
-                        {"aka the fun one"}
+                        aka the fun one
                       </p>
                     </div>
-                    <div className="mt-4 flex items-center gap-2 text-sm font-mono text-[#666] group-hover:text-[#e8e8e8] transition-colors">
+                    <div className="mt-6 flex items-center gap-2 text-sm font-mono text-[#666] group-hover:text-[#e8e8e8] transition-colors">
                       <span>go there</span>
                       <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
                     </div>
-                    <motion.div
-                      className="absolute bottom-0 left-0 h-[2px] bg-[#e8e8e8] group-hover:w-full transition-all duration-500"
-                      animate={hoverSide === "creative" ? {
-                        width: "100%",
-                        backgroundColor: "#f0c6cf"
-                      } : {
-                        width: "0%",
-                        backgroundColor: "#e8e8e8"
-                      }}
-                      transition={{ duration: 0.5 }}
-                    />
                   </motion.div>
                 </Link>
+                </motion.div>
               </motion.div>
             </div>
-
+            
             {/* Hover indicator */}
             <motion.p
               className="mt-5 font-mono text-xs text-[#666] h-5"
@@ -558,291 +503,209 @@ while (true) { hack(); }`}</pre>
             </motion.p>
           </motion.div>
 
-          {/* Scroll hint */}
           <motion.div
-            className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+            className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-20"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.5, duration: 0.6, ease: "easeOut" }}
           >
-            <p className="font-mono text-xs text-[#666]">scroll for vibes</p>
+            <p className="font-mono text-xs text-[#666]">scroll for more</p>
             <motion.div
               animate={{ y: [0, 8, 0] }}
               transition={{ duration: 1.8, repeat: Infinity, ease: [0.45, 0, 0.55, 1] }}
             >
-              <ArrowDown className="h-4 w-4 text-[#666]" />
+              <ArrowDown className="h-4 w-4 text-[#888]" />
             </motion.div>
           </motion.div>
         </motion.div>
       </section>
 
 
-      {/* ==== BELOW THE FOLD ==== */}
 
-      {/* hero → music transition: a river of petals descends, carrying you down
-          into the soundtrack. The river asset used as a structural connective spine. */}
-      <motion.div
-        className="pointer-events-none relative z-[3] flex justify-center overflow-hidden"
-        style={{ height: "clamp(8rem, 20vh, 14rem)" }}
-        aria-hidden
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true, margin: "-10%" }}
-        transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-      >
-        <div className="absolute left-1/2 top-[-45%] h-[210%] w-[230px] -translate-x-1/2">
-          <SakuraAsset name="river" sizes="230px" className="h-full w-full object-cover opacity-75 blend-screen mask-fade-y" />
-        </div>
-      </motion.div>
+      {/* ===== MUSIC ZONE ===== */}
+      <section className="relative z-10 mx-auto max-w-5xl px-6 py-24">
+        {/* ---- NOW PLAYING ---- */}
+        {nowPlaying?.isPlaying && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.5 }}
+            className="mb-14"
+          >
+            <SpotifyNowPlayingContent nowPlaying={nowPlaying} />
+          </motion.div>
+        )}
 
-      {/* ===== MUSIC ZONE: one cohesive nebula atmosphere behind the soundtrack ===== */}
-      <div className="relative">
-        <div className="pointer-events-none absolute inset-0 z-[1] overflow-hidden" aria-hidden>
-          <SakuraAsset
-            name="nebula"
-            sizes="120vw"
-            className="absolute inset-0 h-full w-full object-cover opacity-40 blend-screen animate-cosmic-drift [mask-image:linear-gradient(to_bottom,transparent,#000_9%,#000_95%,transparent)] [-webkit-mask-image:linear-gradient(to_bottom,transparent,#000_9%,#000_95%,transparent)] [filter:sepia(0.5)_hue-rotate(252deg)_saturate(1.5)_brightness(1.05)]"
-          />
-        </div>
+        {/* ---- TOP ARTISTS ---- */}
+        {topArtists.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.5 }}
+            className="mb-14"
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <Users className="h-4 w-4 text-[#ccc]" />
+              <p className="font-mono text-xs tracking-widest uppercase text-[#ccc]">top artists</p>
+            </div>
+            <p className="text-sm text-[#888] mb-8">the people responsible for my personality</p>
 
-      {/* ---- NOW PLAYING ---- */}
-      {nowPlaying?.isPlaying && (
-        <section className="relative z-10 mx-auto max-w-5xl px-6 pb-8">
+            <div className="flex flex-wrap gap-4">
+              {topArtistCards.map((artist, i) => (
+                <motion.a
+                  key={artist.url ?? `${artist.name}-${i}`}
+                  href={artist.url ?? "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(event) => {
+                    if (!artist.url) event.preventDefault()
+                  }}
+                  className={`group paper-card p-5 flex flex-col items-center text-center hover-bounce w-[calc(50%_-_0.5rem)] sm:w-auto ${
+                    artist.url ? "" : "cursor-default"
+                  }`}
+                  style={!isCompactSpotify ? { width: `${artist.cardWidth}px` } : undefined}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.06, duration: 0.35 }}
+                >
+                  <SpotifyArtwork
+                    src={artist.imageUrl}
+                    alt={artist.name}
+                    loading="lazy"
+                    className="w-20 h-20 border-2 border-[#333] bg-[#1a1a1a] mb-3 flex items-center justify-center overflow-hidden group-hover:border-[#e8e8e8] transition-colors"
+                    imgClassName="w-full h-full object-cover"
+                    fallback={<Users className="h-8 w-8 text-[#444]" />}
+                  />
+                  <p className="text-sm font-bold text-[#e8e8e8] group-hover:underline truncate w-full">{artist.name}</p>
+                  {artist.genreLabel && (
+                    <p className="text-xs text-[#888] truncate w-full mt-1">{artist.genreLabel}</p>
+                  )}
+                </motion.a>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* ---- TOP TRACKS ---- */}
+        {topTracks.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.5 }}
+            className="mb-14"
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <Headphones className="h-4 w-4 text-[#ccc]" />
+              <p className="font-mono text-xs tracking-widest uppercase text-[#ccc]">all-time faves</p>
+            </div>
+            <p className="text-sm text-[#888] mb-6">the songs i&apos;ve played to death</p>
+
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              {topTrackRows.map((track, i) => (
+                <motion.a
+                  key={track.songUrl ?? `${track.title}-${track.artist}-${i}`}
+                  href={track.songUrl ?? "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(event) => {
+                    if (!track.songUrl) event.preventDefault()
+                  }}
+                  className="paper-card w-full p-4 flex items-center gap-4 hover-bounce group sm:w-auto"
+                  style={!isCompactSpotify ? { width: `${track.cardWidth}px` } : undefined}
+                  initial={{ opacity: 0, x: -10 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.04, duration: 0.3 }}
+                >
+                  <span className="font-mono text-xs text-[#666] w-5 shrink-0">{track.rankLabel}</span>
+                  <SpotifyArtwork
+                    src={track.albumImageUrl}
+                    alt={track.album}
+                    loading="lazy"
+                    className="w-10 h-10 shrink-0 border border-[#333] bg-[#1a1a1a] flex items-center justify-center overflow-hidden"
+                    imgClassName="w-full h-full object-cover"
+                    fallback={<span className="text-[#444] text-xs">♪</span>}
+                  />
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-[#e8e8e8] truncate group-hover:underline">{track.title}</p>
+                    <p className="text-xs text-[#aaa] truncate">{track.artist}</p>
+                  </div>
+                </motion.a>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* ---- RECENTLY PLAYED ---- */}
+        {recentTracks.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-60px" }}
             transition={{ duration: 0.5 }}
           >
-            <div className="border-t border-[#333] pt-10">
-              <SpotifyNowPlayingContent nowPlaying={nowPlaying} />
+            <div className="flex items-center gap-2 mb-2">
+              <Clock className="h-4 w-4 text-[#ccc]" />
+              <p className="font-mono text-xs tracking-widest uppercase text-[#ccc]">recently played</p>
+            </div>
+            <p className="text-sm text-[#888] mb-6">what was in my ears a minute ago</p>
+
+            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+              {recentTrackRows.map((track, i) => (
+                <motion.a
+                  key={track.songUrl ?? `${track.title}-${track.playedAt}-${i}`}
+                  href={track.songUrl ?? "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(event) => {
+                    if (!track.songUrl) event.preventDefault()
+                  }}
+                  className="paper-card w-full p-3 flex items-center gap-4 hover-bounce group sm:w-auto"
+                  style={!isCompactSpotify ? { width: `${track.cardWidth}px` } : undefined}
+                  initial={{ opacity: 0, x: -8 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.03, duration: 0.25 }}
+                >
+                  <SpotifyArtwork
+                    src={track.albumImageUrl}
+                    alt={track.album}
+                    loading="lazy"
+                    className="w-8 h-8 shrink-0 border border-[#333] bg-[#1a1a1a] flex items-center justify-center overflow-hidden"
+                    imgClassName="w-full h-full object-cover"
+                    fallback={<span className="text-[#444] text-xs">♪</span>}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm text-[#e8e8e8] truncate group-hover:underline">{track.title}</p>
+                    <p className="text-xs text-[#aaa] truncate">{track.artist}</p>
+                  </div>
+                  <p className="font-mono text-xs text-[#666] shrink-0">{track.playedLabel}</p>
+                </motion.a>
+              ))}
             </div>
           </motion.div>
-        </section>
-      )}
+        )}
+      </section>
 
-      {/* ---- TOP ARTISTS ---- */}
-      {topArtists.length > 0 && (
-        <section className="relative z-10 mx-auto max-w-5xl px-6 pb-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-60px" }}
-            transition={{ duration: 0.5 }}
-          >
-            <div className="border-t border-[#333] pt-10">
-              <div className="flex items-center gap-2 mb-2">
-                <Users className="h-4 w-4 text-[#ccc]" />
-                <p className="font-mono text-xs tracking-widest uppercase text-[#ccc]">top artists</p>
-              </div>
-              <p className="text-sm text-[#888] mb-8">{"the people responsible for my personality"}</p>
-
-              <div className="flex flex-wrap gap-4">
-                {topArtistCards.map((artist, i) => (
-                  <motion.a
-                    key={artist.url ?? `${artist.name}-${i}`}
-                    href={artist.url ?? "#"}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(event) => {
-                      if (!artist.url) event.preventDefault()
-                    }}
-                    className={`group paper-card p-5 flex flex-col items-center text-center hover-bounce w-[calc(50%_-_0.5rem)] sm:w-auto ${
-                      artist.url ? "" : "cursor-default"
-                    }`}
-                    style={!isCompactSpotify ? { width: `${artist.cardWidth}px` } : undefined}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.06, duration: 0.35 }}
-                  >
-                    <SpotifyArtwork
-                      src={artist.imageUrl}
-                      alt={artist.name}
-                      loading="lazy"
-                      className="w-20 h-20 border-2 border-[#333] bg-[#1a1a1a] mb-3 flex items-center justify-center overflow-hidden group-hover:border-[#e8e8e8] transition-colors"
-                      imgClassName="w-full h-full object-cover"
-                      fallback={<Users className="h-8 w-8 text-[#444]" />}
-                    />
-                    <p className="text-sm font-bold text-[#e8e8e8] group-hover:underline truncate w-full">{artist.name}</p>
-                    {artist.genreLabel && (
-                      <p className="text-xs text-[#888] truncate w-full mt-1">{artist.genreLabel}</p>
-                    )}
-                  </motion.a>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-        </section>
-      )}
-
-      {/* ---- TOP TRACKS ---- */}
-      {topTracks.length > 0 && (
-        <section className="relative z-10 mx-auto max-w-5xl px-6 pb-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-60px" }}
-            transition={{ duration: 0.5 }}
-          >
-            <div className="border-t border-[#333] pt-10">
-              <div className="flex items-center gap-2 mb-2">
-                <Headphones className="h-4 w-4 text-[#ccc]" />
-                <p className="font-mono text-xs tracking-widest uppercase text-[#ccc]">all-time faves</p>
-              </div>
-              <p className="text-sm text-[#888] mb-6">{"the songs i've played to death"}</p>
-
-              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                {topTrackRows.map((track, i) => (
-                  <motion.a
-                    key={track.songUrl ?? `${track.title}-${track.artist}-${i}`}
-                    href={track.songUrl ?? "#"}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(event) => {
-                      if (!track.songUrl) event.preventDefault()
-                    }}
-                    className="paper-card w-full p-4 flex items-center gap-4 hover-bounce group sm:w-auto"
-                    style={!isCompactSpotify ? { width: `${track.cardWidth}px` } : undefined}
-                    initial={{ opacity: 0, x: -10 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.04, duration: 0.3 }}
-                  >
-                    <span className="font-mono text-xs text-[#666] w-5 shrink-0">{track.rankLabel}</span>
-                    <SpotifyArtwork
-                      src={track.albumImageUrl}
-                      alt={track.album}
-                      loading="lazy"
-                      className="w-10 h-10 shrink-0 border border-[#333] bg-[#1a1a1a] flex items-center justify-center overflow-hidden"
-                      imgClassName="w-full h-full object-cover"
-                      fallback={<span className="text-[#444] text-xs">♪</span>}
-                    />
-                    <div className="min-w-0">
-                      <p className="text-sm font-bold text-[#e8e8e8] truncate group-hover:underline">{track.title}</p>
-                      <p className="text-xs text-[#aaa] truncate">{track.artist}</p>
-                    </div>
-                  </motion.a>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-        </section>
-      )}
-
-      {/* ---- RECENTLY PLAYED ---- */}
-      {recentTracks.length > 0 && (
-        <section className="relative z-10 mx-auto max-w-5xl px-6 pb-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-60px" }}
-            transition={{ duration: 0.5 }}
-          >
-            <div className="border-t border-[#333] pt-10">
-              <div className="flex items-center gap-2 mb-2">
-                <Clock className="h-4 w-4 text-[#ccc]" />
-                <p className="font-mono text-xs tracking-widest uppercase text-[#ccc]">recently played</p>
-              </div>
-              <p className="text-sm text-[#888] mb-6">{"what was in my ears a minute ago"}</p>
-
-              <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-                {recentTrackRows.map((track, i) => (
-                  <motion.a
-                    key={track.songUrl ?? `${track.title}-${track.playedAt}-${i}`}
-                    href={track.songUrl ?? "#"}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(event) => {
-                      if (!track.songUrl) event.preventDefault()
-                    }}
-                    className="paper-card w-full p-3 flex items-center gap-4 hover-bounce group sm:w-auto"
-                    style={!isCompactSpotify ? { width: `${track.cardWidth}px` } : undefined}
-                    initial={{ opacity: 0, x: -8 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.03, duration: 0.25 }}
-                  >
-                    <SpotifyArtwork
-                      src={track.albumImageUrl}
-                      alt={track.album}
-                      loading="lazy"
-                      className="w-8 h-8 shrink-0 border border-[#333] bg-[#1a1a1a] flex items-center justify-center overflow-hidden"
-                      imgClassName="w-full h-full object-cover"
-                      fallback={<span className="text-[#444] text-xs">♪</span>}
-                    />
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm text-[#e8e8e8] truncate group-hover:underline">{track.title}</p>
-                      <p className="text-xs text-[#aaa] truncate">{track.artist}</p>
-                    </div>
-                    <p className="font-mono text-xs text-[#666] shrink-0">{track.playedLabel}</p>
-                  </motion.a>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-        </section>
-      )}
-
-      </div>
-      {/* ===== /MUSIC ZONE ===== */}
-
-      {/* music → experiments: a sakura branch arcs across — a structural threshold */}
-      <motion.div
-        className="pointer-events-none relative z-[3] mx-auto flex max-w-6xl items-center justify-center overflow-hidden"
-        style={{ height: "clamp(7rem, 16vh, 11rem)" }}
-        aria-hidden
-        initial={{ opacity: 0, y: 26 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-15%" }}
-        transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
-      >
-        <SakuraAsset name="branch-b" sizes="92vw" className="h-auto w-[min(92vw,1100px)] -rotate-2 opacity-60 mask-fade-x drop-glow-sakura" />
-      </motion.div>
-
-      {/* ---- PLAYLIST / the engineer's playground — the galaxy emerges behind the terminal ---- */}
-      <section className="relative isolate z-10 mx-auto max-w-5xl px-6 pb-10">
-        {/* the galaxy emerges; the terminal floats in space */}
-        <div className="cosmic-layer inset-0 -z-10 flex items-center justify-center" aria-hidden>
-          <ParallaxLayer speed={70} mouse={10} className="w-[min(135vw,1150px)]">
-            <SakuraAsset
-              name="galaxy"
-              sizes="(max-width: 768px) 135vw, 1150px"
-              className="h-auto w-full opacity-50 animate-galaxy-spin drop-glow-violet mask-fade-radial"
-            />
-          </ParallaxLayer>
-        </div>
+      {/* ---- TERMINAL ---- */}
+      <section className="relative z-10 mx-auto max-w-5xl px-6 py-24">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.6 }}
         >
-          <div className="border-t border-[#333] pt-10">
-            <MusicDCTF />
-          </div>
+          <MusicDCTF />
         </motion.div>
       </section>
 
-      {/* ---- CONVERGENCE: socials + the final bloom ---- */}
-      <section className="relative isolate z-10 mx-auto max-w-5xl px-6 pb-14 pt-12 md:pt-24">
-        {/* the universe converges — a single blossom blooms */}
+      {/* ---- CONVERGENCE: socials ---- */}
+      <section className="relative isolate z-10 mx-auto max-w-5xl px-6 pb-24 pt-24">
         <motion.div
-          className="cosmic-layer inset-x-0 -bottom-28 -z-10 flex justify-center"
-          aria-hidden
-          initial={{ opacity: 0, scale: 0.6, rotate: -8 }}
-          whileInView={{ opacity: 0.55, scale: 1, rotate: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 1.3, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <SakuraAsset
-            name="peony"
-            sizes="(max-width: 768px) 92vw, 600px"
-            className="h-auto w-[min(92vw,600px)] drop-glow-sakura"
-          />
-        </motion.div>
-        <motion.div
-          className="border-t border-[#333] pt-10"
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-40px" }}
@@ -852,7 +715,7 @@ while (true) { hack(); }`}</pre>
             find me elsewhere
           </p>
           <p className="text-sm text-[#888] mb-6">
-            {"(i sometimes reply)"}
+            (i sometimes reply)
           </p>
 
           <div className="flex flex-wrap gap-3">
@@ -877,8 +740,9 @@ while (true) { hack(); }`}</pre>
       </section>
 
       {/* ---- FOOTER ---- */}
-      <footer className="relative z-10 border-t border-[#333]">
-        <div className="mx-auto max-w-5xl px-6 py-7 flex items-center justify-between">
+      <footer className="relative z-10 overflow-hidden">
+        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#2a2a2a] to-transparent opacity-50" />
+        <div className="mx-auto max-w-5xl px-6 py-12 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="font-mono text-xs text-[#888]">som chandra, 2025</p>
           <p className="font-mono text-xs text-[#666]">made with monster and bunch of tokens</p>
         </div>
