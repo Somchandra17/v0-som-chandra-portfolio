@@ -246,6 +246,27 @@
   50% { background-position: -30% 100%; }
 }
 
+/* ---- Awakening: energy propagation keyframes ---- */
+
+/* Traveling ignition band swept across a silhouette (masked by image alpha) */
+@keyframes energy-sweep {
+  0% { background-position: 140% 0%; }
+  100% { background-position: -40% 100%; }
+}
+
+/* Status indicator pulse (● ONLINE on the nerdy card) */
+@keyframes status-pulse {
+  0%, 100% { opacity: 0.45; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+/* CTA "go there" energy pulse on hover */
+@keyframes cta-pulse {
+  0% { transform: translateX(0); }
+  40% { transform: translateX(3px); }
+  100% { transform: translateX(0); }
+}
+
 /* ---- Base ---- */
 
 @layer base {
@@ -536,5 +557,39 @@
   .mask-fade-radial {
     -webkit-mask-image: radial-gradient(closest-side, #000 60%, transparent 100%);
     mask-image: radial-gradient(closest-side, #000 60%, transparent 100%);
+  }
+
+  /* ============================================================
+     AWAKENING utilities — all hover-gated by the React tree, so
+     these only render while a side is active. Reduced-motion is
+     globally neutralized by the @media block above.
+     ============================================================ */
+
+  /* The traveling ignition band (paired with an image-alpha mask inline) */
+  .energy-sweep {
+    animation: energy-sweep 2.4s linear infinite;
+  }
+
+  /* Intensified CRT scanlines while the nerdy card is hovered */
+  .crt-scanlines.crt-intense::after {
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(127, 176, 127, 0.22),
+      rgba(127, 176, 127, 0.22) 1px,
+      transparent 1px,
+      transparent 4px
+    );
+    background-size: 100% 4px;
+    animation: scanline-scroll 1.1s linear infinite;
+  }
+
+  /* ● ONLINE status dot */
+  .status-dot {
+    animation: status-pulse 1.4s ease-in-out infinite;
+  }
+
+  /* CTA energy pulse on hover (CSS only) */
+  .cta-pulse:hover .cta-arrow {
+    animation: cta-pulse 0.6s ease-out infinite;
   }
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import { motion, useScroll, useTransform, useSpring, useMotionValue, useReducedMotion } from "framer-motion"
+import { motion, AnimatePresence, useScroll, useTransform, useSpring, useMotionValue, useReducedMotion } from "framer-motion"
 import { useEffect, useState } from "react"
 
 // V2 Orchestrated Scene Data.
@@ -227,6 +227,41 @@ function FloatingSvgItem({
     ? { opacity: targetOpacity, scale: targetScale, rotate: targetRotate, y: targetY }
     : undefined
 
+  // ---- Silhouette ignition (the video's hero effect) ----
+  // Light reveals the layer's own structure via its alpha, with a moving sweep
+  // band that travels the silhouette. Hover-gated → mounts only while matching.
+  const isGalaxy = item.type === "galaxy"
+  const ENERGY_GREEN = "127, 176, 127"
+  const ENERGY_PINK = "240, 198, 207"
+
+  // Generic ignition: branches / flowers / rivers light up on a matching-tone hover.
+  const igniteColor =
+    motionEnabled && item.asset && !isGalaxy
+      ? hoverSide === "nerdy" && item.tone === "green"
+        ? ENERGY_GREEN
+        : hoverSide === "creative" && item.tone === "pink" && item.type !== "nebula-glow"
+          ? ENERGY_PINK
+          : null
+      : null
+
+  // Galaxy "acknowledgement": a subtle brief highlight for either side.
+  const galaxyColor =
+    motionEnabled && isGalaxy && hoverSide ? (hoverSide === "nerdy" ? ENERGY_GREEN : ENERGY_PINK) : null
+
+  const maskUrl = item.asset ? `url(/cosmic/${item.asset}.webp)` : undefined
+  const sharedMaskStyle = maskUrl
+    ? {
+        WebkitMaskImage: maskUrl,
+        maskImage: maskUrl,
+        WebkitMaskSize: "contain",
+        maskSize: "contain",
+        WebkitMaskRepeat: "no-repeat",
+        maskRepeat: "no-repeat",
+        WebkitMaskPosition: "center",
+        maskPosition: "center",
+      }
+    : {}
+
   return (
     <motion.div
       className="absolute pointer-events-none"
@@ -295,6 +330,54 @@ function FloatingSvgItem({
                 />
               </picture>
             )}
+
+            {/* ---- Silhouette ignition: alpha-masked additive light + traveling sweep ---- */}
+            <AnimatePresence>
+              {igniteColor && (
+                <motion.div
+                  key="ignite"
+                  className="absolute inset-0 pointer-events-none"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
+                  aria-hidden
+                >
+                  {/* base structure tint — pulsed, modest */}
+                  <motion.div
+                    className="absolute inset-0 mix-blend-screen"
+                    style={{ backgroundColor: `rgb(${igniteColor})`, ...sharedMaskStyle }}
+                    animate={{ opacity: [0.16, 0.3, 0.16] }}
+                    transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
+                  />
+                  {/* traveling ignition band sweeping across the silhouette */}
+                  <div
+                    className="absolute inset-0 mix-blend-screen energy-sweep"
+                    style={{
+                      backgroundImage: `linear-gradient(115deg, transparent 38%, rgba(${igniteColor}, 0.9) 50%, transparent 62%)`,
+                      backgroundSize: "250% 250%",
+                      ...sharedMaskStyle,
+                    }}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* ---- Galaxy acknowledgement: subtle masked highlight ---- */}
+            <AnimatePresence>
+              {galaxyColor && (
+                <motion.div
+                  key="galaxy-ack"
+                  className="absolute inset-0 mix-blend-screen pointer-events-none"
+                  style={{ backgroundColor: `rgb(${galaxyColor})`, ...sharedMaskStyle }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: [0, 0.12, 0.07] }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 1.6, delay: 0.7, ease: "easeOut" }}
+                  aria-hidden
+                />
+              )}
+            </AnimatePresence>
           </motion.div>
         </motion.div>
       </motion.div>
