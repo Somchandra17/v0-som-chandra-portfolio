@@ -267,6 +267,71 @@
   100% { transform: translateX(0); }
 }
 
+/* ============================================================
+   V6 FINAL POLISH: Magical Hover Reactions & Environmental
+   Propagation. All CSS-driven, GPU-promoted, replay on hover.
+   ============================================================ */
+
+/* ASCII glitch effect: rapid char mutation flicker for nerdy card */
+@keyframes ascii-glitch {
+  0%, 100% { opacity: 1; }
+  25% { opacity: 0.7; text-shadow: 2px 0 #7fb07f; }
+  50% { opacity: 0.9; text-shadow: -2px 0 #7fb07f; }
+  75% { opacity: 0.75; text-shadow: 1px -1px #7fb07f; }
+}
+
+/* Sparkle particles burst outward from pencil icon (creative hover) */
+@keyframes sparkle-burst {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--tx, 0), var(--ty, 0)) scale(0);
+  }
+}
+
+/* Sakura petal drift: gentle downward arc with rotation fade */
+@keyframes petal-drift {
+  0% {
+    opacity: 1;
+    transform: translateY(0) rotateZ(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(120px) rotateZ(360deg);
+  }
+}
+
+/* Peony petal unfold: staged reveal from center outward */
+@keyframes peony-unfold-core {
+  0% { opacity: 0; transform: scale(0.6); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes peony-unfold-inner {
+  0% { opacity: 0; transform: scale(0.5) rotate(-15deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+
+@keyframes peony-unfold-outer {
+  0% { opacity: 0; transform: scale(0.4) rotate(15deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+
+/* Green ecosystem bloom upward on nerdy hover */
+@keyframes bloom-upward {
+  0% { opacity: 0; transform: translateY(40px) scale(0.8); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Green SVG reposition: slide to new location */
+@keyframes slide-reposition {
+  0% { transform: translateX(0) translateY(0); }
+  100% { transform: var(--tx-final, translateX(0)) var(--ty-final, translateY(0)); }
+}
+
 /* ---- Base ---- */
 
 @layer base {
@@ -625,5 +690,66 @@
     .heading-wash {
       display: none;
     }
+  }
+
+  /* ============================================================
+     V6 FINAL POLISH UTILITIES
+     ============================================================ */
+
+  /* Nerdy card: ASCII glitch effect on hover */
+  .ascii-glitch {
+    animation: ascii-glitch 0.4s ease-out 1 both;
+  }
+
+  /* Sparkle particles burst from pencil (6-8 particles, staggered) */
+  .sparkle-particle {
+    position: fixed;
+    pointer-events: none;
+    width: 4px;
+    height: 4px;
+    background: radial-gradient(circle, #f0c6cf, transparent 70%);
+    border-radius: 50%;
+  }
+  .sparkle-particle[data-index="0"] { animation: sparkle-burst 0.8s ease-out 1 both; --tx: 40px; --ty: -30px; animation-delay: 0s; }
+  .sparkle-particle[data-index="1"] { animation: sparkle-burst 0.8s ease-out 1 both; --tx: 30px; --ty: 25px; animation-delay: 0.05s; }
+  .sparkle-particle[data-index="2"] { animation: sparkle-burst 0.8s ease-out 1 both; --tx: -35px; --ty: -20px; animation-delay: 0.1s; }
+  .sparkle-particle[data-index="3"] { animation: sparkle-burst 0.8s ease-out 1 both; --tx: -30px; --ty: 30px; animation-delay: 0.15s; }
+  .sparkle-particle[data-index="4"] { animation: sparkle-burst 0.8s ease-out 1 both; --tx: 25px; --ty: 40px; animation-delay: 0.05s; }
+  .sparkle-particle[data-index="5"] { animation: sparkle-burst 0.8s ease-out 1 both; --tx: -25px; --ty: -35px; animation-delay: 0.1s; }
+
+  /* Sakura petals drift downward (6 petals, staggered cascade) */
+  .sakura-petal {
+    position: fixed;
+    pointer-events: none;
+    width: 20px;
+    height: 20px;
+    opacity: 0.8;
+  }
+  .sakura-petal[data-index="0"] { animation: petal-drift 2.2s ease-in 1 both; animation-delay: 0s; }
+  .sakura-petal[data-index="1"] { animation: petal-drift 2.4s ease-in 1 both; animation-delay: 0.15s; }
+  .sakura-petal[data-index="2"] { animation: petal-drift 2.1s ease-in 1 both; animation-delay: 0.3s; }
+  .sakura-petal[data-index="3"] { animation: petal-drift 2.5s ease-in 1 both; animation-delay: 0.1s; }
+  .sakura-petal[data-index="4"] { animation: petal-drift 2.3s ease-in 1 both; animation-delay: 0.25s; }
+  .sakura-petal[data-index="5"] { animation: petal-drift 2.2s ease-in 1 both; animation-delay: 0.2s; }
+
+  /* Peony petal unfold: center → inner → outer with delays */
+  .peony-core {
+    animation: peony-unfold-core 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s 1 both;
+  }
+  .peony-inner {
+    animation: peony-unfold-inner 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.35s 1 both;
+  }
+  .peony-outer {
+    animation: peony-unfold-outer 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.6s 1 both;
+  }
+
+  /* Green ecosystem bloom upward */
+  .bloom-upward {
+    animation: bloom-upward 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s 1 both;
+  }
+
+  /* Green SVG reposition slide */
+  .slide-to-position {
+    animation: slide-reposition 0.8s ease-out 1 both;
   }
 }

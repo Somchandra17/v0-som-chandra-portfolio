@@ -94,6 +94,10 @@ export default function Home() {
   const [isHoverLocked, setIsHoverLocked] = useState(false)
   const [isNerdyRouting, setIsNerdyRouting] = useState(false)
   const [factIdx, setFactIdx] = useState(0)
+  // V6 animations: keys reset on each hover to replay CSS animations
+  const [glitchKey, setGlitchKey] = useState(0)
+  const [sparkleKey, setSparkleKey] = useState(0)
+  const [peonyKey, setPeonyKey] = useState(0)
 
   const cycleName = () => {
     setSessionFlag("som-name-clicked", "1")
@@ -345,7 +349,11 @@ export default function Home() {
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 1 }}
-                onHoverStart={() => { setHoverSide("nerdy"); if (!isHoverLocked) setNameMode("nerdy") }}
+                onHoverStart={() => {
+                  setHoverSide("nerdy")
+                  if (!isHoverLocked) setNameMode("nerdy")
+                  setGlitchKey(prev => prev + 1) // Replay glitch animation
+                }}
                 onHoverEnd={() => { setHoverSide(null); if (!isHoverLocked) setNameMode("default") }}
                 className="group h-full"
               >
@@ -389,7 +397,8 @@ $ ./exploit --pwn`}</pre>
                           <Terminal className="h-4 w-4" />
                         </motion.div>
                         <motion.span
-                          className="font-mono text-xs"
+                          key={glitchKey}
+                          className={`font-mono text-xs ${hoverSide === "nerdy" ? "ascii-glitch" : ""}`}
                           animate={nameMode === "nerdy" ? { color: "#7fb07f" } : { color: "#888" }}
                           transition={{ duration: 0.5 }}
                         >
@@ -424,7 +433,11 @@ $ ./exploit --pwn`}</pre>
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 1.15 }}
-                onHoverStart={() => setHoverSide("creative")}
+                onHoverStart={() => {
+                  setHoverSide("creative")
+                  setSparkleKey(prev => prev + 1) // Replay sparkle animation
+                  setPeonyKey(prev => prev + 1) // Replay peony unfold
+                }}
                 onHoverEnd={() => setHoverSide(null)}
                 className="group h-full"
               >
@@ -446,7 +459,7 @@ $ ./exploit --pwn`}</pre>
                     <div>
                       <div className="flex items-center gap-3 mb-3">
                         <motion.div
-                          className="flex h-9 w-9 items-center justify-center border"
+                          className="relative flex h-9 w-9 items-center justify-center border"
                           animate={hoverSide === "creative" ? {
                             borderColor: "#f0c6cf",
                             color: "#f0c6cf",
@@ -457,6 +470,19 @@ $ ./exploit --pwn`}</pre>
                           transition={{ duration: 0.5 }}
                         >
                           <Pen className="h-4 w-4" />
+                          {/* Sparkle burst particles (creative hover) */}
+                          {hoverSide === "creative" && (
+                            <>
+                              {Array.from({ length: 6 }).map((_, i) => (
+                                <span
+                                  key={`${sparkleKey}-${i}`}
+                                  className="sparkle-particle"
+                                  data-index={i}
+                                  aria-hidden
+                                />
+                              ))}
+                            </>
+                          )}
                         </motion.div>
                         <motion.span
                           className="font-mono text-xs"
@@ -740,9 +766,63 @@ $ ./exploit --pwn`}</pre>
       </section>
 
       {/* ---- FOOTER ---- */}
-      <footer className="relative z-10 overflow-hidden">
+      <footer className="relative z-10 overflow-visible">
         <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#2a2a2a] to-transparent opacity-50" />
-        <div className="mx-auto max-w-5xl px-6 py-12 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="mx-auto max-w-5xl px-6 py-12 flex flex-col md:flex-row items-center justify-between gap-4 relative">
+          {/* Peony unfold (creative hover) */}
+          {hoverSide === "creative" && (
+            <div
+              key={`peony-${peonyKey}`}
+              className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-32 h-32 pointer-events-none"
+              aria-hidden
+            >
+              {/* Peony core center bloom */}
+              <div
+                className="peony-core absolute inset-0"
+                style={{
+                  background: "radial-gradient(circle, rgba(240, 198, 207, 0.4), transparent 70%)",
+                  borderRadius: "50%",
+                }}
+              />
+              {/* Peony inner petals */}
+              <div
+                className="peony-inner absolute inset-2"
+                style={{
+                  background: "radial-gradient(circle, rgba(240, 198, 207, 0.35), transparent 70%)",
+                  borderRadius: "50%",
+                  transform: "rotate(45deg)",
+                }}
+              />
+              {/* Peony outer petals */}
+              <div
+                className="peony-outer absolute inset-4"
+                style={{
+                  background: "radial-gradient(circle, rgba(240, 198, 207, 0.25), transparent 80%)",
+                  borderRadius: "50%",
+                  transform: "rotate(90deg)",
+                }}
+              />
+            </div>
+          )}
+
+          {/* Sakura petal drift (creative hover) */}
+          {hoverSide === "creative" &&
+            Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={`petal-${peonyKey}-${i}`}
+                className="sakura-petal"
+                data-index={i}
+                style={{
+                  left: `${20 + i * 12}%`,
+                  top: "-20px",
+                  background: "radial-gradient(circle, rgba(240, 198, 207, 0.8), transparent 70%)",
+                  borderRadius: "50%",
+                  clipPath: "polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)",
+                }}
+                aria-hidden
+              />
+            ))}
+
           <p className="font-mono text-xs text-[#888]">som chandra, 2025</p>
           <p className="font-mono text-xs text-[#666]">made with monster and bunch of tokens</p>
         </div>
