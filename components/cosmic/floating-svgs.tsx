@@ -1,6 +1,6 @@
 "use client"
 
-import { motion, AnimatePresence, useScroll, useTransform, useSpring, useMotionValue, useReducedMotion } from "framer-motion"
+import { motion, useScroll, useTransform, useSpring, useMotionValue, useReducedMotion } from "framer-motion"
 import { useEffect, useState } from "react"
 
 // V2 Orchestrated Scene Data.
@@ -132,28 +132,29 @@ function FloatingSvgItem({
   let targetY = "0%"
   let targetRotate = item.rotate
 
-  // Interaction Hover Logic (V4 - Awakenings)
+  // Interaction Hover Logic — matching-tone SVGs pop vibrantly; others recede.
+  // Hovering "creative" lights up the pink/pastel layers; "nerdy" lights up green.
   if (hoverSide === "creative") {
     if (item.type === "interactive-pink-particles") {
-      targetOpacity = 0.5
-      targetScale = 1.05
+      targetOpacity = 0.85
+      targetScale = 1.08
       targetRotate = item.rotate + 30
     } else if (item.tone === "pink" && item.type !== "nebula-glow") {
-      targetOpacity = Math.min(1, targetOpacity * 1.5)
-      targetScale = 1.02
+      targetOpacity = Math.min(1, targetOpacity * 2.6 + 0.12)
+      targetScale = 1.06
       targetRotate = item.rotate + 2
     } else if (item.type !== "nebula-glow") {
-      targetOpacity = targetOpacity * 0.7
+      targetOpacity = targetOpacity * 0.4
     }
   } else if (hoverSide === "nerdy") {
     if (item.type === "interactive-green-ecosystem") {
-       targetOpacity = 0.6
-       targetScale = 1.05
+       targetOpacity = 0.9
+       targetScale = 1.08
     } else if (item.tone === "green") {
-      targetOpacity = Math.min(1, targetOpacity * 1.5)
-      targetScale = 1.02
+      targetOpacity = Math.min(1, targetOpacity * 2.6 + 0.12)
+      targetScale = 1.06
     } else if (item.type !== "nebula-glow") {
-      targetOpacity = targetOpacity * 0.7
+      targetOpacity = targetOpacity * 0.4
     }
   }
 
@@ -223,61 +224,11 @@ function FloatingSvgItem({
      maskImage = "radial-gradient(circle at center, black 10%, transparent 65%)"
   }
 
-  // Network pulse lines for nerdy ecosystem
-  const showNetworkLines = item.type === "interactive-green-ecosystem" && hoverSide === "nerdy"
   const isScrollDrivenTrail = item.type === "trail"
 
   const revealTarget = item.type !== "footer-bloom" && !isScrollDrivenTrail || hoverSide
     ? { opacity: targetOpacity, scale: targetScale, rotate: targetRotate, y: targetY }
     : undefined
-
-  // ---- Silhouette ignition (the video's hero effect) ----
-  // Light reveals the layer's own structure via its alpha, with a moving sweep
-  // band that travels the silhouette. Hover-gated → mounts only while matching.
-  const isGalaxy = item.type === "galaxy"
-  const ENERGY_GREEN = "127, 176, 127"
-  const ENERGY_PINK = "240, 198, 207"
-
-  // Generic ignition: branches / flowers / rivers light up on a matching-tone hover.
-  const igniteColor =
-    motionEnabled && item.asset && !isGalaxy
-      ? hoverSide === "nerdy" && item.tone === "green"
-        ? ENERGY_GREEN
-        : hoverSide === "creative" && item.tone === "pink" && item.type !== "nebula-glow"
-          ? ENERGY_PINK
-          : null
-      : null
-
-  // Galaxy "acknowledgement": a subtle brief highlight for either side.
-  const galaxyColor =
-    motionEnabled && isGalaxy && hoverSide ? (hoverSide === "nerdy" ? ENERGY_GREEN : ENERGY_PINK) : null
-
-  // ---- Floral radiance halo (outward bloom, ambient + hover boost) ----
-  // Flora/branch layers get a blurred, image-masked light copy that spills past
-  // the silhouette. Ambient at rest; brightens when the matching side is hovered.
-  // (Green ecosystem gets a hover-only halo so the nerdy side has parity.)
-  const isFlora =
-    item.asset && ["branch", "branch-small", "flower-deep", "footer-bloom", "orbital"].includes(item.type)
-  const isGreenEco = item.type === "interactive-green-ecosystem"
-  const haloColor = isFlora ? ENERGY_PINK : isGreenEco ? ENERGY_GREEN : null
-  const haloAwake =
-    (isFlora && hoverSide === "creative") || (isGreenEco && hoverSide === "nerdy")
-  // Green ecosystem only blooms on hover (no ambient); flora always breathes.
-  const showHalo = motionEnabled && haloColor && (isFlora || haloAwake)
-
-  const maskUrl = item.asset ? `url(/cosmic/${item.asset}.webp)` : undefined
-  const sharedMaskStyle = maskUrl
-    ? {
-        WebkitMaskImage: maskUrl,
-        maskImage: maskUrl,
-        WebkitMaskSize: "contain",
-        maskSize: "contain",
-        WebkitMaskRepeat: "no-repeat",
-        maskRepeat: "no-repeat",
-        WebkitMaskPosition: "center",
-        maskPosition: "center",
-      }
-    : {}
 
   return (
     <motion.div
@@ -301,28 +252,7 @@ function FloatingSvgItem({
         rotate: motionEnabled && item.type === "footer-bloom" && !hoverSide ? footerRotate : undefined,
       }}
     >
-      {showNetworkLines && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 0.25, scale: 1.15 }}
-          transition={{ duration: 3, delay: 0.1, ease: "easeOut" }}
-          className="absolute inset-0 border border-[#7fb07f]/20 rounded-full mix-blend-screen gpu-layer shadow-[0_0_50px_rgba(127,176,127,0.15)]"
-        />
-      )}
       <motion.div style={{ y: mouseDriven ? springMY : 0 }} className="w-full h-full">
-        {/* Outward-radiating bloom halo (sits behind the layer; light spills past edges) */}
-        {showHalo && (
-          <div
-            className={`flora-halo gpu-layer ${haloAwake ? "is-awake" : ""}`}
-            style={{ ["--halo-min" as any]: "0.04", ["--halo-max" as any]: "0.13" }}
-            aria-hidden
-          >
-            <div
-              className="flora-halo-shape"
-              style={{ backgroundColor: `rgb(${haloColor})`, ...sharedMaskStyle }}
-            />
-          </div>
-        )}
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: "2%" }}
           animate={revealTarget}
@@ -360,53 +290,6 @@ function FloatingSvgItem({
                 />
               </picture>
             )}
-
-            {/* ---- Silhouette ignition: alpha-masked additive light + traveling sweep ---- */}
-            <AnimatePresence>
-              {igniteColor && (
-                <motion.div
-                  key="ignite"
-                  className="absolute inset-0 pointer-events-none"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
-                  aria-hidden
-                >
-                  {/* base structure tint — STATIC opacity (breathing comes from the
-                      halo); avoids animating opacity on a blended surface. */}
-                  <div
-                    className="absolute inset-0 mix-blend-screen"
-                    style={{ backgroundColor: `rgb(${igniteColor})`, opacity: 0.22, ...sharedMaskStyle }}
-                  />
-                  {/* traveling ignition band sweeping across the silhouette (transform-driven) */}
-                  <div
-                    className="absolute inset-0 mix-blend-screen energy-sweep gpu-layer"
-                    style={{
-                      backgroundImage: `linear-gradient(115deg, transparent 38%, rgba(${igniteColor}, 0.9) 50%, transparent 62%)`,
-                      backgroundSize: "250% 250%",
-                      ...sharedMaskStyle,
-                    }}
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* ---- Galaxy acknowledgement: subtle masked highlight ---- */}
-            <AnimatePresence>
-              {galaxyColor && (
-                <motion.div
-                  key="galaxy-ack"
-                  className="absolute inset-0 mix-blend-screen pointer-events-none gpu-layer"
-                  style={{ backgroundColor: `rgb(${galaxyColor})`, ...sharedMaskStyle }}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 0.09 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 1.4, delay: 0.7, ease: "easeOut" }}
-                  aria-hidden
-                />
-              )}
-            </AnimatePresence>
           </motion.div>
         </motion.div>
       </motion.div>

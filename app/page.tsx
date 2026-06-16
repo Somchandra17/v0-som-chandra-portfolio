@@ -13,7 +13,6 @@ import { SpotifyNowPlayingContent } from "@/components/now-playing"
 import { SpotifyArtwork } from "@/components/spotify-artwork"
 import { ParticleField } from "@/components/cosmic/particle-field"
 import { FloatingSvgs } from "@/components/cosmic/floating-svgs"
-import { EnergyField } from "@/components/cosmic/energy-field"
 import { fonts, measureTextWidth, usePretextReady } from "@/lib/pretext"
 import { fetcher, type Artist, type NowPlayingData, type RecentTrack, type Track } from "@/lib/creative-data"
 import {
@@ -244,9 +243,8 @@ export default function Home() {
 
   return (
     <main className="relative min-h-screen bg-[#07060d]">
-      <ParticleField hoverSide={hoverSide} />
+      <ParticleField />
       <FloatingSvgs hoverSide={hoverSide} />
-      <EnergyField hoverSide={hoverSide} />
 
       {/* ---- HERO: fills viewport ---- */}
       <section ref={heroRef} className="relative min-h-screen flex items-center justify-center pt-10">
@@ -289,18 +287,6 @@ export default function Home() {
                   />
                   <span style={{ color: nameConfig[nameMode].color, textShadow: nameConfig[nameMode].shadow }}>.</span>
                 </span>
-                {/* One-shot light wash sweeping across the name on side activation.
-                    Keyed by hoverSide so the CSS animation replays each time. */}
-                {hoverSide && !prefersReduced && (
-                  <span
-                    key={hoverSide}
-                    className="heading-wash"
-                    style={{
-                      backgroundImage: `linear-gradient(105deg, transparent 35%, rgba(${hoverSide === "nerdy" ? "127, 176, 127" : "240, 198, 207"}, 0.45) 50%, transparent 65%)`,
-                    }}
-                    aria-hidden
-                  />
-                )}
               </button>
             </h1>
 
@@ -367,7 +353,7 @@ export default function Home() {
                   <Link href="/nerdy" onClick={handleNerdyOpen} className="block h-full cursor-pointer">
                     <motion.div
                       whileHover={{ y: -8, scale: 1.02 }}
-                      className={`paper-card crt-scanlines isolate relative p-7 md:p-9 min-h-[220px] h-full flex flex-col justify-between overflow-hidden ${nameMode === "nerdy" ? "crt-intense" : ""}`}
+                      className="paper-card crt-scanlines isolate relative p-7 md:p-9 min-h-[220px] h-full flex flex-col justify-between overflow-hidden"
                       animate={nameMode === "nerdy" ? {
                       borderColor: "#7fb07f",
                       boxShadow: "0 0 34px rgba(127, 176, 127, 0.16)"
@@ -409,20 +395,6 @@ $ ./exploit --pwn`}</pre>
                         >
                           {"> whoami"}
                         </motion.span>
-                        <AnimatePresence>
-                          {nameMode === "nerdy" && (
-                            <motion.span
-                              className="ml-auto flex items-center gap-1.5 font-mono text-[10px] tracking-wider text-[#7fb07f]"
-                              initial={{ opacity: 0, x: 6 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              exit={{ opacity: 0, x: 6 }}
-                              transition={{ duration: 0.35, delay: 0.1 }}
-                            >
-                              <span className="status-dot inline-block h-1.5 w-1.5 rounded-full bg-[#7fb07f] shadow-[0_0_6px_rgba(127,176,127,0.8)]" />
-                              ONLINE
-                            </motion.span>
-                          )}
-                        </AnimatePresence>
                       </div>
                       <motion.h2
                         className="text-xl md:text-2xl font-bold tracking-tight mb-2"
@@ -438,9 +410,9 @@ $ ./exploit --pwn`}</pre>
                         psst -- wanna hire me?
                       </p>
                     </div>
-                    <div className="cta-pulse mt-6 flex items-center gap-2 text-sm font-mono text-[#666] group-hover:text-[#e8e8e8] transition-colors">
+                    <div className="mt-6 flex items-center gap-2 text-sm font-mono text-[#666] group-hover:text-[#e8e8e8] transition-colors">
                       <span>go there</span>
-                      <ArrowRight className="cta-arrow h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+                      <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
                     </div>
                   </motion.div>
                 </Link>
@@ -474,7 +446,7 @@ $ ./exploit --pwn`}</pre>
                     <div>
                       <div className="flex items-center gap-3 mb-3">
                         <motion.div
-                          className="relative flex h-9 w-9 items-center justify-center border"
+                          className="flex h-9 w-9 items-center justify-center border"
                           animate={hoverSide === "creative" ? {
                             borderColor: "#f0c6cf",
                             color: "#f0c6cf",
@@ -484,19 +456,7 @@ $ ./exploit --pwn`}</pre>
                           }}
                           transition={{ duration: 0.5 }}
                         >
-                          {/* Blurred bloom — opacity toggled (compositor-only) instead
-                              of animating box-shadow (paint) every frame. */}
-                          <motion.span
-                            aria-hidden
-                            className="pointer-events-none absolute inset-0 gpu-layer"
-                            style={{
-                              boxShadow: "0 0 18px 2px rgba(240, 198, 207, 0.55)",
-                            }}
-                            initial={false}
-                            animate={{ opacity: hoverSide === "creative" ? 1 : 0 }}
-                            transition={{ duration: 0.5 }}
-                          />
-                          <Pen className="relative h-4 w-4" />
+                          <Pen className="h-4 w-4" />
                         </motion.div>
                         <motion.span
                           className="font-mono text-xs"
@@ -520,9 +480,9 @@ $ ./exploit --pwn`}</pre>
                         aka the fun one
                       </p>
                     </div>
-                    <div className="cta-pulse mt-6 flex items-center gap-2 text-sm font-mono text-[#666] group-hover:text-[#e8e8e8] transition-colors">
+                    <div className="mt-6 flex items-center gap-2 text-sm font-mono text-[#666] group-hover:text-[#e8e8e8] transition-colors">
                       <span>go there</span>
-                      <ArrowRight className="cta-arrow h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+                      <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
                     </div>
                   </motion.div>
                 </Link>

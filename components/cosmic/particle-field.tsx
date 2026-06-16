@@ -3,17 +3,11 @@
 import { useEffect, useRef } from "react"
 import { useScroll, useTransform, motion, useReducedMotion } from "framer-motion"
 
-export function ParticleField({ hoverSide }: { hoverSide?: "nerdy" | "creative" | null }) {
+export function ParticleField() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const prefersReduced = useReducedMotion()
   const { scrollY } = useScroll()
   const yShift = useTransform(scrollY, (val: number) => (prefersReduced ? 0 : val * -0.2))
-
-  // Latest hoverSide kept in a ref so the paint loop reads it without restarting.
-  const sideRef = useRef<"nerdy" | "creative" | null | undefined>(hoverSide)
-  useEffect(() => {
-    sideRef.current = hoverSide
-  }, [hoverSide])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -42,56 +36,29 @@ export function ParticleField({ hoverSide }: { hoverSide?: "nerdy" | "creative" 
       baseOpacity: Math.random() * 0.5 + 0.1,
       twinkleSpeed: Math.random() * 0.02 + 0.005,
       color: Math.random() > 0.8 ? "240, 198, 207" : "200, 200, 220", // Occasional pink hue
-      // ~40% of stars can be "awakened" — they shift hue toward the hovered side.
-      tintEligible: Math.random() < 0.4,
-      // Eased 0..1 tint amount, animated toward the active side.
-      tint: 0,
     }))
-
-    // Energy-tint palette per side (raw rgb triplets).
-    const NERDY_RGB = [127, 176, 127]
-    const CREATIVE_RGB = [240, 198, 207]
-    const parseRgb = (s: string) => s.split(",").map((n) => parseInt(n, 10))
 
     const paint = (advance: boolean) => {
       ctx.fillStyle = "#07060d" // Same as bg
       ctx.fillRect(0, 0, w, h)
 
       const time = Date.now()
-      const side = sideRef.current
-      // Active tint target; drift gets a gentle nudge when a side is awake.
-      const tintTarget = side === "nerdy" ? NERDY_RGB : side === "creative" ? CREATIVE_RGB : null
-      const driftBoost = side ? 1.6 : 1
-
       particles.forEach((p, i) => {
         if (advance) {
-          p.x += p.vx * driftBoost
-          p.y += p.vy * driftBoost
+          p.x += p.vx
+          p.y += p.vy
           if (p.x < 0) p.x = w
           if (p.x > w) p.x = 0
           if (p.y < 0) p.y = h
           if (p.y > h) p.y = 0
         }
 
-        // Ease this star's tint toward the active side (only eligible stars).
-        const wantTint = p.tintEligible && tintTarget ? 1 : 0
-        p.tint += (wantTint - p.tint) * 0.06
-
         const currentOpacity = p.baseOpacity + Math.sin(time * p.twinkleSpeed + i) * 0.2
         const safeOpacity = Math.max(0.05, Math.min(0.8, currentOpacity))
 
-        let fill = p.color
-        if (p.tint > 0.01 && tintTarget) {
-          const base = parseRgb(p.color)
-          const r = Math.round(base[0] + (tintTarget[0] - base[0]) * p.tint)
-          const g = Math.round(base[1] + (tintTarget[1] - base[1]) * p.tint)
-          const b = Math.round(base[2] + (tintTarget[2] - base[2]) * p.tint)
-          fill = `${r}, ${g}, ${b}`
-        }
-
         ctx.beginPath()
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2)
-        ctx.fillStyle = `rgba(${fill}, ${safeOpacity})`
+        ctx.fillStyle = `rgba(${p.color}, ${safeOpacity})`
         ctx.fill()
       })
     }
