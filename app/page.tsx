@@ -449,10 +449,10 @@ $ ./exploit --pwn`}</pre>
                           className="flex h-9 w-9 items-center justify-center border"
                           animate={hoverSide === "creative" ? {
                             borderColor: "#f0c6cf",
-                            color: "#f0c6cf"
+                            color: "#f0c6cf",
                           } : {
                             borderColor: "#444",
-                            color: "#e8e8e8"
+                            color: "#e8e8e8",
                           }}
                           transition={{ duration: 0.5 }}
                         >

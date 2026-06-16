@@ -132,28 +132,29 @@ function FloatingSvgItem({
   let targetY = "0%"
   let targetRotate = item.rotate
 
-  // Interaction Hover Logic (V4 - Awakenings)
+  // Interaction Hover Logic — matching-tone SVGs pop vibrantly; others recede.
+  // Hovering "creative" lights up the pink/pastel layers; "nerdy" lights up green.
   if (hoverSide === "creative") {
     if (item.type === "interactive-pink-particles") {
-      targetOpacity = 0.5
-      targetScale = 1.05
+      targetOpacity = 0.85
+      targetScale = 1.08
       targetRotate = item.rotate + 30
     } else if (item.tone === "pink" && item.type !== "nebula-glow") {
-      targetOpacity = Math.min(1, targetOpacity * 1.5)
-      targetScale = 1.02
+      targetOpacity = Math.min(1, targetOpacity * 2.6 + 0.12)
+      targetScale = 1.06
       targetRotate = item.rotate + 2
     } else if (item.type !== "nebula-glow") {
-      targetOpacity = targetOpacity * 0.7
+      targetOpacity = targetOpacity * 0.4
     }
   } else if (hoverSide === "nerdy") {
     if (item.type === "interactive-green-ecosystem") {
-       targetOpacity = 0.6
-       targetScale = 1.05
+       targetOpacity = 0.9
+       targetScale = 1.08
     } else if (item.tone === "green") {
-      targetOpacity = Math.min(1, targetOpacity * 1.5)
-      targetScale = 1.02
+      targetOpacity = Math.min(1, targetOpacity * 2.6 + 0.12)
+      targetScale = 1.06
     } else if (item.type !== "nebula-glow") {
-      targetOpacity = targetOpacity * 0.7
+      targetOpacity = targetOpacity * 0.4
     }
   }
 
@@ -166,21 +167,25 @@ function FloatingSvgItem({
   let continuousAnimate: any = {}
   let continuousTransition: any = {}
 
+  // NOTE: continuous animations are intentionally TRANSFORM-ONLY. Animating
+  // `opacity` on these large `mix-blend-screen` layers forced the browser to
+  // re-rasterize huge blended surfaces every frame → the flicker/jitter. The
+  // subtle opacity "breathing" is dropped in favor of a steady (static) opacity.
   switch (item.type) {
     case "nebula-glow":
-      continuousAnimate = { scale: [1, 1.08, 0.95, 1], opacity: [targetOpacity, targetOpacity * 1.2, targetOpacity * 0.9, targetOpacity] }
+      continuousAnimate = { scale: [1, 1.08, 0.95, 1] }
       continuousTransition = { duration: 87, repeat: Infinity, ease: "easeInOut", times: [0, 0.4, 0.8, 1], delay: idx * 1.7 }
       break
     case "galaxy":
-      continuousAnimate = { rotate: [item.rotate, item.rotate + 8, item.rotate - 2, item.rotate], scale: [1, 1.03, 0.98, 1], opacity: [targetOpacity, targetOpacity * 1.15, targetOpacity * 0.9, targetOpacity] }
+      continuousAnimate = { rotate: [item.rotate, item.rotate + 8, item.rotate - 2, item.rotate], scale: [1, 1.03, 0.98, 1] }
       continuousTransition = { duration: 63, repeat: Infinity, ease: "easeInOut", times: [0, 0.35, 0.75, 1], delay: idx * 2.1 }
       break
     case "flower-deep":
-      continuousAnimate = { scale: [0.95, 1.04, 0.95], opacity: [targetOpacity * 0.8, targetOpacity * 1.5, targetOpacity * 0.8] }
+      continuousAnimate = { scale: [0.95, 1.04, 0.95] }
       continuousTransition = { duration: 37, repeat: Infinity, ease: "easeInOut", times: [0, 0.5, 1], delay: idx * 1.4 }
       break
     case "branch":
-      continuousAnimate = { rotate: [item.rotate, item.rotate + 4, item.rotate - 1, item.rotate], y: ["0%", "2%", "0%"], opacity: [targetOpacity, targetOpacity * 0.7, targetOpacity] }
+      continuousAnimate = { rotate: [item.rotate, item.rotate + 4, item.rotate - 1, item.rotate], y: ["0%", "2%", "0%"] }
       continuousTransition = { duration: 43, repeat: Infinity, ease: "easeInOut", times: [0, 0.45, 0.85, 1], delay: idx * 3.2 }
       break
     case "branch-small":
@@ -196,7 +201,7 @@ function FloatingSvgItem({
       continuousTransition = { duration: 71, repeat: Infinity, ease: "easeInOut", times: [0, 0.4, 0.8, 1], delay: idx * 4.1 }
       break
     case "interactive-green-ecosystem":
-      continuousAnimate = { rotate: [item.rotate, item.rotate - 5, item.rotate + 3, item.rotate], opacity: [targetOpacity, targetOpacity * 1.4, targetOpacity * 0.7, targetOpacity] }
+      continuousAnimate = { rotate: [item.rotate, item.rotate - 5, item.rotate + 3, item.rotate] }
       continuousTransition = { duration: 47, repeat: Infinity, ease: "linear", times: [0, 0.3, 0.7, 1], delay: idx * 0.8 }
       break
     default:
@@ -219,8 +224,6 @@ function FloatingSvgItem({
      maskImage = "radial-gradient(circle at center, black 10%, transparent 65%)"
   }
 
-  // Network pulse lines for nerdy ecosystem
-  const showNetworkLines = item.type === "interactive-green-ecosystem" && hoverSide === "nerdy"
   const isScrollDrivenTrail = item.type === "trail"
 
   const revealTarget = item.type !== "footer-bloom" && !isScrollDrivenTrail || hoverSide
@@ -229,7 +232,7 @@ function FloatingSvgItem({
 
   return (
     <motion.div
-      className="absolute pointer-events-none"
+      className="absolute pointer-events-none gpu-layer"
       style={{
         top: item.top,
         left: item.left,
@@ -249,14 +252,6 @@ function FloatingSvgItem({
         rotate: motionEnabled && item.type === "footer-bloom" && !hoverSide ? footerRotate : undefined,
       }}
     >
-      {showNetworkLines && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 0.25, scale: 1.15 }}
-          transition={{ duration: 3, delay: 0.1, ease: "easeOut" }}
-          className="absolute inset-0 border border-[#7fb07f]/20 rounded-full mix-blend-screen shadow-[0_0_50px_rgba(127,176,127,0.15)]"
-        />
-      )}
       <motion.div style={{ y: mouseDriven ? springMY : 0 }} className="w-full h-full">
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: "2%" }}
@@ -267,12 +262,12 @@ function FloatingSvgItem({
             y: { duration: 5, ease: [0.16, 1, 0.3, 1], delay: item.delay || 0 },
             rotate: { duration: 5, ease: [0.16, 1, 0.3, 1], delay: item.delay || 0 },
           } : { duration: 0 }}
-          className="w-full h-full relative mix-blend-screen"
+          className="w-full h-full relative mix-blend-screen gpu-layer blend-isolate"
         >
           <motion.div
             animate={motionEnabled ? continuousAnimate : undefined}
             transition={motionEnabled ? continuousTransition : { duration: 0 }}
-            className="w-full h-full relative"
+            className="w-full h-full relative gpu-layer"
             style={{
                WebkitMaskImage: maskImage,
                maskImage: maskImage,
