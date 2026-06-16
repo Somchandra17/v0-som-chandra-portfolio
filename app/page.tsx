@@ -250,6 +250,112 @@ export default function Home() {
       <ParticleField />
       <FloatingSvgs hoverSide={hoverSide} />
 
+      {/* Digital Solar System (Nerdy Side Activation) */}
+      {hoverSide === "nerdy" && (
+        <div
+          key={`solar-${glitchKey}`}
+          className="fixed top-1/3 left-20 w-96 h-96 pointer-events-none z-30"
+          aria-hidden
+        >
+          <div className="orbit-system" style={{ width: "100%", height: "100%" }}>
+            {/* Orbit rings */}
+            <div className="orbit-ring orbit-ring-inner" />
+            <div className="orbit-ring orbit-ring-mid" />
+            <div className="orbit-ring orbit-ring-outer" />
+
+            {/* Network nodes positioned on orbits */}
+            <div
+              className="network-node"
+              style={{ top: "25%", left: "50%", transform: "translate(-50%, -50%)", animationDelay: "0s" }}
+            />
+            <div
+              className="network-node"
+              style={{ top: "50%", left: "85%", transform: "translate(-50%, -50%)", animationDelay: "0.3s" }}
+            />
+            <div
+              className="network-node"
+              style={{ top: "75%", left: "50%", transform: "translate(-50%, -50%)", animationDelay: "0.6s" }}
+            />
+            <div
+              className="network-node"
+              style={{ top: "50%", left: "15%", transform: "translate(-50%, -50%)", animationDelay: "0.9s" }}
+            />
+            <div
+              className="network-node"
+              style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)", animationDelay: "1.2s", width: "14px", height: "14px", boxShadow: "0 0 24px rgba(127, 176, 127, 1)" }}
+            />
+
+            {/* Data packets traveling */}
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                className="data-packet"
+                style={{
+                  top: `${25 + i * 25}%`,
+                  left: "50%",
+                  animationDelay: `${i * 0.8}s`,
+                }}
+              />
+            ))}
+
+            {/* Constellation connecting line (SVG) */}
+            <svg
+              className="absolute inset-0 w-full h-full"
+              style={{ filter: "drop-shadow(0 0 8px rgba(127, 176, 127, 0.4))" }}
+            >
+              <line
+                x1="50%"
+                y1="25%"
+                x2="85%"
+                y2="50%"
+                className="constellation-line"
+                style={{
+                  strokeDasharray: 100,
+                  strokeDashoffset: 100,
+                  animation: "constellation-form 1.2s ease-out 0.6s forwards",
+                }}
+              />
+              <line
+                x1="85%"
+                y1="50%"
+                x2="50%"
+                y2="75%"
+                className="constellation-line"
+                style={{
+                  strokeDasharray: 100,
+                  strokeDashoffset: 100,
+                  animation: "constellation-form 1.2s ease-out 0.8s forwards",
+                }}
+              />
+              <line
+                x1="50%"
+                y1="75%"
+                x2="15%"
+                y2="50%"
+                className="constellation-line"
+                style={{
+                  strokeDasharray: 100,
+                  strokeDashoffset: 100,
+                  animation: "constellation-form 1.2s ease-out 1s forwards",
+                }}
+              />
+              <line
+                x1="15%"
+                y1="50%"
+                x2="50%"
+                y2="25%"
+                className="constellation-line"
+                style={{
+                  strokeDasharray: 100,
+                  strokeDashoffset: 100,
+                  animation: "constellation-form 1.2s ease-out 1.2s forwards",
+                }}
+              />
+            </svg>
+          </div>
+        </div>
+      )}
+
       {/* ---- HERO: fills viewport ---- */}
       <section ref={heroRef} className="relative min-h-screen flex items-center justify-center pt-10">
         <motion.div
@@ -773,33 +879,36 @@ $ ./exploit --pwn`}</pre>
           {hoverSide === "creative" && (
             <div
               key={`peony-${peonyKey}`}
-              className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-32 h-32 pointer-events-none"
+              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 pointer-events-none z-20"
               aria-hidden
             >
               {/* Peony core center bloom */}
               <div
                 className="peony-core absolute inset-0"
                 style={{
-                  background: "radial-gradient(circle, rgba(240, 198, 207, 0.4), transparent 70%)",
+                  background: "radial-gradient(circle, rgba(240, 198, 207, 0.9), rgba(240, 198, 207, 0.5) 40%, transparent 80%)",
                   borderRadius: "50%",
+                  boxShadow: "0 0 80px rgba(240, 198, 207, 0.7)",
                 }}
               />
               {/* Peony inner petals */}
               <div
-                className="peony-inner absolute inset-2"
+                className="peony-inner absolute inset-12"
                 style={{
-                  background: "radial-gradient(circle, rgba(240, 198, 207, 0.35), transparent 70%)",
+                  background: "radial-gradient(circle, rgba(240, 198, 207, 0.85), rgba(240, 198, 207, 0.4) 40%, transparent 80%)",
                   borderRadius: "50%",
                   transform: "rotate(45deg)",
+                  boxShadow: "0 0 60px rgba(240, 198, 207, 0.6)",
                 }}
               />
               {/* Peony outer petals */}
               <div
-                className="peony-outer absolute inset-4"
+                className="peony-outer absolute inset-24"
                 style={{
-                  background: "radial-gradient(circle, rgba(240, 198, 207, 0.25), transparent 80%)",
+                  background: "radial-gradient(circle, rgba(240, 198, 207, 0.8), rgba(240, 198, 207, 0.3) 40%, transparent 80%)",
                   borderRadius: "50%",
                   transform: "rotate(90deg)",
+                  boxShadow: "0 0 40px rgba(240, 198, 207, 0.5)",
                 }}
               />
             </div>
@@ -813,10 +922,11 @@ $ ./exploit --pwn`}</pre>
                 className="sakura-petal"
                 data-index={i}
                 style={{
-                  left: `${20 + i * 12}%`,
-                  top: "-20px",
-                  background: "radial-gradient(circle, rgba(240, 198, 207, 0.8), transparent 70%)",
+                  left: `${15 + i * 13}%`,
+                  top: "20%",
+                  background: "radial-gradient(circle, rgba(240, 198, 207, 0.95), rgba(240, 198, 207, 0.6) 60%, transparent 100%)",
                   borderRadius: "50%",
+                  boxShadow: "0 0 16px rgba(240, 198, 207, 0.8)",
                   clipPath: "polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)",
                 }}
                 aria-hidden
