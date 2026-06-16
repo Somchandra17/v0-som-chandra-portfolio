@@ -289,6 +289,18 @@ export default function Home() {
                   />
                   <span style={{ color: nameConfig[nameMode].color, textShadow: nameConfig[nameMode].shadow }}>.</span>
                 </span>
+                {/* One-shot light wash sweeping across the name on side activation.
+                    Keyed by hoverSide so the CSS animation replays each time. */}
+                {hoverSide && !prefersReduced && (
+                  <span
+                    key={hoverSide}
+                    className="heading-wash"
+                    style={{
+                      backgroundImage: `linear-gradient(105deg, transparent 35%, rgba(${hoverSide === "nerdy" ? "127, 176, 127" : "240, 198, 207"}, 0.45) 50%, transparent 65%)`,
+                    }}
+                    aria-hidden
+                  />
+                )}
               </button>
             </h1>
 
@@ -462,19 +474,29 @@ $ ./exploit --pwn`}</pre>
                     <div>
                       <div className="flex items-center gap-3 mb-3">
                         <motion.div
-                          className="flex h-9 w-9 items-center justify-center border"
+                          className="relative flex h-9 w-9 items-center justify-center border"
                           animate={hoverSide === "creative" ? {
                             borderColor: "#f0c6cf",
                             color: "#f0c6cf",
-                            boxShadow: "0 0 18px 2px rgba(240, 198, 207, 0.45)"
                           } : {
                             borderColor: "#444",
                             color: "#e8e8e8",
-                            boxShadow: "0 0 0px 0px rgba(240, 198, 207, 0)"
                           }}
                           transition={{ duration: 0.5 }}
                         >
-                          <Pen className="h-4 w-4" />
+                          {/* Blurred bloom — opacity toggled (compositor-only) instead
+                              of animating box-shadow (paint) every frame. */}
+                          <motion.span
+                            aria-hidden
+                            className="pointer-events-none absolute inset-0 gpu-layer"
+                            style={{
+                              boxShadow: "0 0 18px 2px rgba(240, 198, 207, 0.55)",
+                            }}
+                            initial={false}
+                            animate={{ opacity: hoverSide === "creative" ? 1 : 0 }}
+                            transition={{ duration: 0.5 }}
+                          />
+                          <Pen className="relative h-4 w-4" />
                         </motion.div>
                         <motion.span
                           className="font-mono text-xs"

@@ -267,6 +267,28 @@
   100% { transform: translateX(0); }
 }
 
+/* ---- Floral radiance (the reference video's outward bloom) ---- */
+
+/* Ambient: a slow, low-amplitude breathing glow — compositor-only opacity. */
+@keyframes flora-ambient {
+  0%, 100% { opacity: var(--halo-min, 0.05); }
+  50% { opacity: var(--halo-max, 0.15); }
+}
+
+/* Hover boost: stronger, slightly faster bloom while the matching side is awake. */
+@keyframes flora-awake {
+  0%, 100% { opacity: 0.32; }
+  50% { opacity: 0.6; }
+}
+
+/* One-shot wash of light traveling across the hero name on side activation. */
+@keyframes heading-wash {
+  0% { transform: translateX(-120%); opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translateX(120%); opacity: 0; }
+}
+
 /* ---- Base ---- */
 
 @layer base {
@@ -591,5 +613,73 @@
   /* CTA energy pulse on hover (CSS only) */
   .cta-pulse:hover .cta-arrow {
     animation: cta-pulse 0.6s ease-out infinite;
+  }
+
+  /* ============================================================
+     SMOOTHNESS — GPU promotion + paint isolation.
+     Applied to every large animated cosmic layer so the browser
+     gives it its own composited layer and never re-rasterizes a
+     huge surface (or re-reads the page backdrop for blending)
+     each frame. This is the core flicker/jitter fix.
+     ============================================================ */
+  .gpu-layer {
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    will-change: transform, opacity;
+  }
+  /* Scope mix-blend-screen to the layer's own stacking context so the
+     blend reads only this layer instead of the whole page backdrop. */
+  .blend-isolate {
+    isolation: isolate;
+    contain: paint;
+  }
+
+  /* ============================================================
+     FLORAL RADIANCE — outward-spilling bloom of light.
+     Two nested layers: the inner shape is the image alpha tinted
+     with the tone color; the OUTER wrapper blurs that masked shape
+     so light bleeds *past* the silhouette edge (the video look).
+     Opacity is driven by compositor-only keyframes (ambient), and
+     boosted via the .is-awake class on matching-side hover.
+     ============================================================ */
+  .flora-halo {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    filter: blur(22px);
+    transform: scale(1.07) translateZ(0);
+    will-change: opacity;
+    animation: flora-ambient 7s ease-in-out infinite;
+  }
+  .flora-halo.is-awake {
+    animation: flora-awake 3.2s ease-in-out infinite;
+  }
+  .flora-halo-shape {
+    position: absolute;
+    inset: 0;
+  }
+
+  /* Hero name light-wash overlay (one-shot, clipped to the name box) */
+  .heading-wash {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    will-change: transform, opacity;
+    animation: heading-wash 1.1s ease-out 1 both;
+  }
+
+  /* Reduced motion: no breathing/sweep — settle to a faint static glow. */
+  @media (prefers-reduced-motion: reduce) {
+    .flora-halo,
+    .flora-halo.is-awake {
+      animation: none !important;
+      opacity: 0.1;
+    }
+    .heading-wash {
+      display: none;
+    }
   }
 }

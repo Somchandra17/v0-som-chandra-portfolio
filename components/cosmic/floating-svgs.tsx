@@ -166,21 +166,25 @@ function FloatingSvgItem({
   let continuousAnimate: any = {}
   let continuousTransition: any = {}
 
+  // NOTE: continuous animations are intentionally TRANSFORM-ONLY. Animating
+  // `opacity` on these large `mix-blend-screen` layers forced the browser to
+  // re-rasterize huge blended surfaces every frame → the flicker/jitter. The
+  // subtle opacity "breathing" is dropped in favor of a steady (static) opacity.
   switch (item.type) {
     case "nebula-glow":
-      continuousAnimate = { scale: [1, 1.08, 0.95, 1], opacity: [targetOpacity, targetOpacity * 1.2, targetOpacity * 0.9, targetOpacity] }
+      continuousAnimate = { scale: [1, 1.08, 0.95, 1] }
       continuousTransition = { duration: 87, repeat: Infinity, ease: "easeInOut", times: [0, 0.4, 0.8, 1], delay: idx * 1.7 }
       break
     case "galaxy":
-      continuousAnimate = { rotate: [item.rotate, item.rotate + 8, item.rotate - 2, item.rotate], scale: [1, 1.03, 0.98, 1], opacity: [targetOpacity, targetOpacity * 1.15, targetOpacity * 0.9, targetOpacity] }
+      continuousAnimate = { rotate: [item.rotate, item.rotate + 8, item.rotate - 2, item.rotate], scale: [1, 1.03, 0.98, 1] }
       continuousTransition = { duration: 63, repeat: Infinity, ease: "easeInOut", times: [0, 0.35, 0.75, 1], delay: idx * 2.1 }
       break
     case "flower-deep":
-      continuousAnimate = { scale: [0.95, 1.04, 0.95], opacity: [targetOpacity * 0.8, targetOpacity * 1.5, targetOpacity * 0.8] }
+      continuousAnimate = { scale: [0.95, 1.04, 0.95] }
       continuousTransition = { duration: 37, repeat: Infinity, ease: "easeInOut", times: [0, 0.5, 1], delay: idx * 1.4 }
       break
     case "branch":
-      continuousAnimate = { rotate: [item.rotate, item.rotate + 4, item.rotate - 1, item.rotate], y: ["0%", "2%", "0%"], opacity: [targetOpacity, targetOpacity * 0.7, targetOpacity] }
+      continuousAnimate = { rotate: [item.rotate, item.rotate + 4, item.rotate - 1, item.rotate], y: ["0%", "2%", "0%"] }
       continuousTransition = { duration: 43, repeat: Infinity, ease: "easeInOut", times: [0, 0.45, 0.85, 1], delay: idx * 3.2 }
       break
     case "branch-small":
@@ -196,7 +200,7 @@ function FloatingSvgItem({
       continuousTransition = { duration: 71, repeat: Infinity, ease: "easeInOut", times: [0, 0.4, 0.8, 1], delay: idx * 4.1 }
       break
     case "interactive-green-ecosystem":
-      continuousAnimate = { rotate: [item.rotate, item.rotate - 5, item.rotate + 3, item.rotate], opacity: [targetOpacity, targetOpacity * 1.4, targetOpacity * 0.7, targetOpacity] }
+      continuousAnimate = { rotate: [item.rotate, item.rotate - 5, item.rotate + 3, item.rotate] }
       continuousTransition = { duration: 47, repeat: Infinity, ease: "linear", times: [0, 0.3, 0.7, 1], delay: idx * 0.8 }
       break
     default:
@@ -248,6 +252,19 @@ function FloatingSvgItem({
   const galaxyColor =
     motionEnabled && isGalaxy && hoverSide ? (hoverSide === "nerdy" ? ENERGY_GREEN : ENERGY_PINK) : null
 
+  // ---- Floral radiance halo (outward bloom, ambient + hover boost) ----
+  // Flora/branch layers get a blurred, image-masked light copy that spills past
+  // the silhouette. Ambient at rest; brightens when the matching side is hovered.
+  // (Green ecosystem gets a hover-only halo so the nerdy side has parity.)
+  const isFlora =
+    item.asset && ["branch", "branch-small", "flower-deep", "footer-bloom", "orbital"].includes(item.type)
+  const isGreenEco = item.type === "interactive-green-ecosystem"
+  const haloColor = isFlora ? ENERGY_PINK : isGreenEco ? ENERGY_GREEN : null
+  const haloAwake =
+    (isFlora && hoverSide === "creative") || (isGreenEco && hoverSide === "nerdy")
+  // Green ecosystem only blooms on hover (no ambient); flora always breathes.
+  const showHalo = motionEnabled && haloColor && (isFlora || haloAwake)
+
   const maskUrl = item.asset ? `url(/cosmic/${item.asset}.webp)` : undefined
   const sharedMaskStyle = maskUrl
     ? {
@@ -264,7 +281,7 @@ function FloatingSvgItem({
 
   return (
     <motion.div
-      className="absolute pointer-events-none"
+      className="absolute pointer-events-none gpu-layer"
       style={{
         top: item.top,
         left: item.left,
@@ -289,10 +306,23 @@ function FloatingSvgItem({
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 0.25, scale: 1.15 }}
           transition={{ duration: 3, delay: 0.1, ease: "easeOut" }}
-          className="absolute inset-0 border border-[#7fb07f]/20 rounded-full mix-blend-screen shadow-[0_0_50px_rgba(127,176,127,0.15)]"
+          className="absolute inset-0 border border-[#7fb07f]/20 rounded-full mix-blend-screen gpu-layer shadow-[0_0_50px_rgba(127,176,127,0.15)]"
         />
       )}
       <motion.div style={{ y: mouseDriven ? springMY : 0 }} className="w-full h-full">
+        {/* Outward-radiating bloom halo (sits behind the layer; light spills past edges) */}
+        {showHalo && (
+          <div
+            className={`flora-halo gpu-layer ${haloAwake ? "is-awake" : ""}`}
+            style={{ ["--halo-min" as any]: "0.04", ["--halo-max" as any]: "0.13" }}
+            aria-hidden
+          >
+            <div
+              className="flora-halo-shape"
+              style={{ backgroundColor: `rgb(${haloColor})`, ...sharedMaskStyle }}
+            />
+          </div>
+        )}
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: "2%" }}
           animate={revealTarget}
@@ -302,12 +332,12 @@ function FloatingSvgItem({
             y: { duration: 5, ease: [0.16, 1, 0.3, 1], delay: item.delay || 0 },
             rotate: { duration: 5, ease: [0.16, 1, 0.3, 1], delay: item.delay || 0 },
           } : { duration: 0 }}
-          className="w-full h-full relative mix-blend-screen"
+          className="w-full h-full relative mix-blend-screen gpu-layer blend-isolate"
         >
           <motion.div
             animate={motionEnabled ? continuousAnimate : undefined}
             transition={motionEnabled ? continuousTransition : { duration: 0 }}
-            className="w-full h-full relative"
+            className="w-full h-full relative gpu-layer"
             style={{
                WebkitMaskImage: maskImage,
                maskImage: maskImage,
@@ -343,16 +373,15 @@ function FloatingSvgItem({
                   transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
                   aria-hidden
                 >
-                  {/* base structure tint — pulsed, modest */}
-                  <motion.div
-                    className="absolute inset-0 mix-blend-screen"
-                    style={{ backgroundColor: `rgb(${igniteColor})`, ...sharedMaskStyle }}
-                    animate={{ opacity: [0.16, 0.3, 0.16] }}
-                    transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
-                  />
-                  {/* traveling ignition band sweeping across the silhouette */}
+                  {/* base structure tint — STATIC opacity (breathing comes from the
+                      halo); avoids animating opacity on a blended surface. */}
                   <div
-                    className="absolute inset-0 mix-blend-screen energy-sweep"
+                    className="absolute inset-0 mix-blend-screen"
+                    style={{ backgroundColor: `rgb(${igniteColor})`, opacity: 0.22, ...sharedMaskStyle }}
+                  />
+                  {/* traveling ignition band sweeping across the silhouette (transform-driven) */}
+                  <div
+                    className="absolute inset-0 mix-blend-screen energy-sweep gpu-layer"
                     style={{
                       backgroundImage: `linear-gradient(115deg, transparent 38%, rgba(${igniteColor}, 0.9) 50%, transparent 62%)`,
                       backgroundSize: "250% 250%",
@@ -368,12 +397,12 @@ function FloatingSvgItem({
               {galaxyColor && (
                 <motion.div
                   key="galaxy-ack"
-                  className="absolute inset-0 mix-blend-screen pointer-events-none"
+                  className="absolute inset-0 mix-blend-screen pointer-events-none gpu-layer"
                   style={{ backgroundColor: `rgb(${galaxyColor})`, ...sharedMaskStyle }}
                   initial={{ opacity: 0 }}
-                  animate={{ opacity: [0, 0.12, 0.07] }}
+                  animate={{ opacity: 0.09 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 1.6, delay: 0.7, ease: "easeOut" }}
+                  transition={{ duration: 1.4, delay: 0.7, ease: "easeOut" }}
                   aria-hidden
                 />
               )}
