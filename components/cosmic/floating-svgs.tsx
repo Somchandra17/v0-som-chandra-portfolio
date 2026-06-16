@@ -116,15 +116,27 @@ function FloatingSvgItem({
   intro: boolean,
   exiting: Side,
 }) {
-  // Scroll Parallax mapping (only bound when motion is enabled).
-  const scrollOffset = useTransform(scrollYSpring, (val: number) => val * item.parallax * -1)
+  // --- Depth tiers: subtle, weighted, "feel depth rather than see movement" ---
+  // bg = large/deep backdrop (moves least) · mid = mid florals · fg = small fragments (most).
+  const tier =
+    item.type === "branch" || item.type === "branch-small" || item.type === "interactive-green-ecosystem"
+      ? "mid"
+      : item.type === "trail" || item.type === "footer-bloom" || item.type === "interactive-pink-particles"
+        ? "fg"
+        : "bg"
+  const SCROLL_MULT = { bg: 0.06, mid: 0.13, fg: 0.22 } as const
+  const MOUSE_PX = { bg: 7, mid: 14, fg: 22 } as const
 
-  // Mouse parallax — only the perceptible (deeper) layers are actually mouse-driven.
-  const mouseDriven = motionEnabled && item.depth >= 0.08
-  const mX = useTransform(mouseX, (val: number) => val * (windowWidth * item.depth) * (idx % 2 === 0 ? -1 : 1))
-  const mY = useTransform(mouseY, (val: number) => val * (windowWidth * item.depth) * (idx % 2 === 0 ? -1 : 1))
-  const springMX = useSpring(mX, { damping: 50, stiffness: 100 })
-  const springMY = useSpring(mY, { damping: 50, stiffness: 100 })
+  // Extremely subtle scroll parallax (Scroll × 0.04–0.14).
+  const scrollOffset = useTransform(scrollYSpring, (val: number) => val * SCROLL_MULT[tier] * -1)
+
+  // Soft cursor DEPTH (not cursor-following): a few px per tier, heavily smoothed/weighted.
+  const mouseDriven = motionEnabled
+  const dir = idx % 2 === 0 ? -1 : 1
+  const mX = useTransform(mouseX, (val: number) => val * MOUSE_PX[tier] * 2 * dir)
+  const mY = useTransform(mouseY, (val: number) => val * MOUSE_PX[tier] * 2 * dir)
+  const springMX = useSpring(mX, { damping: 60, stiffness: 90 })
+  const springMY = useSpring(mY, { damping: 60, stiffness: 90 })
 
   // Footer bloom scroll transforms
   const footerScale = useTransform(scrollYProgress, [0.8, 1], [0.5, 1.2])

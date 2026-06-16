@@ -715,7 +715,15 @@ $ ./exploit --pwn`}</pre>
 
       {/* ---- TERMINAL ---- */}
       <section className="relative z-10 mx-auto max-w-5xl px-6 py-24">
+        {/* Suspended-depth glow behind the terminal — static gradient (no animated blur/shadow). */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute left-1/2 top-1/2 h-[128%] w-[112%] -translate-x-1/2 -translate-y-1/2"
+          style={{ background: "radial-gradient(ellipse at center, rgba(127,176,127,0.2), rgba(127,176,127,0.07) 46%, transparent 72%)" }}
+        />
         <motion.div
+          className="relative"
+          style={{ boxShadow: "0 36px 90px -28px rgba(0,0,0,0.55)" }}
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}

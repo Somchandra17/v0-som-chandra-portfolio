@@ -460,7 +460,7 @@
       transparent 4px
     );
     background-size: 100% 4px;
-    animation: scanline-scroll 2s linear infinite;
+    /* scanlines are static now — the scrolling animation was removed per request */
   }
 
   /* Thin scrollbar for playlist */
