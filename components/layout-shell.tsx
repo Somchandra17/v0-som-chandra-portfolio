@@ -1,10 +1,15 @@
 "use client"
 
-import { useState, useCallback, useEffect, type ReactNode } from "react"
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react"
 import { usePathname } from "next/navigation"
-import { AnimatePresence, motion } from "framer-motion"
+import { AnimatePresence } from "framer-motion"
 import { PaperOverlay } from "@/components/grain-overlay"
 import { Loader } from "@/components/loader"
+
+const LoadingContext = createContext<{ loading: boolean }>({ loading: false })
+export function useLoading() {
+  return useContext(LoadingContext)
+}
 
 export function LayoutShell({ children }: { children: ReactNode }) {
   const pathname = usePathname()
@@ -57,26 +62,18 @@ export function LayoutShell({ children }: { children: ReactNode }) {
   if (!checked) return null
 
   return (
-    <>
+    <LoadingContext.Provider value={{ loading }}>
       <PaperOverlay />
       <div className="curved-paper-bg" aria-hidden />
+
+      {/* Content is always mounted so the homepage's cosmic SVGs can build up *during* the
+          loader and continue seamlessly into the page. The loader overlay sits on top (z-200)
+          and fades to reveal them; page.tsx gates its own hero/sections on `loading`. */}
+      <div className="float-content">{children}</div>
 
       <AnimatePresence mode="wait">
         {loading && <Loader key="loader" onComplete={handleLoadComplete} />}
       </AnimatePresence>
-
-      <AnimatePresence>
-        {!loading && (
-          <motion.div
-            className="float-content"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-          >
-            {children}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
+    </LoadingContext.Provider>
   )
 }

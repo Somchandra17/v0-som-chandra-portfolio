@@ -3,6 +3,8 @@
 import { motion, useScroll, useTransform, useSpring, useMotionValue, useReducedMotion } from "framer-motion"
 import { useEffect, useState } from "react"
 
+type Side = "nerdy" | "creative" | null
+
 // V2 Orchestrated Scene Data.
 // `asset` is the base name of the pre-rasterized image in /public/cosmic (AVIF+WebP);
 // `tone` drives the hover "awakening" logic. nebula-glow is a pure CSS gradient (no image).
@@ -19,7 +21,7 @@ const sceneData = [
   },
   // === 3. The Black River: Navigational Current ===
   {
-    tone: "green", asset: "dust-wave-1400", type: "river", zIndex: 1, parallax: 0.5, depth: 0.08,
+    tone: "pink", asset: "dust-wave-1400", type: "river", zIndex: 1, parallax: 0.5, depth: 0.08,
     width: "150vw", height: "150vw", top: "calc(40vh - 75vw)", left: "10vw", rotate: 35, floatDuration: 50, delay: 0.2
   },
   // === 4. The Pink River: Orbital Ring ===
@@ -52,15 +54,15 @@ const sceneData = [
     tone: "pink", asset: "peony-1200", type: "footer-bloom", zIndex: 5, parallax: 0, depth: 0.02,
     width: "90vw", height: "90vw", top: "calc(100vh - 45vw)", left: "calc(75vw - 45vw)", rotate: -25, floatDuration: 25, delay: 0.2
   },
-  // === 10. Green Ecosystem 1: Core Code ===
+  // === 10. Green Ecosystem 1: Core Code (upper-left) ===
   {
     tone: "green", asset: "stream-b-1400", type: "interactive-green-ecosystem", zIndex: 0, parallax: 1.5, depth: 0.02,
-    width: "70vw", height: "70vw", top: "calc(40vh - 35vw)", left: "calc(25vw - 35vw)", rotate: 10, floatDuration: 28, delay: 0
+    width: "70vw", height: "70vw", top: "calc(14vh - 35vw)", left: "calc(16vw - 35vw)", rotate: 10, floatDuration: 28, delay: 0
   },
-  // === 11. Green Ecosystem 2: Terminal Depth ===
+  // === 11. Green Ecosystem 2: Terminal Depth (mid-left) ===
   {
     tone: "green", asset: "stream-a-1400", type: "interactive-green-ecosystem", zIndex: 0, parallax: 0.5, depth: 0.05,
-    width: "100vw", height: "100vw", top: "calc(70% - 50vw)", left: "-30vw", rotate: -15, floatDuration: 32, delay: 0.2
+    width: "70vw", height: "70vw", top: "calc(44vh - 35vw)", left: "calc(6vw - 35vw)", rotate: -15, floatDuration: 32, delay: 0.2
   },
   // === 12. Pink Particles: Unhinged Sparks ===
   {
@@ -71,7 +73,23 @@ const sceneData = [
 
 // Soft atmospheric wash that replaces the 3.99MB galaxy SVG blurred at 120px.
 const NEBULA_GRADIENT =
-  "radial-gradient(circle at center, rgba(244,200,214,0.65) 0%, rgba(150,120,200,0.34) 38%, rgba(120,90,170,0.12) 56%, transparent 70%)"
+  "radial-gradient(circle at center, rgba(244,200,214,0.7) 0%, rgba(150,120,200,0.36) 38%, rgba(120,90,170,0.13) 56%, transparent 70%)"
+
+// Base opacities. NOTE: these layers render with NORMAL compositing (no mix-blend-mode).
+// Animating opacity on a blended layer forced full re-rasterization every frame (the jitter);
+// over the near-black void `screen` ≈ src anyway, so we drop the blend and bump alpha a touch.
+const baseOpacities: Record<string, number> = {
+  "nebula-glow": 0.4,
+  "galaxy": 0.42,
+  "river": 0.26,
+  "orbital": 0.3,
+  "branch": 0.24,
+  "branch-small": 0.2,
+  "trail": 0, // Driven by scroll
+  "flower-deep": 0.14,
+  "interactive-pink-particles": 0, // Only visible on hover
+  "interactive-green-ecosystem": 0.12,
+}
 
 function FloatingSvgItem({
   item,
@@ -83,6 +101,8 @@ function FloatingSvgItem({
   hoverSide,
   windowWidth,
   motionEnabled,
+  intro,
+  exiting,
 }: {
   item: any,
   idx: number,
@@ -90,15 +110,16 @@ function FloatingSvgItem({
   scrollYProgress: any,
   mouseX: any,
   mouseY: any,
-  hoverSide: "nerdy" | "creative" | null,
+  hoverSide: Side,
   windowWidth: number,
   motionEnabled: boolean,
+  intro: boolean,
+  exiting: Side,
 }) {
   // Scroll Parallax mapping (only bound when motion is enabled).
   const scrollOffset = useTransform(scrollYSpring, (val: number) => val * item.parallax * -1)
 
-  // Mouse parallax — only the perceptible (deeper) layers are actually mouse-driven,
-  // so we run a handful of springs on pointer move instead of all 24.
+  // Mouse parallax — only the perceptible (deeper) layers are actually mouse-driven.
   const mouseDriven = motionEnabled && item.depth >= 0.08
   const mX = useTransform(mouseX, (val: number) => val * (windowWidth * item.depth) * (idx % 2 === 0 ? -1 : 1))
   const mY = useTransform(mouseY, (val: number) => val * (windowWidth * item.depth) * (idx % 2 === 0 ? -1 : 1))
@@ -114,51 +135,32 @@ function FloatingSvgItem({
   const trailTranslateY = useTransform(scrollYProgress, [0, 1], ["-20%", "20%"])
   const trailOpacityScroll = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 0.2, 0.2, 0])
 
-  const baseOpacities: Record<string, number> = {
-    "nebula-glow": 0.35,
-    "galaxy": 0.28,
-    "river": 0.18,
-    "orbital": 0.2,
-    "branch": 0.15,
-    "branch-small": 0.12,
-    "trail": 0, // Driven by scroll
-    "flower-deep": 0.08,
-    "interactive-pink-particles": 0, // Only visible on hover
-    "interactive-green-ecosystem": 0.05,
-  }
-
   let targetOpacity = item.type === "footer-bloom" ? 0 : (baseOpacities[item.type] || 0.15)
-  let targetScale = 1
-  let targetY = "0%"
-  let targetRotate = item.rotate
 
-  // Interaction Hover Logic — matching-tone SVGs pop vibrantly; others recede.
-  // Hovering "creative" lights up the pink/pastel layers; "nerdy" lights up green.
+  // Hover "awakening": matching-tone SVGs APPEAR, everything else DIMS. Opacity only —
+  // no glow, no scale pop (per design + to keep it jank-free).
   if (hoverSide === "creative") {
     if (item.type === "interactive-pink-particles") {
-      targetOpacity = 0.85
-      targetScale = 1.08
-      targetRotate = item.rotate + 30
+      targetOpacity = 0.8
     } else if (item.tone === "pink" && item.type !== "nebula-glow") {
-      targetOpacity = Math.min(1, targetOpacity * 2.6 + 0.12)
-      targetScale = 1.06
-      targetRotate = item.rotate + 2
+      targetOpacity = Math.min(1, targetOpacity * 2.6 + 0.14)
     } else if (item.type !== "nebula-glow") {
-      targetOpacity = targetOpacity * 0.4
+      targetOpacity = targetOpacity * 0.22
     }
   } else if (hoverSide === "nerdy") {
     if (item.type === "interactive-green-ecosystem") {
-       targetOpacity = 0.9
-       targetScale = 1.08
+      targetOpacity = 0.9
     } else if (item.tone === "green") {
-      targetOpacity = Math.min(1, targetOpacity * 2.6 + 0.12)
-      targetScale = 1.06
+      targetOpacity = Math.min(1, targetOpacity * 2.6 + 0.14)
+    } else if (item.type === "galaxy") {
+      // The solar system stays lit (acknowledges the nerdy side) rather than dimming out.
+      targetOpacity = Math.min(1, targetOpacity * 1.1)
     } else if (item.type !== "nebula-glow") {
-      targetOpacity = targetOpacity * 0.4
+      targetOpacity = targetOpacity * 0.22
     }
   }
 
-  // Reduced motion / pre-mount: render a static final frame for footer + trail too.
+  // Static-frame fallbacks (reduced motion / pre-mount).
   if (!motionEnabled) {
     if (item.type === "footer-bloom") targetOpacity = 0.85
     if (item.type === "trail") targetOpacity = 0.18
@@ -167,10 +169,7 @@ function FloatingSvgItem({
   let continuousAnimate: any = {}
   let continuousTransition: any = {}
 
-  // NOTE: continuous animations are intentionally TRANSFORM-ONLY. Animating
-  // `opacity` on these large `mix-blend-screen` layers forced the browser to
-  // re-rasterize huge blended surfaces every frame → the flicker/jitter. The
-  // subtle opacity "breathing" is dropped in favor of a steady (static) opacity.
+  // Continuous loops are intentionally TRANSFORM-ONLY (no opacity) — see MOTION_SYSTEM.md.
   switch (item.type) {
     case "nebula-glow":
       continuousAnimate = { scale: [1, 1.08, 0.95, 1] }
@@ -209,26 +208,39 @@ function FloatingSvgItem({
       continuousTransition = { duration: item.floatDuration, repeat: Infinity, ease: "easeInOut", delay: idx * 1.3 }
   }
 
-  // Radial masks for cinematic blending (cheap; no live blur filters anymore).
+  // Radial masks feather rectangular images into soft cosmic forms.
   let maskImage: string | undefined = "radial-gradient(circle at center, black 15%, transparent 60%)"
-
   if (item.type === "nebula-glow") {
-     maskImage = undefined // the gradient already self-fades
+    maskImage = undefined // the gradient already self-fades
   } else if (item.type === "galaxy") {
-     maskImage = "radial-gradient(circle at center, black 25%, transparent 65%)"
+    maskImage = "radial-gradient(circle at center, black 25%, transparent 65%)"
   } else if (item.type === "river" || item.type === "orbital") {
-     maskImage = "radial-gradient(circle at center, black 20%, transparent 65%)"
+    maskImage = "radial-gradient(circle at center, black 20%, transparent 65%)"
   } else if (item.type === "flower-deep") {
-     maskImage = "radial-gradient(circle at center, black 20%, transparent 70%)"
+    maskImage = "radial-gradient(circle at center, black 20%, transparent 70%)"
   } else if (item.type === "branch" || item.type === "branch-small") {
-     maskImage = "radial-gradient(circle at center, black 10%, transparent 65%)"
+    maskImage = "radial-gradient(circle at center, black 10%, transparent 65%)"
   }
 
   const isScrollDrivenTrail = item.type === "trail"
 
-  const revealTarget = item.type !== "footer-bloom" && !isScrollDrivenTrail || hoverSide
-    ? { opacity: targetOpacity, scale: targetScale, rotate: targetRotate, y: targetY }
+  // Exit: when a side is chosen, the whole scene zooms + blooms outward and fades, then routes.
+  const exitTarget = exiting ? { opacity: 0, scale: 1.7 } : null
+  const revealTarget = (item.type !== "footer-bloom" && !isScrollDrivenTrail) || hoverSide
+    ? { opacity: targetOpacity, scale: 1, rotate: item.rotate, y: "0%" }
     : undefined
+  const animateProp = exitTarget ?? revealTarget
+
+  const transitionProp = exiting
+    ? { duration: 0.7, ease: [0.4, 0, 0.9, 0.5] }
+    : motionEnabled
+      ? {
+          opacity: { duration: 0.55, delay: intro ? 0.18 + idx * 0.17 : 0, ease: [0.16, 1, 0.3, 1] },
+          scale: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
+          rotate: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
+          y: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
+        }
+      : { duration: 0 }
 
   return (
     <motion.div
@@ -241,37 +253,31 @@ function FloatingSvgItem({
         x: mouseDriven ? springMX : 0,
         y: !motionEnabled ? 0 : isScrollDrivenTrail ? trailTranslateY : scrollOffset,
         zIndex: item.zIndex,
-        opacity: !motionEnabled
+        opacity: exiting || !motionEnabled
           ? undefined
           : item.type === "footer-bloom" && !hoverSide
             ? footerOpacityScroll
             : isScrollDrivenTrail && !hoverSide
               ? trailOpacityScroll
               : undefined,
-        scale: motionEnabled && item.type === "footer-bloom" && !hoverSide ? footerScale : undefined,
-        rotate: motionEnabled && item.type === "footer-bloom" && !hoverSide ? footerRotate : undefined,
+        scale: motionEnabled && !exiting && item.type === "footer-bloom" && !hoverSide ? footerScale : undefined,
+        rotate: motionEnabled && !exiting && item.type === "footer-bloom" && !hoverSide ? footerRotate : undefined,
       }}
     >
       <motion.div style={{ y: mouseDriven ? springMY : 0 }} className="w-full h-full">
+        {/* Reveal / hover / exit wrapper — opacity animates here (NO blend mode → cheap). */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: "2%" }}
-          animate={revealTarget}
-          transition={motionEnabled ? {
-            opacity: { duration: item.type === "nebula-glow" || item.type === "galaxy" ? 8 : item.type === "flower-deep" ? 15 : 4, delay: item.delay || 0, ease: [0.16, 1, 0.3, 1] },
-            scale: { duration: 5, ease: [0.16, 1, 0.3, 1], delay: item.delay || 0 },
-            y: { duration: 5, ease: [0.16, 1, 0.3, 1], delay: item.delay || 0 },
-            rotate: { duration: 5, ease: [0.16, 1, 0.3, 1], delay: item.delay || 0 },
-          } : { duration: 0 }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={animateProp}
+          transition={transitionProp}
           className="w-full h-full relative mix-blend-screen gpu-layer blend-isolate"
         >
+          {/* Continuous float (transform-only) + radial mask. */}
           <motion.div
-            animate={motionEnabled ? continuousAnimate : undefined}
-            transition={motionEnabled ? continuousTransition : { duration: 0 }}
+            animate={motionEnabled && !exiting ? continuousAnimate : undefined}
+            transition={motionEnabled && !exiting ? continuousTransition : { duration: 0 }}
             className="w-full h-full relative gpu-layer"
-            style={{
-               WebkitMaskImage: maskImage,
-               maskImage: maskImage,
-            }}
+            style={{ WebkitMaskImage: maskImage, maskImage }}
           >
             {item.type === "nebula-glow" ? (
               <div className="w-full h-full" style={{ background: NEBULA_GRADIENT }} />
@@ -297,15 +303,21 @@ function FloatingSvgItem({
   )
 }
 
-export function FloatingSvgs({ hoverSide }: { hoverSide: "nerdy" | "creative" | null }) {
+export function FloatingSvgs({
+  hoverSide,
+  intro = false,
+  exiting = null,
+}: {
+  hoverSide: Side
+  intro?: boolean
+  exiting?: Side
+}) {
   const [mounted, setMounted] = useState(false)
   const [windowWidth, setWindowWidth] = useState(1000)
   const prefersReduced = useReducedMotion()
   const { scrollY, scrollYProgress } = useScroll()
 
-  // Slower, smoother parallax based on scroll
   const scrollYSpring = useSpring(scrollY, { damping: 50, stiffness: 300 })
-
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
 
@@ -317,7 +329,6 @@ export function FloatingSvgs({ hoverSide }: { hoverSide: "nerdy" | "creative" | 
     const handleResize = () => setWindowWidth(window.innerWidth)
     window.addEventListener("resize", handleResize)
 
-    // Only track the pointer when motion is allowed and we have a fine pointer (mouse).
     const finePointer = window.matchMedia("(pointer: fine)").matches
     let rafId = 0
     let pending = false
@@ -367,6 +378,8 @@ export function FloatingSvgs({ hoverSide }: { hoverSide: "nerdy" | "creative" | 
           hoverSide={hoverSide}
           windowWidth={windowWidth}
           motionEnabled={motionEnabled}
+          intro={intro}
+          exiting={exiting}
         />
       ))}
     </div>

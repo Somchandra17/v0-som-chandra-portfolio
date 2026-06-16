@@ -13,6 +13,9 @@ import { SpotifyNowPlayingContent } from "@/components/now-playing"
 import { SpotifyArtwork } from "@/components/spotify-artwork"
 import { ParticleField } from "@/components/cosmic/particle-field"
 import { FloatingSvgs } from "@/components/cosmic/floating-svgs"
+import { BlossomField } from "@/components/cosmic/blossom-field"
+import { EdgeBloom } from "@/components/cosmic/edge-bloom"
+import { useLoading } from "@/components/layout-shell"
 import { fonts, measureTextWidth, usePretextReady } from "@/lib/pretext"
 import { fetcher, type Artist, type NowPlayingData, type RecentTrack, type Track } from "@/lib/creative-data"
 import {
@@ -90,10 +93,12 @@ const heroLines = [
 export default function Home() {
   const router = useRouter()
   const [hoverSide, setHoverSide] = useState<"nerdy" | "creative" | null>(null)
+  const [armedSide, setArmedSide] = useState<"nerdy" | "creative" | null>(null)
+  const [exiting, setExiting] = useState<"nerdy" | "creative" | null>(null)
   const [nameMode, setNameMode] = useState<"default" | "nerdy" | "creative">("default")
   const [isHoverLocked, setIsHoverLocked] = useState(false)
-  const [isNerdyRouting, setIsNerdyRouting] = useState(false)
   const [factIdx, setFactIdx] = useState(0)
+  const { loading } = useLoading()
 
   const cycleName = () => {
     setSessionFlag("som-name-clicked", "1")
@@ -101,25 +106,24 @@ export default function Home() {
     setNameMode((prev) => prev === "default" ? "nerdy" : prev === "nerdy" ? "default" : "default")
   }
 
-  const handleNerdyOpen = (event: MouseEvent<HTMLAnchorElement>) => {
-    if (isNerdyRouting) {
+  // Two-click navigation (desktop + mobile): the 1st click ARMS a side — its awakening
+  // appears (matching SVGs in, rest dim) and locks. The 2nd click on the same card plays the
+  // bloom-out exit, then routes. A single click never navigates.
+  const handleCardClick = (side: "nerdy" | "creative", href: string) =>
+    (event: MouseEvent<HTMLAnchorElement>) => {
       event.preventDefault()
-      return
+      if (exiting) return
+      if (armedSide !== side) {
+        setArmedSide(side)
+        setHoverSide(side)
+        setIsHoverLocked(true)
+        setNameMode(side === "nerdy" ? "nerdy" : "default")
+        return
+      }
+      setExiting(side)
+      setHoverSide(side)
+      window.setTimeout(() => router.push(href), 760)
     }
-
-    const hasClickedName = getSessionFlag("som-name-clicked") === "1"
-    if (hasClickedName) return
-
-    event.preventDefault()
-    setIsNerdyRouting(true)
-    setHoverSide("nerdy")
-    setIsHoverLocked(true)
-    setNameMode("nerdy")
-
-    window.setTimeout(() => {
-      router.push("/nerdy")
-    }, 420)
-  }
 
   const nameConfig = {
     default: { text: "som", color: "#f0c6cf", shadow: "0 0 6px rgba(240, 198, 207, 0.25)" },
@@ -244,8 +248,26 @@ export default function Home() {
   return (
     <main className="relative min-h-screen bg-[#07060d]">
       <ParticleField />
-      <FloatingSvgs hoverSide={hoverSide} />
+      <FloatingSvgs hoverSide={hoverSide} intro={loading} exiting={exiting} />
+      <BlossomField hoverSide={hoverSide} exiting={exiting} />
+      <EdgeBloom />
 
+      {/* Exit hand-off tint — fades in late so the bloom-out reads first, then masks the route swap. */}
+      {exiting && (
+        <motion.div
+          aria-hidden
+          className="fixed inset-0 z-[150] pointer-events-none"
+          style={{ background: exiting === "nerdy" ? "#05140b" : "#170a13" }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.42, delay: 0.34, ease: "easeIn" }}
+        />
+      )}
+
+      {/* Home content mounts after the loader so its entrance plays over the already-built
+          cosmic SVGs (which render during loading for the one-by-one hand-off). */}
+      {!loading && (
+      <>
       {/* ---- HERO: fills viewport ---- */}
       <section ref={heroRef} className="relative min-h-screen flex items-center justify-center pt-10">
         <motion.div
@@ -346,11 +368,11 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 1 }}
                 onHoverStart={() => { setHoverSide("nerdy"); if (!isHoverLocked) setNameMode("nerdy") }}
-                onHoverEnd={() => { setHoverSide(null); if (!isHoverLocked) setNameMode("default") }}
+                onHoverEnd={() => { if (!exiting) { setHoverSide(null); setArmedSide(null); if (!isHoverLocked) setNameMode("default") } }}
                 className="group h-full"
               >
                 <motion.div style={{ x: parallaxX, y: parallaxY, rotateX, rotateY, perspective: 1000 }} className="h-full">
-                  <Link href="/nerdy" onClick={handleNerdyOpen} className="block h-full cursor-pointer">
+                  <Link href="/nerdy" onClick={handleCardClick("nerdy", "/nerdy")} className="block h-full cursor-pointer">
                     <motion.div
                       whileHover={{ y: -8, scale: 1.02 }}
                       className="paper-card crt-scanlines isolate relative p-7 md:p-9 min-h-[220px] h-full flex flex-col justify-between overflow-hidden"
@@ -425,11 +447,11 @@ $ ./exploit --pwn`}</pre>
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 1.15 }}
                 onHoverStart={() => setHoverSide("creative")}
-                onHoverEnd={() => setHoverSide(null)}
+                onHoverEnd={() => { if (!exiting) { setHoverSide(null); setArmedSide(null) } }}
                 className="group h-full"
               >
                 <motion.div style={{ x: parallaxX, y: parallaxY, rotateX, rotateY, perspective: 1000 }} className="h-full">
-                  <Link href="/creative" className="block h-full cursor-pointer">
+                  <Link href="/creative" onClick={handleCardClick("creative", "/creative")} className="block h-full cursor-pointer">
                     <motion.div
                       whileHover={{ y: -8, scale: 1.02 }}
                       className="paper-card isolate relative p-7 md:p-9 min-h-[220px] h-full flex flex-col justify-between overflow-hidden"
@@ -747,6 +769,8 @@ $ ./exploit --pwn`}</pre>
           <p className="font-mono text-xs text-[#666]">made with monster and bunch of tokens</p>
         </div>
       </footer>
+      </>
+      )}
     </main>
   )
 }

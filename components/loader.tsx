@@ -8,8 +8,8 @@ const messages = [
   "okay found it, one sec...",
 ]
 
-const MSG_MS = 650
-const NAME_MS = 700
+const MSG_MS = 750
+const NAME_MS = 1100
 
 export function Loader({ onComplete }: { onComplete: () => void }) {
   const [msgIndex, setMsgIndex] = useState(0)
@@ -58,9 +58,14 @@ export function Loader({ onComplete }: { onComplete: () => void }) {
 
   return (
     <motion.div
-      className="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-[#000000] cursor-pointer"
-      animate={phase === "done" ? { opacity: 0, y: -30 } : { opacity: 1, y: 0 }}
-      transition={{ duration: 0.45, ease: "easeInOut" }}
+      className="fixed inset-0 z-[200] flex flex-col items-center justify-center cursor-pointer"
+      initial={{ opacity: 1, y: 0, backgroundColor: "rgba(0,0,0,1)" }}
+      animate={phase === "done"
+        ? { opacity: 0, y: -30 }
+        : { opacity: 1, y: 0, backgroundColor: "rgba(0,0,0,0.06)" }}
+      transition={phase === "done"
+        ? { duration: 0.5, ease: "easeInOut" }
+        : { backgroundColor: { duration: 1.4, ease: "easeOut" }, default: { duration: 0.45, ease: "easeInOut" } }}
       onClick={finish}
       role="button"
       tabIndex={0}
