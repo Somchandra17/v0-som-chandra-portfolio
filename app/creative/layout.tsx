@@ -2,7 +2,6 @@ import type { Metadata } from "next"
 import type { ReactNode } from "react"
 
 export const metadata: Metadata = {
-  title: "the unhinged side",
   description:
     "Som Chandra's creative corner — phone photography, graphite doodles, and late-night scribbles. The fun half of a cybersecurity nerd.",
   openGraph: {

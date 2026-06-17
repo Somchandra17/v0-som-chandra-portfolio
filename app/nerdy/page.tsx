@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/page-header"
 import { PageTransition } from "@/components/page-transition"
 import { SectionHeader } from "@/components/section-header"
 import { SpotifyNowPlayingContent } from "@/components/now-playing"
+import { GitHubStats } from "@/components/github-stats"
 import { fetcher, type NowPlayingData } from "@/lib/creative-data"
 import { ExternalLink, Shield, Terminal, Flag, Bug, Github, Linkedin, Mail } from "lucide-react"
 
@@ -106,16 +107,22 @@ const projects = [
     link: "https://github.com/Somchandra17/TrashDroid",
   },
   {
+    name: "TrashiOS",
+    desc: "Terminal-first iOS SAST/DAST framework, the iOS counterpart to TrashDroid. Drives libimobiledevice, SSH-over-USB, Frida/objection, and otool/class-dump across 13 phases on a jailbroken iPhone with keychain dumps, Mach-O hardening checks, and AI-ready OWASP MASVS reporting.",
+    tech: ["Python", "iOS", "Frida", "SAST/DAST"],
+    link: "https://github.com/Somchandra17/TrashiOS",
+  },
+  {
     name: "TrashRecon",
     desc: "Dockerized recon framework chaining 17 tools across 10 phases for attack-surface mapping, screenshots, takeover checks, endpoint crawling, exposed-key checks, nuclei scans, and resumable output.",
     tech: ["Python", "Docker", "OSINT", "Recon"],
     link: "https://github.com/Somchandra17/TrashRecon",
   },
   {
-    name: "RootAppChecker",
-    desc: "Android root-detection app using Java plus native C/JNI checks for root files, SU binaries, BusyBox, Magisk traces, root apps, system properties, and integrity signals.",
-    tech: ["Java", "Android", "C/JNI", "Mobile Security"],
-    link: "https://github.com/Somchandra17/RootAppChecker",
+    name: "TrashFrame",
+    desc: "Turns any Spotify album or song into a printable poster: 14 theme presets across 13 layouts, album-art and typography controls, canvas palette extraction, QR / Spotify codes, and PNG/PDF export at configurable DPI.",
+    tech: ["Next.js", "React", "Canvas", "Spotify API"],
+    link: "https://github.com/Somchandra17/TrashFrame",
   },
 ]
 
@@ -248,6 +255,8 @@ export default function NerdyPage() {
                 </div>
               ))}
             </motion.div>
+
+            <GitHubStats />
           </section>
 
           <div className="mx-auto max-w-4xl px-6"><div className="h-px bg-[#333]" /></div>

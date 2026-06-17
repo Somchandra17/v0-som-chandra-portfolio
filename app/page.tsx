@@ -357,9 +357,28 @@ export default function Home() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.9 }}
           >
-            <p className="font-mono text-xs tracking-widest uppercase text-[#999] mb-6">
-              pick a side
-            </p>
+            {/* Kicker doubles as the 2-click cue: once a side is armed it pops to an
+                accent-lit "click again to open" so the second-click step is obvious. */}
+            <motion.p
+              key={armedSide ?? "idle"}
+              className="font-mono text-xs tracking-widest uppercase mb-6"
+              initial={{ opacity: 0, y: -6, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.34, ease: [0.16, 1, 0.3, 1] }}
+              style={
+                armedSide
+                  ? {
+                      color: armedSide === "nerdy" ? "#7fb07f" : "#f0c6cf",
+                      textShadow:
+                        armedSide === "nerdy"
+                          ? "0 0 14px rgba(127,176,127,0.55)"
+                          : "0 0 14px rgba(240,198,207,0.55)",
+                    }
+                  : { color: "#999" }
+              }
+            >
+              {armedSide ? "click again to open →" : "pick a side"}
+            </motion.p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6 max-w-2xl">
               {/* NERDY */}

@@ -21,10 +21,7 @@ const SITE_URL = 'https://www.somm.tf'
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: {
-    default: "hey, it's som",
-    template: '%s — som',
-  },
+  title: "Sup? - Som 00:21",
   description:
     'Som Chandra — Cyber Security Engineer by day, photographer and doodler by night. Two worlds, one website: resume, hacking projects, bug bounty Hall of Fames, photos, and sketches.',
   keywords: [
