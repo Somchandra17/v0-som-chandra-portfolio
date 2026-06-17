@@ -186,43 +186,70 @@ function FloatingSvgItem({
   let continuousTransition: any = {}
 
   // Continuous loops are intentionally TRANSFORM-ONLY (no opacity) — see MOTION_SYSTEM.md.
+  // Each layer gets a SIGNATURE motion suited to what it is — so the planes read as distinct
+  // living depths, not one uniform wobble. All transform-only (no opacity/filter) per MOTION_SYSTEM.
   switch (item.type) {
     case "nebula-glow":
-      continuousAnimate = { scale: [1, 1.08, 0.95, 1] }
-      continuousTransition = { duration: 87, repeat: Infinity, ease: "easeInOut", times: [0, 0.4, 0.8, 1], delay: idx * 1.7 }
+      // Atmospheric haze: slow breathe + a slow positional drift so the wash quietly moves.
+      continuousAnimate = {
+        scale: [1, 1.09, 0.97, 1],
+        x: ["0%", "2%", "-1.5%", "0%"],
+        y: ["0%", "-2%", "1%", "0%"],
+      }
+      continuousTransition = { duration: 120, repeat: Infinity, ease: "easeInOut", times: [0, 0.35, 0.7, 1], delay: idx * 1.7 }
       break
     case "galaxy":
-      continuousAnimate = { rotate: [item.rotate, item.rotate + 8, item.rotate - 2, item.rotate], scale: [1, 1.03, 0.98, 1] }
-      continuousTransition = { duration: 63, repeat: Infinity, ease: "easeInOut", times: [0, 0.35, 0.75, 1], delay: idx * 2.1 }
+      // The gravitational anchor — it actually TURNS (full slow spin) with a faint breathe.
+      continuousAnimate = { rotate: [item.rotate, item.rotate + 360], scale: [1, 1.04, 0.99, 1] }
+      continuousTransition = {
+        rotate: { duration: 200, repeat: Infinity, ease: "linear" },
+        scale: { duration: 48, repeat: Infinity, ease: "easeInOut", times: [0, 0.4, 0.8, 1] },
+      }
       break
     case "flower-deep":
-      continuousAnimate = { scale: [0.95, 1.04, 0.95] }
-      continuousTransition = { duration: 37, repeat: Infinity, ease: "easeInOut", times: [0, 0.5, 1], delay: idx * 1.4 }
+      // Dreamy deep flower: bloom-breathe + a slow rotation drift.
+      continuousAnimate = { scale: [0.95, 1.05, 0.98, 0.95], rotate: [item.rotate, item.rotate + 6, item.rotate - 2, item.rotate] }
+      continuousTransition = { duration: 58, repeat: Infinity, ease: "easeInOut", times: [0, 0.4, 0.8, 1], delay: idx * 1.4 }
       break
     case "branch":
-      continuousAnimate = { rotate: [item.rotate, item.rotate + 4, item.rotate - 1, item.rotate], y: ["0%", "2%", "0%"] }
-      continuousTransition = { duration: 43, repeat: Infinity, ease: "easeInOut", times: [0, 0.45, 0.85, 1], delay: idx * 3.2 }
+      // Wind sway — hinged at the attach corner (transformOrigin set below), not pivoting in place.
+      continuousAnimate = { rotate: [item.rotate, item.rotate + 4, item.rotate - 2.5, item.rotate], y: ["0%", "1.5%", "-0.5%", "0%"] }
+      continuousTransition = { duration: 44, repeat: Infinity, ease: [0.45, 0.05, 0.55, 0.95], times: [0, 0.4, 0.75, 1], delay: idx * 3.2 }
       break
     case "branch-small":
-      continuousAnimate = { rotate: [item.rotate, item.rotate - 3, item.rotate + 2, item.rotate], x: ["0%", "-1.5%", "0%"] }
-      continuousTransition = { duration: 29, repeat: Infinity, ease: "easeInOut", times: [0, 0.5, 1], delay: idx * 1.5 }
+      // Petals catching wind — lighter, quicker flutter.
+      continuousAnimate = { rotate: [item.rotate, item.rotate - 5, item.rotate + 3.5, item.rotate], x: ["0%", "-2.5%", "1%", "0%"] }
+      continuousTransition = { duration: 27, repeat: Infinity, ease: [0.45, 0.05, 0.55, 0.95], times: [0, 0.4, 0.75, 1], delay: idx * 1.5 }
       break
     case "river":
-      continuousAnimate = { y: ["0%", "5%", "0%"], x: ["0%", "-3%", "0%"], scale: [1, 1.03, 1] }
-      continuousTransition = { duration: 53, repeat: Infinity, ease: "easeInOut", times: [0, 0.5, 1], delay: idx * 2.7 }
+      // A current flowing along its axis: sustained drift + gentle undulation.
+      continuousAnimate = { x: ["0%", "-6%", "0%"], y: ["0%", "3%", "0%"], scale: [1, 1.04, 1] }
+      continuousTransition = { duration: 46, repeat: Infinity, ease: [0.37, 0, 0.63, 1], times: [0, 0.5, 1], delay: idx * 2.7 }
       break
     case "orbital":
-      continuousAnimate = { y: ["0%", "3%", "0%"], x: ["0%", "3%", "0%"], rotate: [item.rotate, item.rotate + 3, item.rotate - 1, item.rotate] }
-      continuousTransition = { duration: 71, repeat: Infinity, ease: "easeInOut", times: [0, 0.4, 0.8, 1], delay: idx * 4.1 }
+      // The pink ring orbits — counter to the galaxy, so the two rotations read as separate depths.
+      continuousAnimate = { rotate: [item.rotate, item.rotate - 360] }
+      continuousTransition = { rotate: { duration: 150, repeat: Infinity, ease: "linear" } }
       break
     case "interactive-green-ecosystem":
-      continuousAnimate = { rotate: [item.rotate, item.rotate - 5, item.rotate + 3, item.rotate] }
-      continuousTransition = { duration: 47, repeat: Infinity, ease: "linear", times: [0, 0.3, 0.7, 1], delay: idx * 0.8 }
+      // Streaming data flow: drift along axis + slow rotate + micro scale (distinct from the florals).
+      continuousAnimate = {
+        x: ["0%", "4%", "-2%", "0%"],
+        y: ["0%", "-3%", "1.5%", "0%"],
+        rotate: [item.rotate, item.rotate - 4, item.rotate + 2, item.rotate],
+        scale: [1, 1.03, 0.99, 1],
+      }
+      continuousTransition = { duration: 40, repeat: Infinity, ease: "easeInOut", times: [0, 0.35, 0.7, 1], delay: idx * 0.8 }
       break
     default:
       continuousAnimate = { rotate: [item.rotate, item.rotate + (idx % 2 === 0 ? 5 : -5), item.rotate], y: ["0%", "2%", "0%"] }
       continuousTransition = { duration: item.floatDuration, repeat: Infinity, ease: "easeInOut", delay: idx * 1.3 }
   }
+
+  // Pivot per layer: branches sway hinged at the corner they enter from; everything else
+  // spins / breathes / flows around its center.
+  const transformOrigin =
+    item.type === "branch" ? "top right" : item.type === "branch-small" ? "top left" : "center"
 
   // Radial masks feather rectangular images into soft cosmic forms.
   // MID tiers tightened (larger solid core) so silhouettes hold and read as a distinct plane.
@@ -294,7 +321,7 @@ function FloatingSvgItem({
             animate={motionEnabled && !exiting ? continuousAnimate : undefined}
             transition={motionEnabled && !exiting ? continuousTransition : { duration: 0 }}
             className="w-full h-full relative gpu-layer"
-            style={{ WebkitMaskImage: maskImage, maskImage }}
+            style={{ WebkitMaskImage: maskImage, maskImage, transformOrigin }}
           >
             {item.type === "nebula-glow" ? (
               <div className="w-full h-full" style={{ background: NEBULA_GRADIENT }} />
