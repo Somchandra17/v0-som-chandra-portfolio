@@ -31,11 +31,13 @@ interface Mote {
   fade: number
 }
 
-export function BlossomField({ hoverSide, exiting = null }: { hoverSide: Side; exiting?: Side }) {
+export function BlossomField({ hoverSide, armedSide = null, exiting = null }: { hoverSide: Side; armedSide?: Side; exiting?: Side }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const sideRef = useRef<Side>(null)
+  const armedRef = useRef<Side>(null)
   const exitingRef = useRef<Side>(null)
   const startRef = useRef<() => void>(() => {})
+  const rippleRef = useRef<(side: "nerdy" | "creative") => void>(() => {})
   const burstRef = useRef<(side: "nerdy" | "creative") => void>(() => {})
   const prefersReduced = useReducedMotion()
 
@@ -43,6 +45,16 @@ export function BlossomField({ hoverSide, exiting = null }: { hoverSide: Side; e
     sideRef.current = hoverSide
     if (hoverSide) startRef.current()
   }, [hoverSide])
+
+  // On the 1st click (ARM) a soft ripple acknowledges the commit.
+  useEffect(() => {
+    const was = armedRef.current
+    armedRef.current = armedSide
+    if (armedSide && !was) {
+      rippleRef.current(armedSide)
+      startRef.current()
+    }
+  }, [armedSide])
 
   // On the 2nd click the chosen side "blooms out" — fire a radial burst, then the route changes.
   useEffect(() => {

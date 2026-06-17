@@ -249,7 +249,7 @@ export default function Home() {
     <main className="relative min-h-screen bg-[#07060d]">
       <ParticleField />
       <FloatingSvgs hoverSide={hoverSide} intro={loading} exiting={exiting} />
-      <BlossomField hoverSide={hoverSide} exiting={exiting} />
+      <BlossomField hoverSide={hoverSide} armedSide={armedSide} exiting={exiting} />
       <EdgeBloom />
 
       {/* Exit hand-off tint — fades in late so the bloom-out reads first, then masks the route swap. */}
