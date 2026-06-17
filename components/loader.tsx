@@ -11,6 +11,17 @@ const messages = [
 const MSG_MS = 750
 const NAME_MS = 1100
 
+// A few faint sakura motes that drift up during the load — a preview of the layered world
+// being assembled behind the veil. Fixed values (no Math.random) to stay deterministic.
+const LOADER_MOTES = [
+  { left: "31%", size: 5, delay: 0, dur: 7.0, drift: 16 },
+  { left: "44%", size: 3, delay: 1.6, dur: 8.4, drift: -12 },
+  { left: "57%", size: 6, delay: 0.8, dur: 6.6, drift: 12 },
+  { left: "67%", size: 4, delay: 2.4, dur: 9.0, drift: -18 },
+  { left: "38%", size: 3, delay: 3.2, dur: 7.8, drift: 9 },
+  { left: "62%", size: 5, delay: 1.1, dur: 8.8, drift: -9 },
+]
+
 export function Loader({ onComplete }: { onComplete: () => void }) {
   const [msgIndex, setMsgIndex] = useState(0)
   const [phase, setPhase] = useState<"messages" | "name" | "done">("messages")
@@ -85,6 +96,27 @@ export function Loader({ onComplete }: { onComplete: () => void }) {
         animate={{ opacity: [0.5, 0.85, 0.5], scale: [0.85, 1.06, 0.85] }}
         transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
       />
+
+      {/* Drifting sakura motes — the layered world materialising behind the veil. */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+        {LOADER_MOTES.map((m, i) => (
+          <motion.span
+            key={i}
+            className="absolute rounded-full"
+            style={{
+              left: m.left,
+              bottom: "30%",
+              width: m.size,
+              height: m.size,
+              background: "rgba(240,198,207,0.9)",
+              boxShadow: "0 0 8px rgba(240,198,207,0.5)",
+            }}
+            initial={{ opacity: 0, y: 20, x: 0 }}
+            animate={{ opacity: [0, 0.55, 0], y: [20, -170], x: [0, m.drift, 0] }}
+            transition={{ duration: m.dur, delay: m.delay, repeat: Infinity, ease: "easeInOut" }}
+          />
+        ))}
+      </div>
 
       <AnimatePresence mode="wait">
         {phase === "messages" && (
