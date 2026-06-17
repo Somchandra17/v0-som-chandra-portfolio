@@ -24,7 +24,6 @@ export function PageHeader({ title, subtitle, subtitleSmallCaps, titleSmallCaps,
         <Link
           href="/"
           className="draw-underline flex items-center gap-2 text-sm font-mono text-[#777] hover:text-[#e8e8e8] transition-colors"
-          data-hover
         >
           <ArrowLeft className="h-4 w-4" />
           back home

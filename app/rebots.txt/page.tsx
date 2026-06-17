@@ -25,7 +25,7 @@ Disallow: /perfect-spelling/
 # git blame says these were written by "clumsy idiot at 3am"
 # still run linux daily n tweak stuff i shoudl leave alone
 
-Sitemap: https://yoursite.com/sitemap.xml
+Sitemap: https://www.somm.tf/sitemap.xml
 
 # easter egg unlocked bruh
 # u found my old htb side quests

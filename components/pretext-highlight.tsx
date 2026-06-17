@@ -30,9 +30,8 @@ export function PretextHighlight({
   paddingY = 2,
 }: PretextHighlightProps) {
   const [measurements, setMeasurements] = useState<Map<string, number>>(new Map())
+  const [containerWidth, setContainerWidth] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
-
-  if (lines.length === 0) return null
 
   // Pre-measure all lines on mount and when lines change
   useEffect(() => {
@@ -56,10 +55,30 @@ export function PretextHighlight({
     }
   }, [lines, fontSize])
 
+  // Track the available width so a long line scales down to fit instead of clipping (mobile).
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    setContainerWidth(el.clientWidth)
+    if (typeof ResizeObserver === "undefined") return
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) setContainerWidth(entry.contentRect.width)
+    })
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
+  if (lines.length === 0) return null
+
   const safeIndex = Math.min(Math.max(currentIndex, 0), lines.length - 1)
   const currentLine = lines[safeIndex] ?? ""
   const fallbackWidth = Math.ceil(currentLine.length * fontSize * 0.58)
   const currentWidth = measurements.get(currentLine) || fallbackWidth
+
+  // On narrow viewports the measured line can exceed the container — scale the whole pill down
+  // to fit (transform only, GPU-cheap) so it never clips mid-word. Left origin keeps it aligned.
+  const lineWidth = currentWidth + paddingX * 2
+  const fitScale = containerWidth > 0 && lineWidth > containerWidth ? containerWidth / lineWidth : 1
 
   return (
     <div ref={containerRef} className="relative overflow-hidden">
@@ -67,9 +86,10 @@ export function PretextHighlight({
         <motion.div
           key={safeIndex}
           className={`inline-flex items-center ${className}`}
-          initial={{ opacity: 0, y: 24, filter: "blur(4px)" }}
-          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          exit={{ opacity: 0, y: -20, filter: "blur(2px)" }}
+          style={{ transformOrigin: "left center" }}
+          initial={{ opacity: 0, y: 24, filter: "blur(4px)", scale: fitScale }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)", scale: fitScale }}
+          exit={{ opacity: 0, y: -20, filter: "blur(2px)", scale: fitScale }}
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
         >
           {/* Background highlight - animated to exact width */}

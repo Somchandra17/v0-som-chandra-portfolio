@@ -273,9 +273,14 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    /* Full-bleed vw cosmic layers must never produce a sideways scrollbar on mobile. */
+    overflow-x: hidden;
+  }
   body {
     @apply bg-background text-foreground;
     cursor: auto;
+    overflow-x: hidden;
   }
   ::selection {
     background: var(--world);

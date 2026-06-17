@@ -275,7 +275,7 @@ export default function Home() {
           style={{ opacity: prefersReduced ? 1 : heroOpacity, y: prefersReduced ? 0 : heroY }}
         >
           <motion.div
-            className="mb-10 h-px bg-[#2a2a2a]"
+            className="mb-7 md:mb-10 h-px bg-[#2a2a2a]"
             initial={{ width: 0, opacity: 0 }}
             animate={{ width: "100%", opacity: 1 }}
             transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
@@ -317,7 +317,7 @@ export default function Home() {
               <PretextHighlight
                 lines={heroLines}
                 currentIndex={heroIdx}
-                fontSize={24}
+                fontSize={isCompactSpotify ? 18 : 24}
                 bgColor="#e2d2c1"
                 textColor="#111"
                 paddingX={8}
@@ -326,7 +326,7 @@ export default function Home() {
             </div>
 
             {/* Auto-cycling fun fact */}
-            <div className="mt-8 h-6 overflow-hidden relative z-20">
+            <div className="mt-6 md:mt-8 h-6 overflow-hidden relative z-20">
               <AnimatePresence mode="wait">
                 <motion.p
                   key={factIdx}
@@ -344,7 +344,7 @@ export default function Home() {
           </motion.div>
 
           <motion.div
-            className="mt-14 h-px bg-gradient-to-r from-transparent via-[#333] to-transparent"
+            className="mt-10 md:mt-14 h-px bg-gradient-to-r from-transparent via-[#333] to-transparent"
             initial={{ width: 0 }}
             animate={{ width: "60%" }}
             transition={{ duration: 1.5, delay: 0.7, ease: "easeInOut" }}
@@ -352,7 +352,7 @@ export default function Home() {
 
           {/* ---- THE CHOICE ---- */}
           <motion.div
-            className="mt-12 relative z-20"
+            className="mt-9 md:mt-12 relative z-20"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.9 }}
@@ -526,7 +526,7 @@ $ ./exploit --pwn`}</pre>
           </motion.div>
 
           <motion.div
-            className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-20"
+            className="absolute bottom-10 left-1/2 -translate-x-1/2 hidden sm:flex flex-col items-center gap-2 z-20"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.5, duration: 0.6, ease: "easeOut" }}
@@ -773,7 +773,7 @@ $ ./exploit --pwn`}</pre>
       <footer className="relative z-10 overflow-hidden">
         <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#2a2a2a] to-transparent opacity-50" />
         <div className="mx-auto max-w-5xl px-6 py-12 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="font-mono text-xs text-[#888]">som chandra, 2025</p>
+          <p className="font-mono text-xs text-[#888]">som chandra, {new Date().getFullYear()}</p>
           <p className="font-mono text-xs text-[#666]">made with monster and bunch of tokens</p>
         </div>
       </footer>

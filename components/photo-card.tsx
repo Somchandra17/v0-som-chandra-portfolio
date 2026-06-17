@@ -108,6 +108,8 @@ export function PhotoCard({
       captionHeight: captionLayout?.height ?? 0,
       metaHeight: locationLayout?.height ?? 0,
     }
+    // pretextReady is a recompute trigger (re-measure once fonts load), not read directly.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [captionText, locationText, dateText, cardWidth, pretextReady])
 
   const overlayVisibilityClass = isDoodling

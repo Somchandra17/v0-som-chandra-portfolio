@@ -59,18 +59,33 @@ export function Loader({ onComplete }: { onComplete: () => void }) {
   return (
     <motion.div
       className="fixed inset-0 z-[200] flex flex-col items-center justify-center cursor-pointer"
-      initial={{ opacity: 1, y: 0, backgroundColor: "rgba(0,0,0,1)" }}
+      initial={{ opacity: 1, scale: 1, backgroundColor: "rgba(0,0,0,1)" }}
       animate={phase === "done"
-        ? { opacity: 0, y: -30 }
-        : { opacity: 1, y: 0, backgroundColor: "rgba(0,0,0,0.06)" }}
+        ? { opacity: 0, scale: 1.04 }
+        : { opacity: 1, scale: 1, backgroundColor: "rgba(0,0,0,0.06)" }}
       transition={phase === "done"
-        ? { duration: 0.5, ease: "easeInOut" }
+        ? { duration: 0.7, ease: [0.4, 0, 0.2, 1] }
         : { backgroundColor: { duration: 1.4, ease: "easeOut" }, default: { duration: 0.45, ease: "easeInOut" } }}
       onClick={finish}
       role="button"
       tabIndex={0}
       aria-label="Skip intro"
     >
+      {/* Soft breathing aura — atmospheric, soothing light behind the intro (gradient, no blur). */}
+      <motion.div
+        aria-hidden
+        className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
+        style={{
+          width: "60vmax",
+          height: "60vmax",
+          background:
+            "radial-gradient(circle, rgba(240,198,207,0.10) 0%, rgba(150,120,200,0.06) 38%, transparent 68%)",
+        }}
+        initial={{ opacity: 0, scale: 0.82 }}
+        animate={{ opacity: [0.5, 0.85, 0.5], scale: [0.85, 1.06, 0.85] }}
+        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+      />
+
       <AnimatePresence mode="wait">
         {phase === "messages" && (
           <motion.div
@@ -127,12 +142,25 @@ export function Loader({ onComplete }: { onComplete: () => void }) {
         {phase === "name" && (
           <motion.div
             key="name"
-            className="flex flex-col items-center"
+            className="relative flex flex-col items-center"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.05 }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
           >
+            {/* Soft glow blooming behind the name */}
+            <motion.div
+              aria-hidden
+              className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
+              style={{
+                width: "26rem",
+                height: "26rem",
+                background: "radial-gradient(circle, rgba(240,198,207,0.18) 0%, rgba(240,198,207,0.06) 40%, transparent 68%)",
+              }}
+              initial={{ opacity: 0, scale: 0.6 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
+            />
             {/* Name reveal */}
             <motion.h1
               className="text-5xl md:text-7xl font-bold text-[#e8e8e8] tracking-tight"

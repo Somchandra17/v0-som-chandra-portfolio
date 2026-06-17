@@ -715,7 +715,7 @@ type "help" for available commands`
             </div>
           </div>
 
-          <div ref={terminalRef} data-lenis-prevent className="relative z-[1] h-80 overflow-y-auto bg-ink-900 px-4 py-4 pr-2 scrollbar-thin">
+          <div ref={terminalRef} className="relative z-[1] h-80 overflow-y-auto bg-ink-900 px-4 py-4 pr-2 scrollbar-thin">
             <div className="space-y-3">
               {history.map((item, index) => (
                 <div key={`${index}-${item.cwd}-${item.input || "system"}`} className="space-y-1">
@@ -776,7 +776,7 @@ type "help" for available commands`
                 <div className="flex items-center gap-2">
                   <span className="h-2.5 w-2.5 border border-world bg-world/20" />
                   <span className="inline-flex items-center gap-2 text-[0.7rem] text-ink-400">
-                    musicd-server <span className="text-ink-600">//</span>{" "}
+                    musicd-server <span className="text-ink-600">{"//"}</span>{" "}
                     <span className="text-world">challenge solved</span>
                   </span>
                 </div>

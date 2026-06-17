@@ -293,7 +293,7 @@ export function GalleryPage({ title, subtitle, tabKey, items, showSort = true }:
           {/* Footer */}
           <footer className="relative z-10 border-t border-[#333]">
             <div className="mx-auto max-w-4xl px-6 py-7 flex items-center justify-between">
-              <p className="font-mono text-xs text-[#666]">som chandra -- 2025</p>
+              <p className="font-mono text-xs text-[#666]">som chandra -- {new Date().getFullYear()}</p>
               <p className="font-mono text-xs text-[#555]">the unhinged side</p>
             </div>
           </footer>
@@ -332,32 +332,25 @@ function StoryLightbox({
   const pretextReady = usePretextReady()
   const item = items[currentItemIndex]
 
-  if (!item) return null
-
-  const allPhotos = getPhotosForItem(item)
+  // Values the hooks below depend on. Computed null-safely so every hook runs before the
+  // `if (!item)` guard — React requires hooks to run in the same order on every render.
+  const allPhotos = item ? getPhotosForItem(item) : []
   const frameCount = Math.max(allPhotos.length, 1)
   const hasMultiple = allPhotos.length > 1
   const canBrowseItems = items.length > 1
   const hasSequence = canBrowseItems || hasMultiple
-  const isDoodling = item.kind === "doodling"
-  const displayTitle =
-    item.title?.trim() || (isDoodling ? "untitled sketch" : "untitled frame")
-  const kindLabel = isDoodling ? "doodling" : "clicks"
-  const viewerHint = hasSequence ? "drag sideways or use the rail" : "press esc to close"
-  const isAtSequenceStart = currentItemIndex === 0 && photoIndex === 0
-  const isAtSequenceEnd = currentItemIndex === items.length - 1 && photoIndex === frameCount - 1
-  const currentEntryProgress = items.length > 1 ? (currentItemIndex + 1) / items.length : 1
-  const metaLine = [item.location, item.date].filter(Boolean) as string[]
 
   const storyMeasurement = useMemo(() => {
-    if (!item.story) return null
+    if (!item?.story) return null
     try {
       const { height, lineCount } = measureText(item.story, fonts.body(14), 340, 22)
       return { height, lineCount }
     } catch {
       return null
     }
-  }, [item.story, pretextReady])
+    // pretextReady is a recompute trigger (re-measure once fonts load), not read directly.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [item?.story, pretextReady])
 
   const goForward = useCallback(() => {
     if (photoIndex < frameCount - 1) {
@@ -406,6 +399,18 @@ function StoryLightbox({
     window.addEventListener("keydown", onKey)
     return () => window.removeEventListener("keydown", onKey)
   }, [goBackward, goForward, onClose])
+
+  if (!item) return null
+
+  const isDoodling = item.kind === "doodling"
+  const displayTitle =
+    item.title?.trim() || (isDoodling ? "untitled sketch" : "untitled frame")
+  const kindLabel = isDoodling ? "doodling" : "clicks"
+  const viewerHint = hasSequence ? "drag sideways or use the rail" : "press esc to close"
+  const isAtSequenceStart = currentItemIndex === 0 && photoIndex === 0
+  const isAtSequenceEnd = currentItemIndex === items.length - 1 && photoIndex === frameCount - 1
+  const currentEntryProgress = items.length > 1 ? (currentItemIndex + 1) / items.length : 1
+  const metaLine = [item.location, item.date].filter(Boolean) as string[]
 
   return (
     <motion.div

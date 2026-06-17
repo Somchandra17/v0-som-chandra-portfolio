@@ -398,7 +398,7 @@ export default function CreativePage() {
           {/* Footer */}
           <footer className="relative z-10 border-t border-[#333]">
             <div className="mx-auto max-w-5xl px-6 py-7 flex items-center justify-between">
-              <p className="font-mono text-xs text-[#666]">som chandra -- 2025</p>
+              <p className="font-mono text-xs text-[#666]">som chandra -- {new Date().getFullYear()}</p>
               <p className="font-mono text-xs text-[#555]">the unhinged side</p>
             </div>
             <div className="mx-auto max-w-5xl px-6 pb-7">

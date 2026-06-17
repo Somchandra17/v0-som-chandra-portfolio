@@ -57,7 +57,17 @@ function getSpotifyCredentials(): SpotifyCredentials {
   return { clientId, clientSecret, refreshToken }
 }
 
+// Cache the access token in module scope so we don't hit the token endpoint on every
+// request. Spotify access tokens last ~1h; refreshing on each call caused 429 rate-limits.
+let cachedToken: { value: string; expiresAt: number } | null = null
+
 async function getAccessToken() {
+  const now = Date.now()
+  // Reuse the cached token until ~60s before it expires.
+  if (cachedToken && cachedToken.expiresAt - 60_000 > now) {
+    return cachedToken.value
+  }
+
   const { clientId, clientSecret, refreshToken } = getSpotifyCredentials()
   const basic = Buffer.from(`${clientId}:${clientSecret}`).toString("base64")
 
@@ -79,10 +89,13 @@ async function getAccessToken() {
     throw new Error(`Spotify token refresh failed (${response.status}): ${body.slice(0, 200)}`)
   }
 
-  const data = (await response.json()) as { access_token?: string }
+  const data = (await response.json()) as { access_token?: string; expires_in?: number }
   if (!data.access_token) {
     throw new Error("Spotify token response missing access_token")
   }
+
+  const ttlMs = (typeof data.expires_in === "number" ? data.expires_in : 3600) * 1000
+  cachedToken = { value: data.access_token, expiresAt: now + ttlMs }
 
   return data.access_token
 }
