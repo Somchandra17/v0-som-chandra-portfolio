@@ -78,17 +78,20 @@ const NEBULA_GRADIENT =
 // Base opacities. NOTE: these layers render with NORMAL compositing (no mix-blend-mode).
 // Animating opacity on a blended layer forced full re-rasterization every frame (the jitter);
 // over the near-black void `screen` ≈ src anyway, so we drop the blend and bump alpha a touch.
+// Base opacities — retuned into FAR (dim, distant haze) and MID (lifted, reachable) planes.
+// FOREGROUND depth is carried by the BlossomField canvas (z-40), not these layers.
+// FAR: nebula, galaxy, flower-deep  ·  MID: river, orbital, branch, branch-small, green-ecosystem
 const baseOpacities: Record<string, number> = {
-  "nebula-glow": 0.4,
-  "galaxy": 0.42,
-  "river": 0.26,
-  "orbital": 0.3,
-  "branch": 0.24,
-  "branch-small": 0.2,
-  "trail": 0, // Driven by scroll
-  "flower-deep": 0.14,
-  "interactive-pink-particles": 0, // Only visible on hover
-  "interactive-green-ecosystem": 0.12,
+  "nebula-glow": 0.28,                        // FAR  (was 0.4)  ×0.7
+  "galaxy": 0.30,                             // FAR  (was 0.42) ×0.7
+  "river": 0.30,                              // MID  (was 0.26) ×1.15
+  "orbital": 0.35,                            // MID  (was 0.3)  ×1.15
+  "branch": 0.28,                             // MID  (was 0.24) ×1.15
+  "branch-small": 0.23,                       // MID  (was 0.2)  ×1.15
+  "trail": 0,                                 // Driven by scroll
+  "flower-deep": 0.10,                        // FAR  (was 0.14) ×0.7
+  "interactive-pink-particles": 0,            // Only visible on hover
+  "interactive-green-ecosystem": 0.14,        // MID  (was 0.12) ×1.15
 }
 
 function FloatingSvgItem({
@@ -118,14 +121,15 @@ function FloatingSvgItem({
 }) {
   // --- Depth tiers: subtle, weighted, "feel depth rather than see movement" ---
   // bg = large/deep backdrop (moves least) · mid = mid florals · fg = small fragments (most).
+  // Spread widened so the differential between planes reads as depth (was 0.06/0.13/0.22).
   const tier =
     item.type === "branch" || item.type === "branch-small" || item.type === "interactive-green-ecosystem"
       ? "mid"
       : item.type === "trail" || item.type === "footer-bloom" || item.type === "interactive-pink-particles"
         ? "fg"
         : "bg"
-  const SCROLL_MULT = { bg: 0.06, mid: 0.13, fg: 0.22 } as const
-  const MOUSE_PX = { bg: 7, mid: 14, fg: 22 } as const
+  const SCROLL_MULT = { bg: 0.06, mid: 0.14, fg: 0.28 } as const   // was 0.06/0.13/0.22
+  const MOUSE_PX = { bg: 8, mid: 16, fg: 26 } as const              // was 7/14/22
 
   // Extremely subtle scroll parallax (Scroll × 0.04–0.14).
   const scrollOffset = useTransform(scrollYSpring, (val: number) => val * SCROLL_MULT[tier] * -1)
@@ -221,17 +225,18 @@ function FloatingSvgItem({
   }
 
   // Radial masks feather rectangular images into soft cosmic forms.
+  // MID tiers tightened (larger solid core) so silhouettes hold and read as a distinct plane.
   let maskImage: string | undefined = "radial-gradient(circle at center, black 15%, transparent 60%)"
   if (item.type === "nebula-glow") {
-    maskImage = undefined // the gradient already self-fades
+    maskImage = undefined
   } else if (item.type === "galaxy") {
-    maskImage = "radial-gradient(circle at center, black 25%, transparent 65%)"
+    maskImage = "radial-gradient(circle at center, black 25%, transparent 65%)"   // FAR (unchanged)
   } else if (item.type === "river" || item.type === "orbital") {
-    maskImage = "radial-gradient(circle at center, black 20%, transparent 65%)"
+    maskImage = "radial-gradient(circle at center, black 28%, transparent 62%)"   // MID tightened (was 20%)
   } else if (item.type === "flower-deep") {
-    maskImage = "radial-gradient(circle at center, black 20%, transparent 70%)"
+    maskImage = "radial-gradient(circle at center, black 20%, transparent 70%)"   // FAR (unchanged)
   } else if (item.type === "branch" || item.type === "branch-small") {
-    maskImage = "radial-gradient(circle at center, black 10%, transparent 65%)"
+    maskImage = "radial-gradient(circle at center, black 20%, transparent 62%)"   // MID tightened (was 10%)
   }
 
   const isScrollDrivenTrail = item.type === "trail"
