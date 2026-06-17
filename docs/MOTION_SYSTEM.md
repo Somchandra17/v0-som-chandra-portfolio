@@ -32,6 +32,9 @@ Bottom → top, as composited on the homepage:
       ├ <ParticleField>     canvas  fixed  -z-10   ← drifting stars (opaque #07060d fill)
       ├ <FloatingSvgs>      fixed   z-0   isolation:isolate
       │   └ 12 cosmic layers, internal z-index -2 … 5  (blend *within* this isolated group)
+      │     retuned into FAR (dim, soft) / MID (lifted, firmer mask) planes
+      ├ <BlossomField>      canvas  fixed  z-40      ← FOREGROUND: motes occlude content
+      │   hover/armed/exit petals + an idle trickle; tone-leans on engagement
       └ page sections       (hero / cards / spotify / ctf / footer; inner content z-10)
 .paper-texture::before      z-50   (LayoutShell — film grain, mix-blend-screen)
 .lowlight-burn              z-51   (LayoutShell — sensor vignette)
@@ -70,6 +73,12 @@ mask → the image (`<picture>` AVIF/WebP) or, for the nebula, a CSS gradient.
   progress (see *Scroll-driven specials*).
 - **`pink-particles`** is invisible until the creative side is hovered.
 
+The 12 layers are retuned into two depth planes: **FAR** (nebula, galaxy, flower-deep —
+dimmed ×0.7, softer masks → distant haze) and **MID** (river, orbital, branch, branch-small,
+green-ecosystem — lifted ×1.15, tighter masks so silhouettes hold → the reachable middle).
+Parallax spread widened (mouse 8/16/26px, scroll 0.06/0.14/0.28×) so the plane differential
+reads as depth. The nearest plane (FOREGROUND) is carried by the BlossomField canvas above.
+
 ## Motion systems
 
 1. **Scroll parallax (depth via speed).** `useScroll().scrollY` → `useSpring(damping 50, stiffness 300)`
@@ -103,6 +112,51 @@ One fixed full-viewport `<canvas>` (`-z-10`, `h-[150vh]`, opaque `#07060d` fill)
 (80 on mobile)** drift slowly upward with a sine twinkle. Capped to **~30 fps**, **paused when the tab
 is hidden** (`visibilitychange`), and reduced to **one static frame under `prefers-reduced-motion`**.
 A scroll `yShift × −0.2` gives the field a gentle parallax.
+
+## Foreground mote tier (`components/cosmic/blossom-field.tsx`, z-40)
+
+The single structural change that turns the scene from a flat backdrop into an
+immersive space: the petal canvas was bumped from `z-1` to `z-40`, so its motes
+now render **in front of** content (card edges, gaps) — real occlusion, the cue
+the brain reads as depth. The canvas keeps its one 2D context, sprite-cached
+blobs, `globalCompositeOperation = "lighter"`, and `prefers-reduced-motion` →
+`null`. Beyond the z-bump it also gained, to support the always-on idle trickle:
+
+- **An always-on idle trickle.** The loop no longer self-stops when no side is
+  engaged — while the tab is visible it keeps a sparse foreground alive. It runs
+  at **20fps when idle** and steps up to the full **60fps when active**
+  (hover / armed / exit), so the resting state stays cheap.
+- **Its own tab-hidden visibility pause** (added here — the canvas previously had
+  no reason to pause because it only ran during hover). With the trickle always
+  running, a `visibilitychange` guard stops the loop when the tab is hidden and
+  resumes it when visible.
+- **Off-screen recycling.** Foreground motes that drift past the viewport edge are
+  recycled rather than accumulating, keeping the live count bounded.
+
+**Two mote streams share the one loop:**
+1. *Hover petals* (background behaviour, retained) — spawned on hover, ambient alpha.
+2. *Foreground motes* (`fg: true`) — sparser, slower, brighter; drift along viewport edges
+   and section gaps (never parked over text). Carry the largest parallax of any tier.
+
+**Mote lifecycle:** foreground motes **recycle when they drift off-screen** (re-seeded
+to keep the density steady), while the ARM ripple motes are short-lived and **fade out
+to settle** (~0.6s) rather than recycling.
+
+**Intensity ladder** (inherits existing `hoverSide` / `armedSide` / `exiting` — no new state):
+
+| State | FG density | FG opacity | Behaviour |
+|---|---|---|---|
+| IDLE | ~6 @ 20fps | 0.3 | trickle; drifts across edges/gaps; "living space" baseline |
+| HOVER | ~16 | 0.45 | tone-leans to hovered side; concentrates near active card |
+| ARMED (1st click) | ~22 | 0.55 | + ~10-mote ripple from clicked card (~0.6s settle); locks tone |
+| EXIT (2nd click) | burst +30 | →0.85 | existing radial burst now renders in front of content; motes grow faster (`size += 0.7`) — depth inverts: content recedes, foreground surges |
+
+**Scroll thinning:** foreground density scales down over text-dense zones (music ~0.4×,
+terminal ~0.3×) and restores in gaps — readability-first. Uses the existing single
+`scrollY` reader; no new listener.
+
+**Guardrails:** FG motes never fully obscure text (≤0.55 opacity, 0.85 only at the transient
+exit peak); no mote covers a whole card face (size 4–12px + burst 16–46px).
 
 ## Compositing treatment
 - **`mix-blend-screen`** on every cosmic layer → additive light over the near-black void.
