@@ -88,8 +88,20 @@ reads as depth. The nearest plane (FOREGROUND) is carried by the BlossomField ca
    normalizes the cursor to −0.5…0.5; each layer offsets by `cursor × windowWidth × depth`, springed.
    **Only the perceptible layers (`depth ≥ 0.08`: nebula, galaxy, river, flower-deep) are mouse-driven** —
    the rest are static on the cursor axis, so a handful of springs run on move instead of 24.
-3. **Continuous float loops.** Per-`type` infinite keyframe loops on the innermost div (slow
-   scale/rotate/opacity/x/y), 20–90 s, staggered by index — the perpetual "alive" drift.
+3. **Continuous motion — per-layer _signatures_.** Each `type` gets a distinct, transform-only
+   loop on the innermost div (no opacity/filter), so the planes read as separate living depths
+   instead of one uniform wobble:
+   - **galaxy** — a continuous full spin (`rotate +360°`, ~200 s linear) + faint scale breathe; the
+     gravitational anchor actually *turns*.
+   - **orbital** (pink ring) — continuous counter-spin (`rotate −360°`, ~150 s), opposite the galaxy,
+     so the two rotations read as separate depths.
+   - **branch / branch-small** — wind sway *hinged at the attach corner* (`transformOrigin` top-right /
+     top-left), not a center pivot; petals flutter lighter and quicker.
+   - **river / green-ecosystem** — flow along their axis (sustained x/y drift) — current / streaming data.
+   - **nebula-glow / flower-deep** — slow breathe + positional / rotation drift — atmospheric.
+   Durations spread ~26–200 s and phases stagger by index so no two planes ever sync. A per-`type`
+   `transformOrigin` (corner for branches, center for the rest) is what turns a center wobble into a
+   hinged sway or a centered spin.
 4. **Mount reveal.** One-shot fade + scale + rotate to target on mount, eased `cubic-bezier(0.16,1,0.3,1)`,
    opacity ramp 4–15 s depending on layer.
 5. **Scroll-driven specials.** `trail` translates `−20% → 20%` with an opacity pulse; `footer-bloom`
