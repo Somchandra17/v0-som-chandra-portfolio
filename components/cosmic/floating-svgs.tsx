@@ -153,19 +153,28 @@ function FloatingSvgItem({
 
   let targetOpacity = item.type === "footer-bloom" ? 0 : (baseOpacities[item.type] || 0.15)
 
-  // Hover "awakening": matching-tone SVGs APPEAR, everything else DIMS. Opacity only —
-  // no glow, no scale pop (per design + to keep it jank-free).
+  // Hover "awakening" (background layer): the ForegroundFlow overlay now owns each side's hero
+  // asset, so here we DIM the backdrop — recede the duplicated bg copy (×0.4), keep the galaxy lit
+  // as a neutral anchor, dim the rest (×0.22). Opacity only (no glow/scale) — the glow lives in
+  // the foreground overlay, and this stays jank-free.
   if (hoverSide === "creative") {
-    if (item.type === "interactive-pink-particles") {
-      targetOpacity = 0.8
-    } else if (item.tone === "pink" && item.type !== "nebula-glow") {
-      targetOpacity = Math.min(1, targetOpacity * 2.6 + 0.14)
+    if (item.type === "river") {
+      // Foreground flow owns the water now — recede the bg copy so it doesn't duplicate.
+      targetOpacity = targetOpacity * 0.4
+    } else if (item.type === "galaxy") {
+      // Keep the cosmic centre lit as a neutral anchor (mirrors the nerdy side).
+      targetOpacity = Math.min(1, targetOpacity * 1.1)
+    } else if (item.type === "interactive-pink-particles") {
+      // A small unhinged-spark accent — no longer the busy bloom (water is the hero now).
+      targetOpacity = 0.3
     } else if (item.type !== "nebula-glow") {
+      // Everything else recedes so the foreground water current reads as the hero.
       targetOpacity = targetOpacity * 0.22
     }
   } else if (hoverSide === "nerdy") {
     if (item.type === "interactive-green-ecosystem") {
-      targetOpacity = 0.9
+      // Foreground flow owns the green stream now — recede the bg copy (was 0.9).
+      targetOpacity = targetOpacity * 0.4
     } else if (item.tone === "green") {
       targetOpacity = Math.min(1, targetOpacity * 2.6 + 0.14)
     } else if (item.type === "galaxy") {

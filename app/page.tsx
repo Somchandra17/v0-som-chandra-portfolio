@@ -15,6 +15,7 @@ import { ParticleField } from "@/components/cosmic/particle-field"
 import { FloatingSvgs } from "@/components/cosmic/floating-svgs"
 import { BlossomField } from "@/components/cosmic/blossom-field"
 import { EdgeBloom } from "@/components/cosmic/edge-bloom"
+import { ForegroundFlow } from "@/components/cosmic/foreground-flow"
 import { useLoading } from "@/components/layout-shell"
 import { fonts, measureTextWidth, usePretextReady } from "@/lib/pretext"
 import { fetcher, type Artist, type NowPlayingData, type RecentTrack, type Track } from "@/lib/creative-data"
@@ -251,6 +252,7 @@ export default function Home() {
       <FloatingSvgs hoverSide={hoverSide} intro={loading} exiting={exiting} />
       <BlossomField hoverSide={hoverSide} armedSide={armedSide} exiting={exiting} />
       <EdgeBloom />
+      <ForegroundFlow hoverSide={hoverSide} exiting={exiting} />
 
       {/* Exit hand-off tint — fades in late so the bloom-out reads first, then masks the route swap. */}
       {exiting && (
