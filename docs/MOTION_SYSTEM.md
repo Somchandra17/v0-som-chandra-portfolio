@@ -33,6 +33,8 @@ Bottom → top, as composited on the homepage:
       ├ <FloatingSvgs>      fixed   z-0   isolation:isolate
       │   └ 12 cosmic layers, internal z-index -2 … 5  (blend *within* this isolated group)
       │     retuned into FAR (dim, soft) / MID (lifted, firmer mask) planes
+      ├ <ForegroundFlow>    fixed   z-30      ← HOVER: portal-seep ribbon, above the cards
+      │   one signature SVG per side (green stream / pink water) lifts over the content
       ├ <BlossomField>      canvas  fixed  z-40      ← FOREGROUND: motes occlude content
       │   hover/armed/exit petals + an idle trickle; tone-leans on engagement
       └ page sections       (hero / cards / spotify / ctf / footer; inner content z-10)
@@ -107,9 +109,10 @@ reads as depth. The nearest plane (FOREGROUND) is carried by the BlossomField ca
 5. **Scroll-driven specials.** `trail` translates `−20% → 20%` with an opacity pulse; `footer-bloom`
    scales `0.5 → 1.2`, fades `0 → 0.9`, and rotates as page `scrollYProgress` runs `0.7 → 1` — the
    closing peony bloom.
-6. **Hover awakenings.** `hoverSide` (`creative` | `nerdy`, lifted from the pick-a-side cards) boosts
-   matching-tone layers (opacity ×1.5, slight scale/rotate) and dims off-tone layers (×0.7);
-   `pink-particles` and the green ecosystem get dedicated boosts.
+6. **Hover awakenings.** `hoverSide` (`creative` | `nerdy`, lifted from the pick-a-side cards) dims
+   the backdrop and lifts that side's **signature SVG to the foreground** (see *Foreground flow*),
+   receding its background copy (`river` / `green-ecosystem` ×0.4) so the texture isn't duplicated;
+   the galaxy stays lit as a neutral anchor on both sides.
 
 ## Hero & cards (`app/page.tsx`)
 - **Hero exit:** `useScroll({ target: heroRef })` → `heroOpacity 1→0` over `[0, 0.8]` and
@@ -170,6 +173,33 @@ terminal ~0.3×) and restores in gaps — readability-first. Uses the existing s
 **Guardrails:** FG motes never fully obscure text (≤0.55 opacity, 0.85 only at the transient
 exit peak); no mote covers a whole card face (size 4–12px + burst 16–46px).
 
+## Foreground flow — the "portal-seep" hover (`components/cosmic/foreground-flow.tsx`, z-30)
+
+The pick-a-side cards are doors; hovering one lets *the world behind it seep out over reality*.
+A dedicated `pointer-events-none` overlay — rendered **outside** the `z-0` cosmic group, at
+**`z-30`** (above the cards at `z-20`, below the grain at `z-50`) — lifts **one signature SVG per
+side above the content** and flows + glows over it, then recedes on leave. Committing (2nd click)
+lets it **surge outward with the exit bloom** (`scale → 1.5` + fade) — *seep → flood → enter*.
+
+- **Mounts only while a side is active** (`hoverSide`, or `exiting`) via `AnimatePresence` → the
+  overlay is **empty at idle** (zero added per-frame cost). Driven by the existing `hoverSide` /
+  `exiting` props from `app/page.tsx`; no new global state.
+- **Per side:** `nerdy` → `stream-b` (green, mirrored), masked to its foliage and pooled into the
+  **bottom-left corner**; `creative` → `dust-wave` (water), flowing through the **bottom-right
+  corner**. The matching **background copy recedes** (`floating-svgs.tsx` dims `river` /
+  `green-ecosystem` ×0.4) and the rest of the scene dims, so the foreground reads as the hero.
+- **Two motion personalities** (reusing the scene's own easings): `nerdy` drifts tighter / more
+  linear / faster (`[0.37,0,0.63,1]`, ~24 s); `creative` undulates wider / slower
+  (`[0.45,0.05,0.55,0.95]`, ~34 s) — precise hacker vs unhinged artist.
+- **Glow** is a separate `mix-blend-screen` radial-gradient aura (green / sakura-pink) with a
+  **scale-only** breathe — additive light over the dark scene, **never an animated blur/box-shadow**.
+- **Structure mirrors the proven nesting:** positioning wrapper (faint fg-tier cursor parallax) →
+  one-shot opacity/scale reveal (settles) → static-opacity holder → **transform-only** flow loop on
+  a masked, GPU-promoted child → `<picture>`. The mask crops `stream-b`'s corner watermark out.
+- **Contract:** only `transform` + `opacity` animate; mount-on-hover keeps idle cost flat; gated by
+  `motionEnabled`, so reduced motion shows a single static frame (no loop, no parallax). On touch the
+  1st tap arms the side, so the ribbon appears on tap.
+
 ## Compositing treatment
 - **`mix-blend-screen`** on every cosmic layer → additive light over the near-black void.
 - **`radial-gradient` mask** per layer (`black X% → transparent Y%`) feathers each layer's edges so
@@ -216,6 +246,7 @@ map to these semantic names by byte-identity:
 |---|---|
 | `app/page.tsx` | Hero, pick-a-side cards, Spotify, CTF, footer; mounts `ParticleField` + `FloatingSvgs`; hero scroll-exit + card tilt. |
 | `components/cosmic/floating-svgs.tsx` | The 12-layer cosmic system, all parallax/float/hover logic, isolation. |
+| `components/cosmic/foreground-flow.tsx` | The portal-seep hover overlay (z-30): per-side ribbon + glow lifted above the content. |
 | `components/cosmic/particle-field.tsx` | The star canvas (throttle/pause/reduced-motion). |
 | `components/grain-overlay.tsx` | `PaperOverlay` — film grain (`z-50`) + low-light vignette (`z-51`). |
 | `components/layout-shell.tsx` | Loader gate, `float-content` wrapper, overlays, scroll reset. |
