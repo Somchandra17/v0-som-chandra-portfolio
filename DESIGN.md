@@ -277,10 +277,16 @@ footer. Entrances via `whileInView` fade-up.
 **TrashFrame**. (RootAppChecker removed.)
 
 ### 6.1 GitHub stats — [`components/github-stats.tsx`](components/github-stats.tsx)
-Live block titled **`github, lately`** (3 `.paper-card` chips): **commits this year ·
-public repos · followers** — **deliberately no star counts**. Data via SWR from
-[`app/api/github/route.ts`](app/api/github/route.ts) (public GitHub API, cached
-1 h, optional `GITHUB_TOKEN` for higher limits, fails soft → hides if unavailable).
+Live block titled **`github, lately`**: 3 `.paper-card` chips (**commits this year ·
+public repos · followers** — **deliberately no star counts**) followed by a **monthly
+contributions graph** ([`components/github-graph.tsx`](components/github-graph.tsx)) — 12
+terminal-green **3D isometric towers** (rolling last 12 months; SVG cuboids, height ∝
+contributions, lit-top/shadowed-side faces; grow-in on scroll, static under reduced motion) +
+a mono `peak · streak` summary line. Data via SWR
+from [`app/api/github/route.ts`](app/api/github/route.ts): chips on the public REST API; the
+graph on the **contributions calendar** (GitHub GraphQL when `GITHUB_TOKEN` is set, else a
+no-token fallback), server-derived into monthly buckets + peak + streaks. Cached 1 h; chips
+and graph fail soft independently (hide if unavailable).
 
 ### Nerdy — mobile view
 - All 2-col grids (link bunker, projects, skills, certs/achievements) → **1 column**.
