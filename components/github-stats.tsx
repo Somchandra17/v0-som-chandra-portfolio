@@ -4,11 +4,13 @@ import { motion } from "framer-motion"
 import { Github } from "lucide-react"
 import useSWR from "swr"
 import { fetcher } from "@/lib/creative-data"
+import { GithubGraph, type Contributions } from "@/components/github-graph"
 
 type GitHubStatsData = {
   commitsThisYear: number | null
   publicRepos: number | null
   followers: number | null
+  contributions: Contributions | null
   year: number
 }
 
@@ -46,6 +48,7 @@ export function GitHubStats() {
           </div>
         ))}
       </div>
+      {data?.contributions && <GithubGraph data={data.contributions} />}
     </motion.div>
   )
 }
