@@ -28,19 +28,26 @@ export function LayoutShell({ children }: { children: ReactNode }) {
         ? (performance.getEntriesByType("navigation") as PerformanceNavigationTiming[])
         : []
       const navType = navEntries[0]?.type
+      // The loader is a HOME-PAGE landing animation: it plays only when the site is first
+      // loaded — or hard-refreshed — directly on "/". Subpages (and in-session navigations)
+      // never trigger it.
+      const initialIsHome = window.location.pathname === "/"
 
       if (navType === "reload") {
         sessionStorage.removeItem("som-loaded")
+      }
+
+      const seen = sessionStorage.getItem("som-loaded")
+      if (initialIsHome && !seen) {
+        // Leave loading = true so the loader plays over the home page.
         setChecked(true)
         return
       }
 
-      const seen = sessionStorage.getItem("som-loaded")
-      if (seen) {
-        setLoading(false)
-      }
+      setLoading(false)
       setChecked(true)
     } catch {
+      setLoading(false)
       setChecked(true)
     }
   }, [])
@@ -48,6 +55,12 @@ export function LayoutShell({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!checked || loading) return
     window.scrollTo({ top: 0, left: 0, behavior: "auto" })
+  }, [pathname, checked, loading])
+
+  // If the visitor leaves home before the intro finishes, resolve it so it doesn't
+  // linger or replay when they return — the loader is home-only.
+  useEffect(() => {
+    if (checked && loading && pathname !== "/") setLoading(false)
   }, [pathname, checked, loading])
 
   const handleLoadComplete = useCallback(() => {
@@ -72,7 +85,7 @@ export function LayoutShell({ children }: { children: ReactNode }) {
       <div className="float-content">{children}</div>
 
       <AnimatePresence mode="wait">
-        {loading && <Loader key="loader" onComplete={handleLoadComplete} />}
+        {loading && pathname === "/" && <Loader key="loader" onComplete={handleLoadComplete} />}
       </AnimatePresence>
     </LoadingContext.Provider>
   )
