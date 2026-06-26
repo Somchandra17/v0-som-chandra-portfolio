@@ -76,6 +76,12 @@ export function LayoutShell({ children }: { children: ReactNode }) {
 
   return (
     <LoadingContext.Provider value={{ loading }}>
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[300] focus:px-4 focus:py-2 focus:bg-[#0a0a0a] focus:text-[#e8e8e8] focus:border focus:border-[#2a2a2a] focus:font-mono focus:text-sm"
+      >
+        skip to content
+      </a>
       <PaperOverlay />
       <div className="curved-paper-bg" aria-hidden />
 

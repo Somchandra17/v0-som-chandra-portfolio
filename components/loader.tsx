@@ -138,18 +138,20 @@ export function Loader({ onComplete }: { onComplete: () => void }) {
             />
 
             {/* Message */}
-            <AnimatePresence mode="wait">
-              <motion.p
-                key={msgIndex}
-                initial={{ opacity: 0, y: 10, filter: "blur(6px)", scale: 0.98 }}
-                animate={{ opacity: 1, y: 0, filter: "blur(0px)", scale: 1 }}
-                exit={{ opacity: 0, y: -8, filter: "blur(4px)", scale: 0.98 }}
-                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                className="font-mono text-sm text-[#e8e8e8]"
-              >
-                {messages[msgIndex]}
-              </motion.p>
-            </AnimatePresence>
+            <div aria-live="polite" aria-atomic="true">
+              <AnimatePresence mode="wait">
+                <motion.p
+                  key={msgIndex}
+                  initial={{ opacity: 0, y: 10, filter: "blur(6px)", scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, filter: "blur(0px)", scale: 1 }}
+                  exit={{ opacity: 0, y: -8, filter: "blur(4px)", scale: 0.98 }}
+                  transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                  className="font-mono text-sm text-[#e8e8e8]"
+                >
+                  {messages[msgIndex]}
+                </motion.p>
+              </AnimatePresence>
+            </div>
 
             {/* Dots progress */}
             <div className="mt-6 flex gap-2">

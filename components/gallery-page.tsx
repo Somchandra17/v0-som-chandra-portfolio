@@ -49,17 +49,25 @@ export function GalleryPage({ title, subtitle, tabKey, items, showSort = true }:
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc")
   const [visibleCount, setVisibleCount] = useState(INITIAL_RENDER_COUNT)
   const loadMoreTriggerRef = useRef<HTMLDivElement | null>(null)
+  const lastTriggerRef = useRef<HTMLElement | null>(null)
   const activeSibling = siblingLinks.find((link) => link.key === tabKey)
+
+  // Return keyboard focus to the thumbnail that opened the lightbox (WCAG 2.4.3).
+  const closeLightbox = useCallback(() => {
+    setLightboxIndex(null)
+    const trigger = lastTriggerRef.current
+    if (trigger) requestAnimationFrame(() => trigger.focus())
+  }, [])
   const galleryNote = galleryNotesByTab[tabKey]
 
   useEffect(() => {
     if (lightboxIndex === null) return
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setLightboxIndex(null)
+      if (event.key === "Escape") closeLightbox()
     }
     window.addEventListener("keydown", onKeyDown)
     return () => window.removeEventListener("keydown", onKeyDown)
-  }, [lightboxIndex])
+  }, [lightboxIndex, closeLightbox])
 
   useEffect(() => {
     if (lightboxIndex === null || typeof document === "undefined") return
@@ -129,7 +137,7 @@ export function GalleryPage({ title, subtitle, tabKey, items, showSort = true }:
       <PageHeader title={title} subtitle={subtitle} breadcrumb={`som / creative / ${title}`} />
 
       <PageTransition>
-        <div className="relative min-h-screen">
+        <main id="main-content" className="relative min-h-screen">
           {/* Back link + sibling nav */}
           <div className="mx-auto max-w-4xl px-6 pt-6">
             <div className="overflow-hidden border border-[#2a2f37] bg-[linear-gradient(180deg,#101319_0%,#0b0d12_100%)]">
@@ -272,7 +280,10 @@ export function GalleryPage({ title, subtitle, tabKey, items, showSort = true }:
                   index={i}
                   activeTab={tabKey}
                   isTouchDevice={isTouchDevice}
-                  onClick={() => setLightboxIndex(i)}
+                  onClick={(trigger) => {
+                    lastTriggerRef.current = trigger
+                    setLightboxIndex(i)
+                  }}
                 />
               ))}
             </div>
@@ -297,7 +308,7 @@ export function GalleryPage({ title, subtitle, tabKey, items, showSort = true }:
               <p className="font-mono text-xs text-[#555]">the unhinged side</p>
             </div>
           </footer>
-        </div>
+        </main>
       </PageTransition>
 
       {/* Story Lightbox */}
@@ -307,7 +318,7 @@ export function GalleryPage({ title, subtitle, tabKey, items, showSort = true }:
             key={`${tabKey}-${lightboxIndex}`}
             items={sortedItems}
             initialItemIndex={lightboxIndex}
-            onClose={() => setLightboxIndex(null)}
+            onClose={closeLightbox}
           />
         )}
       </AnimatePresence>
@@ -330,6 +341,7 @@ function StoryLightbox({
   const [photoIndex, setPhotoIndex] = useState(0)
   const [transitionDirection, setTransitionDirection] = useState<-1 | 1>(1)
   const pretextReady = usePretextReady()
+  const dialogRef = useRef<HTMLDivElement>(null)
   const item = items[currentItemIndex]
 
   // Values the hooks below depend on. Computed null-safely so every hook runs before the
@@ -395,6 +407,29 @@ function StoryLightbox({
       if (event.key === "Escape") onClose()
       if (event.key === "ArrowRight") goForward()
       if (event.key === "ArrowLeft") goBackward()
+      if (event.key === "Tab") {
+        const root = dialogRef.current
+        if (!root) return
+        const focusables = Array.from(
+          root.querySelectorAll<HTMLElement>(
+            'a[href], button:not([disabled]), input, [tabindex]:not([tabindex="-1"])'
+          )
+        ).filter((el) => el.offsetParent !== null)
+        if (focusables.length === 0) return
+        const first = focusables[0]
+        const last = focusables[focusables.length - 1]
+        const activeEl = document.activeElement as HTMLElement | null
+        if (event.shiftKey && activeEl === first) {
+          event.preventDefault()
+          last.focus()
+        } else if (!event.shiftKey && activeEl === last) {
+          event.preventDefault()
+          first.focus()
+        } else if (activeEl && !root.contains(activeEl)) {
+          event.preventDefault()
+          first.focus()
+        }
+      }
     }
     window.addEventListener("keydown", onKey)
     return () => window.removeEventListener("keydown", onKey)
@@ -414,6 +449,7 @@ function StoryLightbox({
 
   return (
     <motion.div
+      ref={dialogRef}
       className="fixed inset-0 z-[300] bg-[#07090d]/96 backdrop-blur-md"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}

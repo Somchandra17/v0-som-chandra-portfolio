@@ -15,7 +15,7 @@ type GitHubStatsData = {
 }
 
 export function GitHubStats() {
-  const { data } = useSWR<GitHubStatsData>("/api/github", fetcher)
+  const { data, error } = useSWR<GitHubStatsData>("/api/github", fetcher)
   const year = data?.year ?? new Date().getFullYear()
 
   const stats = [
@@ -23,6 +23,20 @@ export function GitHubStats() {
     { value: data?.publicRepos, label: "public repos" },
     { value: data?.followers, label: "followers" },
   ]
+
+  // True fetch failure (network/server down) — the API itself fails soft with nulls, so this
+  // only fires when the endpoint is unreachable. Show a quiet, theme-matched note.
+  if (error) {
+    return (
+      <div className="mt-8">
+        <div className="mb-4 flex items-center gap-2">
+          <Github className="h-3.5 w-3.5 text-[#999]" aria-hidden="true" />
+          <p className="font-mono text-xs tracking-widest uppercase text-[#999]">github, lately</p>
+        </div>
+        <p className="paper-card px-4 py-3 text-sm text-[#888]">couldn&apos;t reach github right now</p>
+      </div>
+    )
+  }
 
   // Until the stats load (or if the API fails) render nothing — no broken/empty cards.
   if (!stats.some((s) => typeof s.value === "number")) return null
@@ -35,7 +49,7 @@ export function GitHubStats() {
       transition={{ duration: 0.45 }}
     >
       <div className="mb-4 flex items-center gap-2">
-        <Github className="h-3.5 w-3.5 text-[#999]" />
+        <Github className="h-3.5 w-3.5 text-[#999]" aria-hidden="true" />
         <p className="font-mono text-xs tracking-widest uppercase text-[#999]">github, lately</p>
       </div>
       <div className="flex flex-wrap gap-4">

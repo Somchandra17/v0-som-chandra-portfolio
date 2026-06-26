@@ -164,7 +164,7 @@ export default function NerdyPage() {
       <PageHeader title="the nerdy side" subtitle="resume / projects / hacking stuff" breadcrumb="som / nerdy" />
 
       <PageTransition>
-        <div className="relative min-h-screen">
+        <main id="main-content" className="relative min-h-screen">
           {nowPlaying?.isPlaying && (
             <section className="relative z-10 mx-auto max-w-4xl px-6 pt-10 pb-2">
               <motion.div
@@ -445,7 +445,7 @@ export default function NerdyPage() {
               <p className="font-mono text-xs text-[#555]">{"$ cat resume.txt"}</p>
             </div>
           </footer>
-        </div>
+        </main>
       </PageTransition>
     </>
   )

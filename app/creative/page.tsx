@@ -206,7 +206,7 @@ export default function CreativePage() {
       <PageHeader title="the unhinged side" subtitle="clicks / doodling / late-night scribbles" breadcrumb="som / creative" />
 
       <PageTransition>
-        <div className="relative min-h-screen">
+        <main id="main-content" className="relative min-h-screen">
 
           {/* Spelling disclaimer */}
           <div className="mx-auto max-w-5xl px-6 pt-6">
@@ -408,7 +408,7 @@ export default function CreativePage() {
               <div className="clear-both" />
             </div>
           </footer>
-        </div>
+        </main>
       </PageTransition>
     </>
   )

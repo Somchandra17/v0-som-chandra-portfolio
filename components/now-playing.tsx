@@ -22,7 +22,7 @@ export function SpotifyNowPlayingContent({ nowPlaying }: { nowPlaying: NowPlayin
         imgClassName="w-full h-full object-cover"
         fallback={<span className="text-[#444] text-xs">♪</span>}
       />
-      <div className="min-w-0">
+      <div className="min-w-0" aria-live="polite" aria-atomic="true">
         <p className="text-base font-bold text-[#e8e8e8] truncate group-hover:underline">{title}</p>
         <p className="text-sm text-[#aaa] truncate">{artist}</p>
         <p className="text-xs text-[#666] truncate mt-0.5">{album}</p>
@@ -34,6 +34,7 @@ export function SpotifyNowPlayingContent({ nowPlaying }: { nowPlaying: NowPlayin
     <>
       <div className="flex items-center gap-2 mb-4">
         <Disc3
+          aria-hidden="true"
           className={`h-4 w-4 ${isNowPlaying ? "animate-spin text-[#1DB954]" : "text-[#767676]"}`}
           style={{ animationDuration: "3s" }}
         />
@@ -68,7 +69,15 @@ export function SpotifyNowPlayingContent({ nowPlaying }: { nowPlaying: NowPlayin
 }
 
 export function NowPlaying() {
-  const { data: nowPlaying } = useSWR<NowPlayingData>("/api/spotify/now-playing", fetcher, { refreshInterval: 30000 })
+  const { data: nowPlaying, error } = useSWR<NowPlayingData>("/api/spotify/now-playing", fetcher, { refreshInterval: 30000 })
+
+  if (error) {
+    return (
+      <section className="relative z-10 mx-auto max-w-4xl px-6 pt-6 pb-2">
+        <p className="paper-card p-5 text-sm text-[#888]">couldn&apos;t reach spotify right now</p>
+      </section>
+    )
+  }
 
   if (!nowPlaying?.isPlaying) return null
 

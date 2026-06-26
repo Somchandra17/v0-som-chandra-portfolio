@@ -94,12 +94,21 @@ const heroLines = [
 export default function Home() {
   const router = useRouter()
   const [hoverSide, setHoverSide] = useState<"nerdy" | "creative" | null>(null)
-  const [armedSide, setArmedSide] = useState<"nerdy" | "creative" | null>(null)
   const [exiting, setExiting] = useState<"nerdy" | "creative" | null>(null)
   const [nameMode, setNameMode] = useState<"default" | "nerdy" | "creative">("default")
   const [isHoverLocked, setIsHoverLocked] = useState(false)
   const [factIdx, setFactIdx] = useState(0)
   const { loading } = useLoading()
+
+  // Touch "hover": phones have no hover, so a card awakens when it scrolls into the center of
+  // the screen (mirrors the gallery PhotoCard center-band reveal). Refs feed an observer set
+  // up further down; the guard refs let that observer read the latest state without re-binding.
+  const nerdyCardRef = useRef<HTMLDivElement>(null)
+  const creativeCardRef = useRef<HTMLDivElement>(null)
+  const exitingRef = useRef(exiting)
+  exitingRef.current = exiting
+  const hoverLockRef = useRef(isHoverLocked)
+  hoverLockRef.current = isHoverLocked
 
   const cycleName = () => {
     setSessionFlag("som-name-clicked", "1")
@@ -107,20 +116,13 @@ export default function Home() {
     setNameMode((prev) => prev === "default" ? "nerdy" : prev === "nerdy" ? "default" : "default")
   }
 
-  // Two-click navigation (desktop + mobile): the 1st click ARMS a side — its awakening
-  // appears (matching SVGs in, rest dim) and locks. The 2nd click on the same card plays the
-  // bloom-out exit, then routes. A single click never navigates.
+  // Single click/tap opens the side: play the bloom-out exit, then navigate. On touch devices
+  // the "awakening" preview is driven by scroll position (see the observer below) rather than
+  // a first click, so a single tap is all it takes.
   const handleCardClick = (side: "nerdy" | "creative", href: string) =>
     (event: MouseEvent<HTMLAnchorElement>) => {
       event.preventDefault()
       if (exiting) return
-      if (armedSide !== side) {
-        setArmedSide(side)
-        setHoverSide(side)
-        setIsHoverLocked(true)
-        setNameMode(side === "nerdy" ? "nerdy" : "default")
-        return
-      }
       setExiting(side)
       setHoverSide(side)
       window.setTimeout(() => router.push(href), 760)
@@ -215,6 +217,38 @@ export default function Home() {
     return () => media.removeListener(update)
   }, [])
 
+  // Touch "hover": when a card scrolls into the center band of the screen on a touch device,
+  // awaken it (the same preview desktop gets on hover). Cards stack vertically on phones, so
+  // one awakens at a time. Desktop has real hover and skips this entirely.
+  useEffect(() => {
+    if (loading || typeof window === "undefined" || typeof IntersectionObserver === "undefined") return
+    if (!window.matchMedia("(hover: none), (pointer: coarse)").matches) return
+
+    const sideOf = new Map<Element, "nerdy" | "creative">()
+    if (nerdyCardRef.current) sideOf.set(nerdyCardRef.current, "nerdy")
+    if (creativeCardRef.current) sideOf.set(creativeCardRef.current, "creative")
+    if (sideOf.size === 0) return
+
+    const inBand = new Set<"nerdy" | "creative">()
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          const side = sideOf.get(entry.target)
+          if (!side) continue
+          if (entry.isIntersecting) inBand.add(side)
+          else inBand.delete(side)
+        }
+        if (exitingRef.current) return
+        const next = inBand.has("nerdy") ? "nerdy" : inBand.has("creative") ? "creative" : null
+        setHoverSide(next)
+        if (!hoverLockRef.current) setNameMode(next === "nerdy" ? "nerdy" : "default")
+      },
+      { root: null, rootMargin: "-45% 0px -45% 0px", threshold: 0 }
+    )
+    sideOf.forEach((_side, el) => observer.observe(el))
+    return () => observer.disconnect()
+  }, [loading])
+
   const topTracks = topTracksData?.tracks || []
   const topArtists = topArtistsData?.artists || []
   const recentTracks = recentData?.tracks || []
@@ -247,10 +281,10 @@ export default function Home() {
   })
 
   return (
-    <main className="relative min-h-screen bg-[#07060d]">
+    <main id="main-content" className="relative min-h-screen bg-[#07060d]">
       <ParticleField />
       <FloatingSvgs hoverSide={hoverSide} intro={loading} exiting={exiting} />
-      <BlossomField hoverSide={hoverSide} armedSide={armedSide} exiting={exiting} />
+      <BlossomField hoverSide={hoverSide} armedSide={null} exiting={exiting} />
       <EdgeBloom />
       <ForegroundFlow hoverSide={hoverSide} exiting={exiting} />
 
@@ -359,37 +393,25 @@ export default function Home() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.9 }}
           >
-            {/* Kicker doubles as the 2-click cue: once a side is armed it pops to an
-                accent-lit "click again to open" so the second-click step is obvious. */}
             <motion.p
-              key={armedSide ?? "idle"}
               className="font-mono text-xs tracking-widest uppercase mb-6"
               initial={{ opacity: 0, y: -6, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ duration: 0.34, ease: [0.16, 1, 0.3, 1] }}
-              style={
-                armedSide
-                  ? {
-                      color: armedSide === "nerdy" ? "#7fb07f" : "#f0c6cf",
-                      textShadow:
-                        armedSide === "nerdy"
-                          ? "0 0 14px rgba(127,176,127,0.55)"
-                          : "0 0 14px rgba(240,198,207,0.55)",
-                    }
-                  : { color: "#999" }
-              }
+              style={{ color: "#999" }}
             >
-              {armedSide ? "click again to open →" : "pick a side"}
+              pick a side
             </motion.p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6 max-w-2xl">
               {/* NERDY */}
               <motion.div
+                ref={nerdyCardRef}
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 1 }}
                 onHoverStart={() => { setHoverSide("nerdy"); if (!isHoverLocked) setNameMode("nerdy") }}
-                onHoverEnd={() => { if (!exiting) { setHoverSide(null); setArmedSide(null); if (!isHoverLocked) setNameMode("default") } }}
+                onHoverEnd={() => { if (!exiting) { setHoverSide(null); if (!isHoverLocked) setNameMode("default") } }}
                 className="group h-full"
               >
                 <motion.div style={{ x: parallaxX, y: parallaxY, rotateX, rotateY, perspective: 1000 }} className="h-full">
@@ -464,11 +486,12 @@ $ ./exploit --pwn`}</pre>
 
               {/* CREATIVE */}
               <motion.div
+                ref={creativeCardRef}
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 1.15 }}
                 onHoverStart={() => setHoverSide("creative")}
-                onHoverEnd={() => { if (!exiting) { setHoverSide(null); setArmedSide(null) } }}
+                onHoverEnd={() => { if (!exiting) { setHoverSide(null) } }}
                 className="group h-full"
               >
                 <motion.div style={{ x: parallaxX, y: parallaxY, rotateX, rotateY, perspective: 1000 }} className="h-full">
@@ -547,6 +570,7 @@ $ ./exploit --pwn`}</pre>
           </motion.div>
 
           <motion.div
+            aria-hidden
             className="absolute bottom-10 left-1/2 -translate-x-1/2 hidden sm:flex flex-col items-center gap-2 z-20"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -590,8 +614,8 @@ $ ./exploit --pwn`}</pre>
             className="mb-14"
           >
             <div className="flex items-center gap-2 mb-2">
-              <Users className="h-4 w-4 text-[#ccc]" />
-              <p className="font-mono text-xs tracking-widest uppercase text-[#ccc]">top artists</p>
+              <Users className="h-4 w-4 text-[#ccc]" aria-hidden="true" />
+              <h2 className="font-mono text-xs tracking-widest uppercase text-[#ccc]">top artists</h2>
             </div>
             <p className="text-sm text-[#888] mb-8">the people responsible for my personality</p>
 
@@ -642,8 +666,8 @@ $ ./exploit --pwn`}</pre>
             className="mb-14"
           >
             <div className="flex items-center gap-2 mb-2">
-              <Headphones className="h-4 w-4 text-[#ccc]" />
-              <p className="font-mono text-xs tracking-widest uppercase text-[#ccc]">all-time faves</p>
+              <Headphones className="h-4 w-4 text-[#ccc]" aria-hidden="true" />
+              <h2 className="font-mono text-xs tracking-widest uppercase text-[#ccc]">all-time faves</h2>
             </div>
             <p className="text-sm text-[#888] mb-6">the songs i&apos;ve played to death</p>
 
@@ -692,8 +716,8 @@ $ ./exploit --pwn`}</pre>
             transition={{ duration: 0.5 }}
           >
             <div className="flex items-center gap-2 mb-2">
-              <Clock className="h-4 w-4 text-[#ccc]" />
-              <p className="font-mono text-xs tracking-widest uppercase text-[#ccc]">recently played</p>
+              <Clock className="h-4 w-4 text-[#ccc]" aria-hidden="true" />
+              <h2 className="font-mono text-xs tracking-widest uppercase text-[#ccc]">recently played</h2>
             </div>
             <p className="text-sm text-[#888] mb-6">what was in my ears a minute ago</p>
 
@@ -762,9 +786,9 @@ $ ./exploit --pwn`}</pre>
           viewport={{ once: true, margin: "-40px" }}
           transition={{ duration: 0.5 }}
         >
-          <p className="font-mono text-xs tracking-widest uppercase text-[#ccc] mb-2">
+          <h2 className="font-mono text-xs tracking-widest uppercase text-[#ccc] mb-2">
             find me elsewhere
-          </p>
+          </h2>
           <p className="text-sm text-[#888] mb-6">
             (i sometimes reply)
           </p>
@@ -782,7 +806,7 @@ $ ./exploit --pwn`}</pre>
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.08, duration: 0.35 }}
               >
-                <s.icon className="h-4 w-4" />
+                <s.icon className="h-4 w-4" aria-hidden="true" />
                 <span className="draw-underline">{s.label}</span>
               </motion.a>
             ))}

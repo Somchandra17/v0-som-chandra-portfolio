@@ -22,7 +22,7 @@ export function PhotoCard({
   index: number
   activeTab: Tab
   isTouchDevice: boolean
-  onClick: () => void
+  onClick: (trigger: HTMLElement | null) => void
 }) {
   const cardRef = useRef<HTMLDivElement | null>(null)
   const [isMidViewport, setIsMidViewport] = useState(false)
@@ -133,14 +133,23 @@ export function PhotoCard({
             }
           : {}),
       }}
-      onClick={onClick}
+      role="button"
+      tabIndex={0}
+      aria-label={`Open ${item.title?.trim() || captionText || (isDoodling ? "sketch" : "photo")}`}
+      onClick={() => onClick(cardRef.current)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault()
+          onClick(cardRef.current)
+        }
+      }}
     >
       <div className="w-full bg-[#1a1a1a] relative overflow-hidden">
         {item.src ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={item.src}
-            alt={item.title}
+            alt={item.title?.trim() || captionText || `${isDoodling ? "Sketch" : "Photograph"}${dateText ? `, ${dateText}` : ""}`}
             loading={index < 6 ? "eager" : "lazy"}
             decoding="async"
             fetchPriority={index < 6 ? "high" : "auto"}
