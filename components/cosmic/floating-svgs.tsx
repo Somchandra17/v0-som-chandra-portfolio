@@ -81,24 +81,111 @@ const NEBULA_GRADIENT =
 // Base opacities — retuned into FAR (dim, distant haze) and MID (lifted, reachable) planes.
 // FOREGROUND depth is carried by the BlossomField canvas (z-40), not these layers.
 // FAR: nebula, galaxy, flower-deep  ·  MID: river, orbital, branch, branch-small, green-ecosystem
+// NOTE (scroll acts): several bases are set HIGHER than their resting look and are
+// brought back down by the act multiplier at scroll=0 (rest = base × act[0]), so the
+// choreography can genuinely BRIGHTEN a plane mid-page without exceeding opacity 1.
+// Resting effective values are unchanged: river 0.40×0.75=0.30, orbital 0.45×0.78≈0.35,
+// branch 0.34×0.82≈0.28, branch-small 0.30×0.77≈0.23, greens 0.50×0.28=0.14.
 const baseOpacities: Record<string, number> = {
-  "nebula-glow": 0.28,                        // FAR  (was 0.4)  ×0.7
-  "galaxy": 0.30,                             // FAR  (was 0.42) ×0.7
-  "river": 0.30,                              // MID  (was 0.26) ×1.15
-  "orbital": 0.35,                            // MID  (was 0.3)  ×1.15
-  "branch": 0.28,                             // MID  (was 0.24) ×1.15
-  "branch-small": 0.23,                       // MID  (was 0.2)  ×1.15
+  "nebula-glow": 0.28,                        // FAR
+  "galaxy": 0.30,                             // FAR
+  "river": 0.40,                              // MID  (rest 0.30 via act mult)
+  "orbital": 0.45,                            // MID  (rest 0.35 via act mult)
+  "branch": 0.34,                             // MID  (rest 0.28 via act mult)
+  "branch-small": 0.30,                       // MID  (rest 0.23 via act mult)
   "trail": 0,                                 // Driven by scroll
-  "flower-deep": 0.10,                        // FAR  (was 0.14) ×0.7
+  "flower-deep": 0.10,                        // FAR
   "interactive-pink-particles": 0,            // Only visible on hover
-  "interactive-green-ecosystem": 0.14,        // MID  (was 0.12) ×1.15
+  "interactive-green-ecosystem": 0.50,        // MID  (rest 0.14 via act mult; terminal act 0.50)
 }
+
+/* ============================================================
+   SCROLL ACTS — the scene as narrative, not backdrop.
+   One springed page progress drives four acts:
+     I   Constellation (hero, 0–0.2): the settled composition.
+     II  The Parting (music, ~0.2–0.45): florals drift outward and
+         dim a step so the content floats in a calmer sky.
+     III The Green Takeover (terminal, ~0.45–0.7): the code streams
+         converge on the terminal and brighten to full voice while
+         the pinks recede — the mid-page temperature change.
+     IV  The Bloom Finale (socials/footer, 0.7–1): pink floods back
+         over the peony finale; the streams let go.
+   All transform/opacity only, composed on a dedicated wrapper so
+   parallax, hover awakenings, loops and exits stay untouched.
+   ============================================================ */
+const ACT_STOPS = [0, 0.2, 0.55, 0.8, 1]
+
+type ActTrack = {
+  x?: string[]
+  y?: string[]
+  scale?: number[]
+  opacity?: number[]
+}
+
+const ACTS: Record<string, ActTrack> = {
+  "nebula-glow": {
+    opacity: [1, 0.85, 0.5, 0.95, 1],
+    scale: [1, 1.03, 1, 1.06, 1.08],
+  },
+  galaxy: {
+    opacity: [1, 0.9, 0.55, 0.85, 0.9],
+    x: ["0%", "-3%", "-5%", "-4%", "-4%"],
+    y: ["0%", "-2%", "-4%", "-3%", "-2%"],
+    scale: [1, 1.05, 0.97, 1, 1.02],
+  },
+  river: {
+    opacity: [0.75, 0.6, 0.28, 0.95, 1],
+    x: ["0%", "5%", "9%", "5%", "3%"],
+  },
+  orbital: {
+    opacity: [0.78, 0.62, 0.3, 0.95, 1],
+    x: ["0%", "4%", "7%", "3%", "2%"],
+  },
+  branch: {
+    opacity: [0.82, 0.72, 0.35, 0.95, 1],
+    x: ["0%", "6%", "9%", "5%", "3%"],
+    y: ["0%", "-3%", "-5%", "-2%", "-1%"],
+  },
+  "branch-small": {
+    opacity: [0.77, 0.68, 0.33, 0.95, 1],
+    x: ["0%", "-5%", "-8%", "-4%", "-2%"],
+  },
+  "flower-deep": {
+    opacity: [1, 0.85, 0.5, 1, 1],
+    scale: [1, 1.02, 1, 1.08, 1.1],
+  },
+  "interactive-green-ecosystem": {
+    opacity: [0.28, 0.4, 1, 0.45, 0.3],
+    scale: [1, 1.02, 1.12, 1.04, 1],
+  },
+  "interactive-pink-particles": {
+    y: ["0%", "0%", "2%", "-6%", "-10%"],
+    scale: [1, 1, 1, 1.1, 1.16],
+  },
+}
+
+// Per-asset convergence overrides: the two streams approach the terminal from
+// opposite flanks during Act III.
+const ACT_XY_OVERRIDES: Record<string, Pick<ActTrack, "x" | "y">> = {
+  "stream-b-1400": {
+    x: ["0%", "2%", "14%", "6%", "4%"],
+    y: ["0%", "4%", "16%", "8%", "5%"],
+  },
+  "stream-a-1400": {
+    x: ["0%", "2%", "10%", "4%", "2%"],
+    y: ["0%", "-2%", "-8%", "-2%", "0%"],
+  },
+}
+
+const NEUTRAL_PCT = ["0%", "0%", "0%", "0%", "0%"]
+const NEUTRAL_NUM = [1, 1, 1, 1, 1]
 
 function FloatingSvgItem({
   item,
   idx,
   scrollYSpring,
   scrollYProgress,
+  actProgress,
   mouseX,
   mouseY,
   hoverSide,
@@ -111,6 +198,7 @@ function FloatingSvgItem({
   idx: number,
   scrollYSpring: any,
   scrollYProgress: any,
+  actProgress: any,
   mouseX: any,
   mouseY: any,
   hoverSide: Side,
@@ -141,6 +229,16 @@ function FloatingSvgItem({
   const mY = useTransform(mouseY, (val: number) => val * MOUSE_PX[tier] * 2 * dir)
   const springMX = useSpring(mX, { damping: 60, stiffness: 90 })
   const springMY = useSpring(mY, { damping: 60, stiffness: 90 })
+
+  // --- Scroll acts: the four-act choreography (see ACTS above). Hooks run for every
+  // layer (neutral tracks when a layer has no act) to keep hook order stable. ---
+  const act = ACTS[item.type] as ActTrack | undefined
+  const actOverride = item.asset ? ACT_XY_OVERRIDES[item.asset] : undefined
+  const actX = useTransform(actProgress, ACT_STOPS, actOverride?.x ?? act?.x ?? NEUTRAL_PCT)
+  const actY = useTransform(actProgress, ACT_STOPS, actOverride?.y ?? act?.y ?? NEUTRAL_PCT)
+  const actScale = useTransform(actProgress, ACT_STOPS, act?.scale ?? NEUTRAL_NUM)
+  const actOpacity = useTransform(actProgress, ACT_STOPS, act?.opacity ?? NEUTRAL_NUM)
+  const hasAct = Boolean(act || actOverride)
 
   // Footer bloom scroll transforms
   const footerScale = useTransform(scrollYProgress, [0.8, 1], [0.5, 1.2])
@@ -317,6 +415,17 @@ function FloatingSvgItem({
         rotate: motionEnabled && !exiting && item.type === "footer-bloom" && !hoverSide ? footerRotate : undefined,
       }}
     >
+      {/* Act wrapper — scroll-narrative transforms/opacity, composed over parallax. */}
+      <motion.div
+        className="w-full h-full gpu-layer"
+        style={
+          motionEnabled && hasAct
+            ? { x: actX, y: actY, scale: actScale, opacity: actOpacity }
+            : hasAct && act?.opacity
+              ? { opacity: act.opacity[0] } // static frame keeps the resting brightness
+              : undefined
+        }
+      >
       <motion.div style={{ y: mouseDriven ? springMY : 0 }} className="w-full h-full">
         {/* Reveal / hover / exit wrapper — opacity animates here (NO blend mode → cheap). */}
         <motion.div
@@ -352,6 +461,7 @@ function FloatingSvgItem({
           </motion.div>
         </motion.div>
       </motion.div>
+      </motion.div>
     </motion.div>
   )
 }
@@ -371,6 +481,8 @@ export function FloatingSvgs({
   const { scrollY, scrollYProgress } = useScroll()
 
   const scrollYSpring = useSpring(scrollY, { damping: 50, stiffness: 300 })
+  // The act clock: springed page progress so the four-act choreography glides.
+  const actProgress = useSpring(scrollYProgress, { damping: 40, stiffness: 120 })
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
 
@@ -426,6 +538,7 @@ export function FloatingSvgs({
           idx={idx}
           scrollYSpring={scrollYSpring}
           scrollYProgress={scrollYProgress}
+          actProgress={actProgress}
           mouseX={mouseX}
           mouseY={mouseY}
           hoverSide={hoverSide}

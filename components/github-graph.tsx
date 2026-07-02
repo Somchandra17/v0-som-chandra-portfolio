@@ -2,6 +2,7 @@
 
 import { motion, useReducedMotion } from "framer-motion"
 import { useState } from "react"
+import { ACCENT, GLOW, GRAPH_GREEN, INK } from "@/lib/tokens"
 
 export type Contributions = {
   months: { key: string; label: string; count: number }[]
@@ -21,16 +22,18 @@ const START_X = 80
 const BASE_Y = 232
 const VB_W = 520
 const VB_H = 286
+const LABEL_Y = VB_H - 10 // one straight baseline for all month letters
 
-const TOP = "#a6dca7" // lit top face
-const LEFT = "#6fa472" // front/left face
-const RIGHT = "#3f5b44" // shadowed right face
-const TOP_EMPTY = "rgba(127,176,127,0.14)" // dormant month — flat ground tile
+const TOP = GRAPH_GREEN.top // lit top face
+const LEFT = GRAPH_GREEN.side // front/left face
+const RIGHT = GRAPH_GREEN.dark // shadowed right face
+const TOP_EMPTY = `rgba(${GLOW.nerdy}, 0.14)` // dormant month — flat ground tile
 const EDGE = "rgba(0,0,0,0.3)"
 
 export function GithubGraph({ data }: { data: Contributions }) {
   const prefersReduced = useReducedMotion()
   const [active, setActive] = useState<string | null>(null)
+  const [focused, setFocused] = useState<string | null>(null) // keyboard ring only
   const max = Math.max(1, ...data.months.map((m) => m.count))
 
   const bars = data.months.map((m, i) => {
@@ -48,24 +51,25 @@ export function GithubGraph({ data }: { data: Contributions }) {
     return {
       i,
       key: m.key,
+      cx,
       label: m.label[0],
+      fullLabel: m.label,
       count: m.count,
       h,
       top: `${T} ${R} ${B} ${L}`,
       left: h > 0 ? `${L} ${B} ${Bd} ${Ld}` : null,
       right: h > 0 ? `${R} ${B} ${Bd} ${Rd}` : null,
-      countX: cx,
-      countY: topCy - QH - 6,
-      labelX: cx,
-      labelY: base + QH + 15,
+      calloutY: topCy - QH - 8,
+      isPeak: m.count === data.peak.count && m.count > 0,
     }
   })
 
   // Paint back-to-front so nearer (lower-index) towers overlap farther ones.
   const drawOrder = [...bars].reverse()
+  const activeBar = bars.find((b) => b.key === active) ?? null
 
   return (
-    <div className="mt-5 w-full max-w-[560px]">
+    <div className="mt-5 w-full">
       <svg
         viewBox={`0 0 ${VB_W} ${VB_H}`}
         width="100%"
@@ -80,16 +84,13 @@ export function GithubGraph({ data }: { data: Contributions }) {
             <motion.g
               key={b.key}
               // Entrance: each tower grows up once when scrolled into view.
-              style={{ transformBox: "fill-box", transformOrigin: "bottom", cursor: "pointer" }}
+              style={{ transformBox: "fill-box", transformOrigin: "bottom" }}
               initial={prefersReduced ? false : { scaleY: 0, opacity: 0 }}
               whileInView={prefersReduced ? undefined : { scaleY: 1, opacity: 1 }}
               viewport={{ once: true, margin: "-40px" }}
               transition={{ duration: 0.5, delay: 0.05 * b.i, ease: [0.16, 1, 0.3, 1] }}
-              onHoverStart={() => setActive(b.key)}
-              onHoverEnd={() => setActive((cur) => (cur === b.key ? null : cur))}
-              onTap={() => setActive((cur) => (cur === b.key ? null : b.key))}
             >
-              {/* Hover: the block rebuilds itself from the base up. */}
+              {/* Hover/focus: the block rebuilds itself from the base up. */}
               <motion.g
                 style={{ transformBox: "fill-box", transformOrigin: "bottom", willChange: building ? "transform" : "auto" }}
                 animate={building ? { scaleY: [0, 1] } : { scaleY: 1 }}
@@ -103,6 +104,7 @@ export function GithubGraph({ data }: { data: Contributions }) {
           )
         })}
 
+        {/* Month letters on one straight baseline. */}
         <motion.g
           initial={prefersReduced ? false : { opacity: 0 }}
           whileInView={prefersReduced ? undefined : { opacity: 1 }}
@@ -112,9 +114,9 @@ export function GithubGraph({ data }: { data: Contributions }) {
           {bars.map((b) => (
             <text
               key={b.key + "-l"}
-              x={b.labelX}
-              y={b.labelY}
-              fill="#8a8a8a"
+              x={b.cx}
+              y={LABEL_Y}
+              fill={active === b.key ? ACCENT.nerdy : INK[300]}
               fontSize={11}
               fontFamily="ui-monospace, monospace"
               textAnchor="middle"
@@ -122,13 +124,14 @@ export function GithubGraph({ data }: { data: Contributions }) {
               {b.label}
             </text>
           ))}
+          {/* Counts stay quiet: peak at rest, everything else on demand. */}
           {bars.map((b) =>
-            b.count > 0 ? (
+            b.isPeak && active !== b.key ? (
               <text
-                key={b.key + "-c"}
-                x={b.countX}
-                y={b.countY}
-                fill="#7c7c7c"
+                key={b.key + "-peak"}
+                x={b.cx}
+                y={b.calloutY}
+                fill={INK[400]}
                 fontSize={11}
                 fontFamily="ui-monospace, monospace"
                 textAnchor="middle"
@@ -138,21 +141,70 @@ export function GithubGraph({ data }: { data: Contributions }) {
             ) : null
           )}
         </motion.g>
+
+        {/* Active readout: a fixed HUD line (terminal-style) so it can never collide
+            with tower geometry or the resting peak label. */}
+        {activeBar && (
+          <text
+            x={10}
+            y={22}
+            fill={ACCENT.nerdy}
+            fontSize={12}
+            fontFamily="ui-monospace, monospace"
+            textAnchor="start"
+          >
+            {`> ${activeBar.fullLabel.toLowerCase()} · ${activeBar.count} contribution${activeBar.count === 1 ? "" : "s"}`}
+          </text>
+        )}
+
+        {/* Fat interaction columns: full-height invisible hit-rects, keyboard-operable. */}
+        {bars.map((b) => (
+          <rect
+            key={b.key + "-hit"}
+            x={b.cx - DX / 2}
+            y={12}
+            width={DX}
+            height={VB_H - 24}
+            fill="transparent"
+            stroke={focused === b.key ? `rgba(${GLOW.nerdy}, 0.35)` : "transparent"}
+            strokeWidth={1}
+            style={{ cursor: "pointer", outline: "none" }}
+            tabIndex={0}
+            role="button"
+            aria-label={`${b.fullLabel}: ${b.count} contribution${b.count === 1 ? "" : "s"}`}
+            onMouseEnter={() => setActive(b.key)}
+            onFocus={() => {
+              setActive(b.key)
+              setFocused(b.key)
+            }}
+            onBlur={() => {
+              setFocused(null)
+              setActive((cur) => (cur === b.key ? null : cur))
+            }}
+            onClick={() => setActive((cur) => (cur === b.key ? null : b.key))}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault()
+                setActive((cur) => (cur === b.key ? null : b.key))
+              }
+            }}
+          />
+        ))}
       </svg>
-      <p className="mt-3 font-mono text-xs text-[#888]">
-        peak <span className="text-[#7fb07f]">{data.peak.label.toLowerCase()}</span>
+      <p className="mt-3 font-mono text-xs text-ink-300">
+        peak <span className="text-accent-nerdy">{data.peak.label.toLowerCase()}</span>
         {" · "}
-        <span className="tabular-nums text-[#7fb07f]">{data.peak.count}</span>
+        <span className="tabular-nums text-accent-nerdy">{data.peak.count}</span>
         {data.longestStreak > 0 && (
           <>
             {" · longest streak "}
-            <span className="tabular-nums text-[#7fb07f]">{data.longestStreak}d</span>
+            <span className="tabular-nums text-accent-nerdy">{data.longestStreak}d</span>
           </>
         )}
         {data.currentStreak > 0 && (
           <>
             {" · current "}
-            <span className="tabular-nums text-[#7fb07f]">{data.currentStreak}d</span>
+            <span className="tabular-nums text-accent-nerdy">{data.currentStreak}d</span>
           </>
         )}
       </p>

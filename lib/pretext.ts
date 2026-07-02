@@ -138,10 +138,15 @@ function toTightWrapLayout(lines: LayoutLine[], lineHeight: number): TightWrapLa
   }
 }
 
-export function measureTextWidth(text: string, font: string): number {
+/**
+ * `precise = false` forces the deterministic approximation — pass `usePretextReady()`
+ * here when the result lands in server-rendered markup (style widths/heights), so the
+ * server HTML and the first client render agree and hydration stays clean.
+ */
+export function measureTextWidth(text: string, font: string, precise = true): number {
   if (!text) return 0
 
-  const prepared = getPreparedWithSegments(text, font)
+  const prepared = precise ? getPreparedWithSegments(text, font) : null
   if (!prepared) {
     return Math.ceil(approximateTextWidth(text, font))
   }
@@ -157,13 +162,15 @@ export function measureText(
   text: string,
   font: string,
   maxWidth: number,
-  lineHeight: number
+  lineHeight: number,
+  /** See measureTextWidth — false keeps SSR and first client render identical. */
+  precise = true
 ): { height: number; lineCount: number } {
   if (!text || !text.trim()) {
     return { height: 0, lineCount: 0 }
   }
 
-  const prepared = getPrepared(text, font)
+  const prepared = precise ? getPrepared(text, font) : null
   if (!prepared) {
     const fallback = approximateLayout(text, font, maxWidth, lineHeight)
     return { height: fallback.height, lineCount: fallback.lineCount }
@@ -207,13 +214,15 @@ export function getTightWrapLayout(
   text: string,
   font: string,
   maxWidth: number,
-  lineHeight: number
+  lineHeight: number,
+  /** See measureTextWidth — false keeps SSR and first client render identical. */
+  precise = true
 ): TightWrapLayout {
   if (!text || !text.trim()) {
     return { width: 0, height: 0, lineCount: 0, lines: [] }
   }
 
-  const prepared = getPreparedWithSegments(text, font)
+  const prepared = precise ? getPreparedWithSegments(text, font) : null
   if (!prepared) {
     const fallback = approximateLayout(text, font, maxWidth, lineHeight)
     return {
@@ -284,7 +293,10 @@ export function clearMeasurementCache() {
 }
 
 export function usePretextReady(): boolean {
-  const [ready, setReady] = useState(() => !hasDocument() || !document.fonts || document.fonts.status === "loaded")
+  // Starts false on the server AND the first client render — even when fonts are already
+  // cached — so measured styles in server HTML match hydration exactly. The effect flips
+  // it immediately after mount when fonts are ready (progressive enhancement).
+  const [ready, setReady] = useState(false)
 
   useEffect(() => {
     if (!hasDocument() || !document.fonts) {

@@ -1,7 +1,9 @@
 import type { Metadata } from "next"
 import type { ReactNode } from "react"
+import { WorldProvider } from "@/components/world-context"
 
 export const metadata: Metadata = {
+  title: { default: "the nerdy side", template: "%s · som" },
   description:
     "Som Chandra — Cyber Security Engineer. Web/API/Android/iOS VAPT, AppSec automation, bug bounty Hall of Fames, and tools built at 2 AM. Resume, projects, and certs.",
   openGraph: {
@@ -14,5 +16,9 @@ export const metadata: Metadata = {
 }
 
 export default function NerdyLayout({ children }: { children: ReactNode }) {
-  return <div data-world="nerdy">{children}</div>
+  return (
+    <div data-world="nerdy">
+      <WorldProvider world="nerdy">{children}</WorldProvider>
+    </div>
+  )
 }

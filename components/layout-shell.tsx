@@ -11,10 +11,16 @@ export function useLoading() {
   return useContext(LoadingContext)
 }
 
+/**
+ * Children are ALWAYS rendered (server HTML carries the real content); the intro is an
+ * overlay. The pre-paint inline script in app/layout.tsx sets `<html data-intro="pending">`
+ * when the loader should play, and the CSS veil in globals.css hides content until this
+ * component takes over: it flips the attribute to "active" (the loader overlay owns the
+ * screen, the cosmic scene builds underneath for the hand-off) and removes it on completion.
+ */
 export function LayoutShell({ children }: { children: ReactNode }) {
   const pathname = usePathname()
-  const [loading, setLoading] = useState(true)
-  const [checked, setChecked] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     if ("scrollRestoration" in window.history) {
@@ -22,46 +28,29 @@ export function LayoutShell({ children }: { children: ReactNode }) {
     }
   }, [])
 
+  // Take over from the pre-paint gate. SSR and the first client render both use
+  // loading=false (no hydration mismatch); the CSS veil hides that frame when pending.
   useEffect(() => {
-    try {
-      const navEntries = typeof performance !== "undefined"
-        ? (performance.getEntriesByType("navigation") as PerformanceNavigationTiming[])
-        : []
-      const navType = navEntries[0]?.type
-      // The loader is a HOME-PAGE landing animation: it plays only when the site is first
-      // loaded — or hard-refreshed — directly on "/". Subpages (and in-session navigations)
-      // never trigger it.
-      const initialIsHome = window.location.pathname === "/"
-
-      if (navType === "reload") {
-        sessionStorage.removeItem("som-loaded")
-      }
-
-      const seen = sessionStorage.getItem("som-loaded")
-      if (initialIsHome && !seen) {
-        // Leave loading = true so the loader plays over the home page.
-        setChecked(true)
-        return
-      }
-
-      setLoading(false)
-      setChecked(true)
-    } catch {
-      setLoading(false)
-      setChecked(true)
+    const root = document.documentElement
+    if (root.dataset.intro === "pending") {
+      setLoading(true)
+      root.dataset.intro = "active"
     }
   }, [])
 
   useEffect(() => {
-    if (!checked || loading) return
+    if (loading) return
     window.scrollTo({ top: 0, left: 0, behavior: "auto" })
-  }, [pathname, checked, loading])
+  }, [pathname, loading])
 
   // If the visitor leaves home before the intro finishes, resolve it so it doesn't
   // linger or replay when they return — the loader is home-only.
   useEffect(() => {
-    if (checked && loading && pathname !== "/") setLoading(false)
-  }, [pathname, checked, loading])
+    if (loading && pathname !== "/") {
+      setLoading(false)
+      delete document.documentElement.dataset.intro
+    }
+  }, [pathname, loading])
 
   const handleLoadComplete = useCallback(() => {
     try {
@@ -70,15 +59,14 @@ export function LayoutShell({ children }: { children: ReactNode }) {
       // Storage can be unavailable in hardened browser contexts.
     }
     setLoading(false)
+    delete document.documentElement.dataset.intro
   }, [])
-
-  if (!checked) return null
 
   return (
     <LoadingContext.Provider value={{ loading }}>
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[300] focus:px-4 focus:py-2 focus:bg-[#0a0a0a] focus:text-[#e8e8e8] focus:border focus:border-[#2a2a2a] focus:font-mono focus:text-sm"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[300] focus:px-4 focus:py-2 focus:bg-ink-900 focus:text-ink-100 focus:border focus:border-ink-600 focus:font-mono focus:text-sm"
       >
         skip to content
       </a>
@@ -87,10 +75,12 @@ export function LayoutShell({ children }: { children: ReactNode }) {
 
       {/* Content is always mounted so the homepage's cosmic SVGs can build up *during* the
           loader and continue seamlessly into the page. The loader overlay sits on top (z-200)
-          and fades to reveal them; page.tsx gates its own hero/sections on `loading`. */}
+          and fades to reveal them; page.tsx gates its entrance animations on `loading`. */}
       <div className="float-content">{children}</div>
 
-      <AnimatePresence mode="wait">
+      {/* mode="sync": the hero stays mounted while the loader exits, so the name hand-off
+          morph can land on the live hero name. */}
+      <AnimatePresence mode="sync">
         {loading && pathname === "/" && <Loader key="loader" onComplete={handleLoadComplete} />}
       </AnimatePresence>
     </LoadingContext.Provider>

@@ -21,7 +21,10 @@ const SITE_URL = 'https://www.somm.tf'
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "Sup? - Som 00:21",
+  title: {
+    default: "Sup? - Som 00:21",
+    template: "%s · som",
+  },
   description:
     'Som Chandra — Cyber Security Engineer by day, photographer and doodler by night. Two worlds, one website: resume, hacking projects, bug bounty Hall of Fames, photos, and sketches.',
   keywords: [
@@ -79,10 +82,20 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className="dark">
+    // suppressHydrationWarning: the pre-paint intro script sets data-intro on <html> before hydration.
+    <html lang="en" className="dark" suppressHydrationWarning>
       <body
-        className={`${spaceGrotesk.variable} ${geistMono.variable} font-sans antialiased bg-[#0a0a0a] text-[#e8e8e8]`}
+        className={`${spaceGrotesk.variable} ${geistMono.variable} font-sans antialiased bg-ink-900 text-ink-100`}
       >
+        {/* Pre-paint intro gate: decides BEFORE first paint whether the home loader plays
+            (direct "/" load or hard reload, not yet seen this session). Mirrors the logic
+            in LayoutShell; the CSS veil in globals.css keys off the attribute. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              '(function(){try{var n=performance.getEntriesByType&&performance.getEntriesByType("navigation")[0];if(n&&n.type==="reload"){sessionStorage.removeItem("som-loaded")}if(location.pathname==="/"&&!sessionStorage.getItem("som-loaded")){document.documentElement.dataset.intro="pending"}}catch(e){}})()',
+          }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}

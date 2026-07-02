@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react"
 import { useScroll, useTransform, motion, useReducedMotion } from "framer-motion"
+import { COSMIC_VOID } from "@/lib/tokens"
 
 export function ParticleField() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -39,7 +40,7 @@ export function ParticleField() {
     }))
 
     const paint = (advance: boolean) => {
-      ctx.fillStyle = "#07060d" // Same as bg
+      ctx.fillStyle = COSMIC_VOID // Same as bg
       ctx.fillRect(0, 0, w, h)
 
       const time = Date.now()

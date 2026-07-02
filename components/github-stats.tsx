@@ -30,10 +30,10 @@ export function GitHubStats() {
     return (
       <div className="mt-8">
         <div className="mb-4 flex items-center gap-2">
-          <Github className="h-3.5 w-3.5 text-[#999]" aria-hidden="true" />
-          <p className="font-mono text-xs tracking-widest uppercase text-[#999]">github, lately</p>
+          <Github className="h-3.5 w-3.5 text-ink-300" aria-hidden="true" />
+          <p className="font-mono text-xs tracking-widest uppercase text-ink-300">github, lately</p>
         </div>
-        <p className="paper-card px-4 py-3 text-sm text-[#888]">couldn&apos;t reach github right now</p>
+        <p className="paper-card px-4 py-3 text-sm text-ink-300">couldn&apos;t reach github right now</p>
       </div>
     )
   }
@@ -49,16 +49,16 @@ export function GitHubStats() {
       transition={{ duration: 0.45 }}
     >
       <div className="mb-4 flex items-center gap-2">
-        <Github className="h-3.5 w-3.5 text-[#999]" aria-hidden="true" />
-        <p className="font-mono text-xs tracking-widest uppercase text-[#999]">github, lately</p>
+        <Github className="h-3.5 w-3.5 text-ink-300" aria-hidden="true" />
+        <p className="font-mono text-xs tracking-widest uppercase text-ink-300">github, lately</p>
       </div>
       <div className="flex flex-wrap gap-4">
         {stats.map((s) => (
           <div key={s.label} className="paper-card px-4 py-3 hover-bounce">
-            <p className="text-lg md:text-xl font-bold text-[#e8e8e8] tabular-nums">
+            <p className="text-lg md:text-xl font-bold text-ink-100 tabular-nums">
               {typeof s.value === "number" ? s.value.toLocaleString() : "—"}
             </p>
-            <p className="mt-0.5 text-xs font-mono text-[#999]">{s.label}</p>
+            <p className="mt-0.5 text-xs font-mono text-ink-300">{s.label}</p>
           </div>
         ))}
       </div>

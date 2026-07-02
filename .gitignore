@@ -32,6 +32,8 @@ next-env.d.ts
 /.cursor/
 /.codegraph/
 /.codex/
+/.vscode/
+/.playwright-mcp/
 
 # local tooling / OS junk
 .DS_Store

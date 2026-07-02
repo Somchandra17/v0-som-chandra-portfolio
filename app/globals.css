@@ -107,13 +107,43 @@
   --z-grain: 50;
 }
 
+/* Per-world tokens: accent + the non-color "temperature" of each space.
+   nerdy = terminal (tight, snappy, thin grain) · creative = darkroom (soft, slow, heavy grain). */
+:root {
+  --world-glow: var(--glow-sakura);
+  --grain-opacity: 0.22;
+  --reveal-duration: 0.5s;
+  --reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
 [data-world="nerdy"] {
   --world: var(--accent-nerdy);
   --world-dim: var(--accent-nerdy-dim);
+  --world-glow: 127, 176, 127;
+  --grain-opacity: 0.16;
+  --reveal-duration: 0.38s;
+  --reveal-ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
 [data-world="creative"] {
   --world: var(--accent-creative);
   --world-dim: var(--accent-creative-dim);
+  --world-glow: 240, 198, 207;
+  --grain-opacity: 0.3;
+  --reveal-duration: 0.65s;
+  --reveal-ease: cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+/* WorldProvider mirrors the active world onto <html data-world-active> so global
+   FIXED overlays (grain, vignette) outside the wrapper can re-theme too. */
+html[data-world-active="nerdy"] {
+  --grain-opacity: 0.16;
+  --world-glow: 127, 176, 127;
+}
+html[data-world-active="creative"] {
+  --grain-opacity: 0.3;
+  --world-glow: 240, 198, 207;
+}
+html[data-world-active="creative"] .lowlight-burn {
+  opacity: 0.78;
 }
 
 @theme inline {
@@ -136,7 +166,19 @@
   --color-world: var(--world);
   --color-world-dim: var(--world-dim);
   --color-accent-nerdy: var(--accent-nerdy);
+  --color-accent-nerdy-dim: var(--accent-nerdy-dim);
   --color-accent-creative: var(--accent-creative);
+  --color-accent-creative-dim: var(--accent-creative-dim);
+  --color-paper-cream: #e2d2c1;
+
+  /* Terminal semantic states (MusicD + future nerdy chrome) */
+  --color-term-hint: #d7c38a;
+  --color-term-warn: #c7a07e;
+  --color-term-error: #d08a8a;
+  /* Dark plum ink used on the pink roast tooltips */
+  --color-roast-ink: #4a2f39;
+  /* Third-party brand */
+  --color-spotify: #1db954;
 
   /* Cosmic Sakura → text-sakura-300, bg-cosmic-deep, border-sakura-500, text-nebula-violet … */
   --color-cosmic-void: var(--cosmic-void);
@@ -302,6 +344,43 @@
   }
 }
 
+/* ============================================================
+   INTRO VEIL — first-paint gate for the home loader.
+   A tiny inline script in app/layout.tsx sets
+   `<html data-intro="pending">` BEFORE paint when the intro
+   should play (direct home load / hard reload, not yet seen this
+   session). Content stays server-rendered but hidden behind a
+   black veil until React mounts the Loader and flips the
+   attribute to "active" (loader overlay owns the screen), then
+   removes it on completion. If hydration never happens, the
+   4s failsafe un-hides everything. No JS → attribute never set →
+   content is visible immediately.
+   ============================================================ */
+html[data-intro="pending"] .float-content {
+  visibility: hidden;
+  animation: intro-unveil-content 0s 4s forwards;
+}
+html[data-intro="pending"] body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 190;
+  pointer-events: none;
+  animation: intro-unveil-veil 0.5s 4s forwards;
+}
+@keyframes intro-unveil-content {
+  to { visibility: visible; }
+}
+@keyframes intro-unveil-veil {
+  to { opacity: 0; visibility: hidden; }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* Loader skips instantly under reduced motion — never hold the veil. */
+  html[data-intro="pending"] .float-content { visibility: visible; animation: none; }
+  html[data-intro="pending"] body::before { display: none; }
+}
+
 /* ---- Accessibility: honor reduced motion ---- */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -331,7 +410,8 @@
     pointer-events: none;
     z-index: 50;
     mix-blend-mode: screen;
-    opacity: 0.22;
+    opacity: var(--grain-opacity, 0.22);
+    transition: opacity 0.6s ease;
     filter: contrast(170%) brightness(120%);
   }
 
@@ -377,6 +457,41 @@
   .margin-line {
     border-left: 2px solid var(--ink-600);
     padding-left: 1.5rem;
+  }
+
+  /* Readability scrim — protects bare text sitting on the live cosmic art.
+     closest-side sizing means the fade COMPLETES inside the box, so the clipped
+     rectangle can never show a hard seam against bright art. */
+  .text-scrim {
+    position: relative;
+  }
+  .text-scrim::before {
+    content: "";
+    position: absolute;
+    inset: -2.5rem -3.5rem;
+    z-index: -1;
+    pointer-events: none;
+    background: radial-gradient(
+      ellipse closest-side at 40% 50%,
+      rgba(5, 4, 8, 0.55) 0%,
+      rgba(5, 4, 8, 0.3) 55%,
+      transparent 100%
+    );
+  }
+
+  /* Left gutter hairline — the nerdy world's "code editor margin". */
+  .world-gutter {
+    position: relative;
+  }
+  .world-gutter::before {
+    content: "";
+    position: absolute;
+    left: -1.25rem;
+    top: 0.35rem;
+    bottom: 0.35rem;
+    width: 1px;
+    background: linear-gradient(180deg, var(--world-dim), transparent 92%);
+    opacity: 0.55;
   }
 
   /* Section kicker — per-world prefix glyph (driven by [data-world] ancestor) */

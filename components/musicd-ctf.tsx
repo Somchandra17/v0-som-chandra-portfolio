@@ -112,13 +112,13 @@ function getToneClass(tone: OutputTone = "default") {
     case "guide":
       return "text-ink-200"
     case "hint":
-      return "text-[#d7c38a]"
+      return "text-term-hint"
     case "success":
       return "text-world"
     case "warning":
-      return "text-[#c7a07e]"
+      return "text-term-warn"
     case "error":
-      return "text-[#d08a8a]"
+      return "text-term-error"
     default:
       return "text-ink-300"
   }
@@ -611,13 +611,13 @@ type "help" for available commands`
       viewport={{ once: true }}
       transition={{ duration: 0.5 }}
     >
-      <div className="mb-2 flex items-center gap-3">
+      <div className="text-scrim mb-2 flex items-center gap-3">
         <span className="text-world">▌</span>
         <p className="font-mono text-xs uppercase tracking-widest text-ink-200">
           {solved ? "god playlist unlocked" : "musicd v0.1"}
         </p>
       </div>
-      <p className="mb-6 text-sm text-ink-400">
+      <p className="text-scrim mb-6 text-sm text-ink-300">
         {solved
           ? "you found the weak spot in the daemon and unlocked the playlist."
           : "a tiny terminal puzzle dressed up like a sketchy music daemon. still the same idea, just less hostile to people who do not live in bash."}
@@ -625,10 +625,10 @@ type "help" for available commands`
 
       {!solved ? (
         <div
-          className="paper-card crt-scanlines relative cursor-text overflow-hidden border-ink-500 bg-ink-900 font-mono text-xs"
+          className="paper-card crt-scanlines relative cursor-text overflow-hidden border-ink-400/80 bg-ink-900 font-mono text-xs"
           onClick={handleTerminalClick}
         >
-          <div className="relative z-[3] border-b border-ink-600 bg-ink-850 px-4 py-3">
+          <div className="relative z-[3] border-b border-ink-500 bg-ink-850 px-4 py-3">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-2">
                 <div className="flex gap-1.5">
@@ -642,10 +642,10 @@ type "help" for available commands`
                 </span>
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                <span className="border border-ink-600 px-2 py-1 text-[0.62rem] uppercase tracking-[0.14em] text-ink-300">
+                <span className="border border-ink-500 px-2 py-1 text-[0.62rem] uppercase tracking-[0.14em] text-ink-300">
                   unsolved
                 </span>
-                <span className="border border-ink-600 px-2 py-1 text-[0.62rem] uppercase tracking-[0.14em] text-ink-300">
+                <span className="border border-ink-500 px-2 py-1 text-[0.62rem] uppercase tracking-[0.14em] text-ink-300">
                   hint level {hintLevel}/5
                 </span>
                 <button
@@ -654,7 +654,7 @@ type "help" for available commands`
                     event.stopPropagation()
                     resetTerminal()
                   }}
-                  className="inline-flex items-center gap-1 border border-ink-600 px-2 py-1 text-[0.62rem] uppercase tracking-[0.14em] text-ink-300 transition-colors hover:border-world hover:text-ink-100"
+                  className="inline-flex items-center gap-1 border border-ink-500 px-2 py-1 text-[0.62rem] uppercase tracking-[0.14em] text-ink-300 transition-colors hover:border-world hover:text-ink-100"
                   aria-label="Reset terminal challenge"
                 >
                   <RefreshCw className="h-3 w-3" />
@@ -664,9 +664,9 @@ type "help" for available commands`
             </div>
           </div>
 
-          <div className="relative z-[3] border-b border-ink-700 bg-ink-850 px-4 py-4">
+          <div className="relative z-[3] border-b border-ink-500 bg-ink-850 px-4 py-4">
             <div className="grid gap-3 md:grid-cols-[1.25fr_1fr]">
-              <div className="border border-ink-600 bg-ink-800 p-3">
+              <div className="border border-ink-500 bg-ink-800 p-3">
                 <div className="mb-2 flex items-center gap-2">
                   <TerminalSquare className="h-3.5 w-3.5 text-ink-300" />
                   <p className="font-mono text-[0.65rem] uppercase tracking-[0.16em] text-ink-300">
@@ -678,7 +678,7 @@ type "help" for available commands`
                   and ask for stronger hints whenever you want.
                 </p>
               </div>
-              <div className="border border-ink-600 bg-ink-800 p-3">
+              <div className="border border-ink-500 bg-ink-800 p-3">
                 <div className="mb-2 flex items-center gap-2">
                   <CircleHelp className="h-3.5 w-3.5 text-ink-300" />
                   <p className="font-mono text-[0.65rem] uppercase tracking-[0.16em] text-ink-300">
@@ -702,7 +702,7 @@ type "help" for available commands`
                     event.stopPropagation()
                     handleQuickAction(action.command)
                   }}
-                  className="group/starter border border-ink-600 bg-transparent px-3 py-2 text-left transition-colors hover:border-world"
+                  className="group/starter border border-ink-500 bg-transparent px-3 py-2 text-left transition-colors hover:border-world"
                   aria-label={`Run ${action.command}`}
                 >
                   <span className="block font-mono text-[0.62rem] uppercase tracking-[0.14em] text-ink-200 transition-colors group-hover/starter:text-world">
@@ -735,7 +735,7 @@ type "help" for available commands`
             </div>
           </div>
 
-          <div className="relative z-[3] border-t border-ink-600 bg-ink-850 px-4 py-3">
+          <div className="relative z-[3] border-t border-ink-500 bg-ink-850 px-4 py-3">
             <form onSubmit={handleSubmit} className="flex items-center gap-2">
               <div className="min-w-0 flex flex-1 items-center">
                 <TerminalPrompt cwd={currentDir} />
@@ -747,7 +747,9 @@ type "help" for available commands`
                   onKeyDown={handleKeyDown}
                   placeholder='try "help", "cat daemon.sh", or "hint"'
                   className="min-w-0 flex-1 bg-transparent font-mono text-xs text-ink-100 caret-world outline-none placeholder:text-ink-500"
-                  autoFocus
+                  // no autoFocus: it would steal focus + scroll the page to the terminal on
+                  // load (the SSR autofocus attribute even does it with JS disabled).
+                  // Clicking the terminal focuses the input via handleTerminalClick.
                   autoComplete="off"
                   autoCorrect="off"
                   autoCapitalize="off"
@@ -756,7 +758,7 @@ type "help" for available commands`
               </div>
               <button
                 type="submit"
-                className="inline-flex shrink-0 items-center gap-1 border border-ink-600 px-3 py-1.5 text-[0.62rem] uppercase tracking-[0.14em] text-ink-300 transition-colors hover:border-world hover:text-ink-100"
+                className="inline-flex shrink-0 items-center gap-1 border border-ink-500 px-3 py-1.5 text-[0.62rem] uppercase tracking-[0.14em] text-ink-300 transition-colors hover:border-world hover:text-ink-100"
               >
                 <ArrowRight className="h-3 w-3" />
                 run
@@ -770,8 +772,8 @@ type "help" for available commands`
         </div>
       ) : (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-          <div className="paper-card crt-scanlines relative overflow-hidden border-ink-500 bg-ink-900 font-mono text-xs">
-            <div className="relative z-[3] border-b border-ink-600 bg-ink-850 px-4 py-3">
+          <div className="paper-card crt-scanlines relative overflow-hidden border-ink-400/80 bg-ink-900 font-mono text-xs">
+            <div className="relative z-[3] border-b border-ink-500 bg-ink-850 px-4 py-3">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <span className="h-2.5 w-2.5 border border-world bg-world/20" />
@@ -783,7 +785,7 @@ type "help" for available commands`
                 <button
                   type="button"
                   onClick={resetTerminal}
-                  className="inline-flex items-center gap-1 border border-ink-600 px-2 py-1 text-[0.62rem] uppercase tracking-[0.14em] text-ink-300 transition-colors hover:border-world hover:text-ink-100"
+                  className="inline-flex items-center gap-1 border border-ink-500 px-2 py-1 text-[0.62rem] uppercase tracking-[0.14em] text-ink-300 transition-colors hover:border-world hover:text-ink-100"
                 >
                   <RefreshCw className="h-3 w-3" />
                   replay
@@ -800,7 +802,7 @@ type "help" for available commands`
                 </p>
               </div>
 
-              <div className="border border-ink-600 bg-ink-800 p-3">
+              <div className="border border-ink-500 bg-ink-800 p-3">
                 <p className="mb-2 text-[0.65rem] uppercase tracking-[0.16em] text-ink-400">winning command</p>
                 <code className="text-[0.78rem] text-ink-100">load ../../flag.txt</code>
               </div>
@@ -817,7 +819,7 @@ type "help" for available commands`
                 <button
                   type="button"
                   onClick={resetTerminal}
-                  className="inline-flex items-center gap-2 border border-ink-600 px-3 py-2 text-[0.7rem] uppercase tracking-[0.14em] text-ink-300 transition-colors hover:border-world hover:text-ink-100"
+                  className="inline-flex items-center gap-2 border border-ink-500 px-3 py-2 text-[0.7rem] uppercase tracking-[0.14em] text-ink-300 transition-colors hover:border-world hover:text-ink-100"
                 >
                   run it again
                 </button>

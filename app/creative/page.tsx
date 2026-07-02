@@ -7,9 +7,12 @@ import { PageHeader } from "@/components/page-header"
 import { PageTransition } from "@/components/page-transition"
 import { NowPlaying } from "@/components/now-playing"
 import { SectionHeader } from "@/components/section-header"
+import { SectionReveal } from "@/components/motion/section-reveal"
+import { DevelopIn } from "@/components/motion/develop-in"
 import { ArrowRight } from "lucide-react"
+import { INK } from "@/lib/tokens"
 import { thoughts, formatMonthYear } from "@/lib/creative-data"
-import { measureText, fonts } from "@/lib/pretext"
+import { measureText, fonts, usePretextReady } from "@/lib/pretext"
 
 // ── Intentional typos system ───────────────────────────────────────
 const intentionalTypos = new Map<string, { correct: string; roast: string }>([
@@ -58,7 +61,7 @@ function IntentionalTypo({ wrong, correct, roast }: { wrong: string; correct: st
   return (
     <span className="relative inline-block group/typo cursor-help">
       <span className="underline decoration-wavy decoration-pink-300/90 underline-offset-2">{wrong}</span>
-      <span className="pointer-events-none absolute left-1/2 top-full z-30 mt-1 hidden w-max max-w-[240px] -translate-x-1/2 rounded-sm border border-pink-200/70 bg-pink-100 px-2 py-1 text-[11px] leading-snug text-[#4a2f39] shadow-[0_8px_20px_rgba(236,72,153,0.18)] group-hover/typo:block">
+      <span className="pointer-events-none absolute left-1/2 top-full z-30 mt-1 hidden w-max max-w-[240px] -translate-x-1/2 rounded-sm border border-pink-200/70 bg-pink-100 px-2 py-1 text-[11px] leading-snug text-roast-ink shadow-[0_8px_20px_rgba(236,72,153,0.18)] group-hover/typo:block">
         <strong>{correct}</strong>
         {" — "}
         {roast}
@@ -67,10 +70,14 @@ function IntentionalTypo({ wrong, correct, roast }: { wrong: string; correct: st
   )
 }
 
-function renderWithTypos(text: string): ReactNode {
+function renderWithTypos(text: string, maxWavy = Infinity): ReactNode {
+  let wavyShown = 0
   return text.split(typoPattern).map((part, index) => {
     const typoMeta = intentionalTypos.get(part.toLowerCase())
     if (!typoMeta) return part
+    wavyShown += 1
+    // Restraint by default: only the first squiggle(s) per block show; the toggle reveals all.
+    if (wavyShown > maxWavy) return part
     return (
       <IntentionalTypo
         key={`${part}-${index}`}
@@ -100,8 +107,8 @@ const sections: {
     label: "clicks",
     href: "/creative/clicks",
     images: [
-      "/creative/pictures/clicks/1.jpg",
-      "/creative/pictures/clicks/3.jpg",
+      "/gallery/clicks/1-480.webp",
+      "/gallery/clicks/3-480.webp",
     ],
     heading: "when im not starin at screens im probly holdin my phone wrong.",
     subtitle: "(no i dont own a camera its all on my phone lol ya im that broke n lazy)",
@@ -118,8 +125,8 @@ const sections: {
     label: "doodling",
     href: "/creative/doodling",
     images: [
-      "/creative/pictures/sketch/1.png",
-      "/creative/pictures/sketch/2.png",
+      "/gallery/sketch/1-480.webp",
+      "/gallery/sketch/2-480.webp",
     ],
     heading: "when im not starin at screens im usually covered in graphite dust.",
     subtitle: "(and starin at a blank sketchbook like it owes me money lol)",
@@ -133,33 +140,31 @@ const sections: {
   },
 ]
 
-const fadeUp = {
-  initial: { opacity: 0, y: 20 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: "-60px" as const },
-  transition: { duration: 0.5 },
-}
 
 export default function CreativePage() {
   const [activeSection, setActiveSection] = useState<Section>("photos")
   const [hasClicked, setHasClicked] = useState(false)
+  const [showAllFixes, setShowAllFixes] = useState(false)
+  const maxWavy = showAllFixes ? Infinity : 1
+  const pretextReady = usePretextReady()
 
   const active = sections.find((s) => s.key === activeSection) ?? sections[0]
 
-  // Pre-measure all bio section heights with pretext for stable container sizing
+  // Pre-measure all bio section heights with pretext for stable container sizing.
+  // Approximate until fonts are ready so SSR markup matches the first client render.
   const bioMeasurements = useMemo(() => {
     const BIO_WIDTH = 400
     const LINE_HEIGHT = 22
-    
+
     return sections.map((section) => {
       try {
-        const headingHeight = measureText(section.heading, fonts.bold(20), BIO_WIDTH, 28).height
-        const subtitleHeight = measureText(section.subtitle, fonts.body(14), BIO_WIDTH, 20).height
+        const headingHeight = measureText(section.heading, fonts.bold(20), BIO_WIDTH, 28, pretextReady).height
+        const subtitleHeight = measureText(section.subtitle, fonts.body(14), BIO_WIDTH, 20, pretextReady).height
         const descHeight = section.description.reduce((acc, para) => {
-          return acc + measureText(para, fonts.body(14), BIO_WIDTH, LINE_HEIGHT).height + 12
+          return acc + measureText(para, fonts.body(14), BIO_WIDTH, LINE_HEIGHT, pretextReady).height + 12
         }, 0)
-        const byTheWayHeight = measureText(section.byTheWay, fonts.body(14), BIO_WIDTH - 16, LINE_HEIGHT).height
-        
+        const byTheWayHeight = measureText(section.byTheWay, fonts.body(14), BIO_WIDTH - 16, LINE_HEIGHT, pretextReady).height
+
         return {
           key: section.key,
           totalHeight: headingHeight + subtitleHeight + descHeight + byTheWayHeight + 80, // padding
@@ -168,27 +173,12 @@ export default function CreativePage() {
         return { key: section.key, totalHeight: 380 }
       }
     })
-  }, [])
+  }, [pretextReady])
 
   // Use maximum height across all sections for stable container
   const maxBioHeight = useMemo(() => {
     return Math.max(...bioMeasurements.map((m) => m.totalHeight), 380)
   }, [bioMeasurements])
-
-  // Pre-measure thoughts card body heights for balanced presentation
-  const thoughtsMeasurements = useMemo(() => {
-    const THOUGHT_WIDTH = 600 // approx card content width
-    const LINE_HEIGHT = 22
-    
-    return thoughts.map((thought) => {
-      try {
-        const { height, lineCount } = measureText(thought.body, fonts.body(14), THOUGHT_WIDTH, LINE_HEIGHT)
-        return { title: thought.title, height, lineCount }
-      } catch {
-        return { title: thought.title, height: 44, lineCount: 2 }
-      }
-    })
-  }, [])
 
   const handleHover = (key: Section) => {
     if (!hasClicked) {
@@ -210,14 +200,19 @@ export default function CreativePage() {
 
           {/* Spelling disclaimer */}
           <div className="mx-auto max-w-5xl px-6 pt-6">
-            <motion.p
+            <motion.button
+              type="button"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5, duration: 0.8 }}
-              className="font-mono text-[0.65rem] text-[#1a1a1a] italic text-right bg-pink-200/80 px-3 py-1.5 rounded-sm inline-block float-right"
+              onClick={() => setShowAllFixes((v) => !v)}
+              aria-pressed={showAllFixes}
+              className="font-mono text-[0.65rem] text-ink-700 italic text-right bg-pink-200/80 px-3 py-1.5 rounded-sm inline-block float-right cursor-pointer transition-colors hover:bg-pink-200"
             >
-              {"* some typos are intentional. hover the squiggles for the fix + a tiny roast."}
-            </motion.p>
+              {showAllFixes
+                ? "* ok that's all of them. hover any squiggle for the roast. [hide most]"
+                : "* some typos are intentional. hover a squiggle for the fix + a tiny roast. [show all]"}
+            </motion.button>
             <div className="clear-both" />
           </div>
 
@@ -225,8 +220,8 @@ export default function CreativePage() {
 
           {/* -- Split-screen: Nav + Bio -- */}
           <section className="relative z-10 mx-auto max-w-5xl px-6 py-10">
-            <motion.div {...fadeUp}>
-              <p className="font-mono text-xs tracking-widest uppercase text-[#999] mb-6">the other half</p>
+            <SectionReveal>
+              <p className="font-mono text-xs tracking-widest uppercase text-ink-300 mb-6">the other half</p>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[420px]">
                 {/* Left side: nav items with image reveal */}
@@ -244,7 +239,7 @@ export default function CreativePage() {
                       {active.images.map((src, i) => (
                         <motion.div
                           key={i}
-                          className="w-20 h-20 md:w-24 md:h-24 overflow-hidden border border-[#333] shadow-2xl"
+                          className="w-20 h-20 md:w-24 md:h-24 overflow-hidden border border-ink-600 shadow-2xl"
                           initial={{ opacity: 0, rotate: 0 }}
                           animate={{
                             opacity: 0.9,
@@ -282,7 +277,7 @@ export default function CreativePage() {
                         <div className="flex items-center gap-4 py-5 px-2">
                           <motion.h2
                             className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight"
-                            animate={{ color: isActive ? "#e8e8e8" : "#444" }}
+                            animate={{ color: isActive ? INK[100] : INK[500] }}
                             transition={{ duration: 0.3 }}
                           >
                             {section.label}
@@ -291,13 +286,13 @@ export default function CreativePage() {
                             animate={{ opacity: isActive ? 1 : 0, x: isActive ? 0 : -10 }}
                             transition={{ duration: 0.3 }}
                           >
-                            <ArrowRight className="h-5 w-5 text-[#f0c6cf]" />
+                            <ArrowRight className="h-5 w-5 text-accent-creative" />
                           </motion.div>
                         </div>
 
                         {/* Active indicator line */}
                         <motion.div
-                          className="absolute bottom-0 left-0 h-px bg-[#f0c6cf]"
+                          className="absolute bottom-0 left-0 h-px bg-accent-creative"
                           animate={{ width: isActive ? "100%" : "0%" }}
                           transition={{ duration: 0.4 }}
                         />
@@ -312,7 +307,7 @@ export default function CreativePage() {
                         initial={{ opacity: 0, y: 4 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.3 }}
-                        className="font-mono text-[0.65rem] text-[#f0c6cf] mt-3 pl-2"
+                        className="font-mono text-[0.65rem] text-accent-creative mt-3 pl-2"
                       >
                         {"click again to view the full gallery ->"}
                       </motion.p>
@@ -322,7 +317,7 @@ export default function CreativePage() {
 
                 {/* Right side: bio content -- grid column locks width */}
                 <div 
-                  className="flex flex-col justify-center lg:border-l lg:border-[#222] lg:pl-10 mt-6 lg:mt-0 overflow-hidden"
+                  className="flex flex-col justify-center lg:border-l lg:border-ink-700 lg:pl-10 mt-6 lg:mt-0 overflow-hidden"
                   style={{ minHeight: `${maxBioHeight}px` }}
                 >
                   <AnimatePresence mode="wait">
@@ -334,75 +329,67 @@ export default function CreativePage() {
                       transition={{ duration: 0.25 }}
                       className="space-y-4"
                     >
-                      <h3 className="text-lg md:text-xl font-bold text-[#e8e8e8] tracking-tight leading-snug">
-                        {renderWithTypos(active.heading)}
+                      <h3 className="text-lg md:text-xl font-bold text-ink-100 tracking-tight leading-snug">
+                        {renderWithTypos(active.heading, maxWavy)}
                       </h3>
-                      <p className="text-sm text-[#666] italic">
-                        {renderWithTypos(active.subtitle)}
+                      <p className="text-sm text-ink-400 italic">
+                        {renderWithTypos(active.subtitle, maxWavy)}
                       </p>
 
-                      <div className="space-y-3 text-sm text-[#ccc] leading-relaxed">
+                      <div className="space-y-3 text-sm text-ink-200 leading-relaxed">
                         {active.description.map((para, i) => (
-                          <p key={i}>{renderWithTypos(para)}</p>
+                          <p key={i}>{renderWithTypos(para, maxWavy)}</p>
                         ))}
                       </div>
 
-                      <div className="border-l-2 border-[#555] pl-4 py-2">
-                        <p className="text-xs font-mono tracking-wider text-[#999] uppercase mb-1">by the way</p>
-                        <p className="text-sm text-[#aaa]">{renderWithTypos(active.byTheWay)}</p>
+                      <div className="border-l-2 border-ink-500 pl-4 py-2">
+                        <p className="text-xs font-mono tracking-wider text-ink-300 uppercase mb-1">by the way</p>
+                        <p className="text-sm text-ink-200">{renderWithTypos(active.byTheWay, maxWavy)}</p>
                       </div>
                     </motion.div>
                   </AnimatePresence>
                 </div>
               </div>
-            </motion.div>
+            </SectionReveal>
           </section>
 
           {/* -- Thoughts -- */}
           <section className="relative z-10 mx-auto max-w-5xl px-6 py-14">
-            <motion.div {...fadeUp}>
-              <div className="border-t border-[#333] pt-10">
+            <SectionReveal>
+              <div className="border-t border-ink-600 pt-10">
                 <SectionHeader
                   kicker="thoughts"
-                  title={renderWithTypos("things i wrote at questionble hours.")}
-                  aside={renderWithTypos("(3 am brain is a diffrent person)")}
+                  title={renderWithTypos("things i wrote at questionble hours.", maxWavy)}
+                  aside={renderWithTypos("(3 am brain is a diffrent person)", maxWavy)}
                 />
               </div>
-            </motion.div>
+            </SectionReveal>
 
             <div className="space-y-5">
               {thoughts.map((t, i) => (
-                <motion.article
-                  key={t.title}
-                  className="paper-card p-5 md:p-7 hover-bounce"
-                  initial={{ opacity: 0, y: 16 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-40px" }}
-                  transition={{ delay: i * 0.08, duration: 0.45 }}
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-lg font-bold text-[#e8e8e8]">{renderWithTypos(t.title)}</h3>
-                    <span className="font-mono text-xs text-[#999]">{t.date}</span>
-                  </div>
-                  <p 
-                    className="text-sm text-[#ccc] leading-relaxed"
-                    style={{ minHeight: `${thoughtsMeasurements.find((m) => m.title === t.title)?.height ?? 44}px` }}
-                  >
-                    {renderWithTypos(t.body)}
-                  </p>
-                </motion.article>
+                <DevelopIn key={t.title} index={i} rotate={i % 2 === 0 ? -1 : 0.8}>
+                  <article className="paper-card p-5 md:p-7 hover-bounce">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-lg font-bold text-ink-100">{renderWithTypos(t.title, maxWavy)}</h3>
+                      <span className="font-mono text-xs text-ink-300">{t.date}</span>
+                    </div>
+                    <p className="text-sm text-ink-200 leading-relaxed">
+                      {renderWithTypos(t.body, maxWavy)}
+                    </p>
+                  </article>
+                </DevelopIn>
               ))}
             </div>
           </section>
 
           {/* Footer */}
-          <footer className="relative z-10 border-t border-[#333]">
+          <footer className="relative z-10 border-t border-ink-600">
             <div className="mx-auto max-w-5xl px-6 py-7 flex items-center justify-between">
-              <p className="font-mono text-xs text-[#666]">som chandra -- {new Date().getFullYear()}</p>
-              <p className="font-mono text-xs text-[#555]">the unhinged side</p>
+              <p className="font-mono text-xs text-ink-400">som chandra -- {new Date().getFullYear()}</p>
+              <p className="font-mono text-xs text-ink-400">the unhinged side</p>
             </div>
             <div className="mx-auto max-w-5xl px-6 pb-7">
-              <p className="font-mono text-[0.65rem] text-[#1a1a1a] italic text-right bg-pink-200/80 px-3 py-1.5 rounded-sm inline-block float-right">
+              <p className="font-mono text-[0.65rem] text-ink-700 italic text-right bg-pink-200/80 px-3 py-1.5 rounded-sm inline-block float-right">
                 {'* those roast was from Grok i know it sucks lol ai "'}
               </p>
               <div className="clear-both" />

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef, type MouseEvent } from "react"
-import { motion, AnimatePresence, useReducedMotion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion"
+import { motion, useReducedMotion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -19,6 +19,7 @@ import { ForegroundFlow } from "@/components/cosmic/foreground-flow"
 import { useLoading } from "@/components/layout-shell"
 import { fonts, measureTextWidth, usePretextReady } from "@/lib/pretext"
 import { fetcher, type Artist, type NowPlayingData, type RecentTrack, type Track } from "@/lib/creative-data"
+import { ACCENT, EXIT_TINT, glow, INK, PAPER_CREAM } from "@/lib/tokens"
 import {
   Terminal, Pen, Github, Linkedin, Mail, ExternalLink,
   ArrowRight, ArrowDown, Music, Headphones, Users, Clock,
@@ -64,19 +65,16 @@ const socials = [
 
 const SPOTIFY_SECTION_LIMIT = 6
 
-const funFacts = [
+/* One rotator, one pool — the old separate funFacts ticker is merged in. */
+const heroLines = [
+  "probably debugging something rn",
+  "or doodling in a notebook",
+  "or both at the same time",
   "i break things for a living.",
   "i draw things nobody asked for.",
   "i take photos of random things.",
   "cybersecurity by day, doodling by night.",
   "i have two personalities and one website.",
-  "a can of white monster would be helpfull"
-]
-
-const heroLines = [
-  "probably debugging something rn",
-  "or doodling in a notebook",
-  "or both at the same time",
   "probably missing her rn",
   "sleep is just a variable I never initialize",
   "talking to rubber duck again",
@@ -88,7 +86,8 @@ const heroLines = [
   "sudo make me a sandwich",
   "renaming variables for the 5th time today",
   "accidentally opened vim. send help.",
-  "refactoring code I wrote 2 weeks ago like it's someone else's"
+  "refactoring code I wrote 2 weeks ago like it's someone else's",
+  "a can of white monster would be helpfull",
 ]
 
 export default function Home() {
@@ -97,7 +96,7 @@ export default function Home() {
   const [exiting, setExiting] = useState<"nerdy" | "creative" | null>(null)
   const [nameMode, setNameMode] = useState<"default" | "nerdy" | "creative">("default")
   const [isHoverLocked, setIsHoverLocked] = useState(false)
-  const [factIdx, setFactIdx] = useState(0)
+  const [rotatorPaused, setRotatorPaused] = useState(false)
   const { loading } = useLoading()
 
   // Touch "hover": phones have no hover, so a card awakens when it scrolls into the center of
@@ -107,8 +106,6 @@ export default function Home() {
   const creativeCardRef = useRef<HTMLDivElement>(null)
   const exitingRef = useRef(exiting)
   exitingRef.current = exiting
-  const hoverLockRef = useRef(isHoverLocked)
-  hoverLockRef.current = isHoverLocked
 
   const cycleName = () => {
     setSessionFlag("som-name-clicked", "1")
@@ -129,9 +126,9 @@ export default function Home() {
     }
 
   const nameConfig = {
-    default: { text: "som", color: "#f0c6cf", shadow: "0 0 6px rgba(240, 198, 207, 0.25)" },
-    nerdy: { text: "0xs0m", color: "#7fb07f", shadow: "0 0 8px rgba(127, 176, 127, 0.4)" },
-    creative: { text: "som", color: "#f0c6cf", shadow: "0 0 6px rgba(240, 198, 207, 0.25)" },
+    default: { text: "som", color: ACCENT.creative, shadow: `0 0 6px ${glow("creative", 0.25)}` },
+    nerdy: { text: "0xs0m", color: ACCENT.nerdy, shadow: `0 0 8px ${glow("nerdy", 0.4)}` },
+    creative: { text: "som", color: ACCENT.creative, shadow: `0 0 6px ${glow("creative", 0.25)}` },
   }
   const [heroIdx, setHeroIdx] = useState(0)
 
@@ -143,6 +140,8 @@ export default function Home() {
   
   const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
   const heroY = useTransform(scrollYProgress, [0, 1], [0, -100]);
+  // The descent cue and meta rail dissolve first — the journey has begun.
+  const cueOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
 
   const { data: nowPlaying } = useSWR<NowPlayingData>("/api/spotify/now-playing", fetcher, { refreshInterval: 30000 })
   const { data: topTracksData } = useSWR<{ tracks: Track[] }>("/api/spotify/top-tracks", fetcher)
@@ -190,19 +189,15 @@ export default function Home() {
     }
   }, [mouseX, mouseY, prefersReduced])
 
+  // The one hero rotator. Pauses on hover/focus so it can actually be read
+  // (and so screen readers aren't flooded by the aria-live region).
   useEffect(() => {
-    const interval = setInterval(() => {
-      setFactIdx((p) => (p + 1) % funFacts.length)
-    }, 2200)
-    return () => clearInterval(interval)
-  }, [])
-
-  useEffect(() => {
+    if (rotatorPaused) return
     const interval = setInterval(() => {
       setHeroIdx((p) => (p + 1) % heroLines.length)
     }, 3000)
     return () => clearInterval(interval)
-  }, [])
+  }, [rotatorPaused])
 
   useEffect(() => {
     if (typeof window === "undefined") return
@@ -239,9 +234,9 @@ export default function Home() {
           else inBand.delete(side)
         }
         if (exitingRef.current) return
+        // Awaken the card's visuals only — the name should not flip from mere scrolling.
         const next = inBand.has("nerdy") ? "nerdy" : inBand.has("creative") ? "creative" : null
         setHoverSide(next)
-        if (!hoverLockRef.current) setNameMode(next === "nerdy" ? "nerdy" : "default")
       },
       { root: null, rootMargin: "-45% 0px -45% 0px", threshold: 0 }
     )
@@ -281,7 +276,7 @@ export default function Home() {
   })
 
   return (
-    <main id="main-content" className="relative min-h-screen bg-[#07060d]">
+    <main id="main-content" className="relative min-h-screen bg-cosmic-void">
       <ParticleField />
       <FloatingSvgs hoverSide={hoverSide} intro={loading} exiting={exiting} />
       <BlossomField hoverSide={hoverSide} armedSide={null} exiting={exiting} />
@@ -293,40 +288,43 @@ export default function Home() {
         <motion.div
           aria-hidden
           className="fixed inset-0 z-[150] pointer-events-none"
-          style={{ background: exiting === "nerdy" ? "#05140b" : "#170a13" }}
+          style={{ background: EXIT_TINT[exiting] }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.42, delay: 0.34, ease: "easeIn" }}
         />
       )}
 
-      {/* Home content mounts after the loader so its entrance plays over the already-built
-          cosmic SVGs (which render during loading for the one-by-one hand-off). */}
-      {!loading && (
-      <>
+      {/* Content is always mounted (server-rendered); the entrance animations are keyed on
+          `loading` so they play the moment the loader hands off — over the already-built
+          cosmic SVGs. `initial={false}` keeps the server HTML in its visible state. */}
       {/* ---- HERO: fills viewport ---- */}
+      {/* NOTE: framer's useScroll({ target }) logs a dev-only warnOnce about the scroll
+          container being static — the default container is <html>, which is always static.
+          False positive; compiled out of production (NODE_ENV check). */}
       <section ref={heroRef} className="relative min-h-screen flex items-center justify-center pt-10">
         <motion.div
           className="relative z-10 mx-auto w-full max-w-5xl px-6 flex flex-col justify-center"
           style={{ opacity: prefersReduced ? 1 : heroOpacity, y: prefersReduced ? 0 : heroY }}
         >
           <motion.div
-            className="mb-7 md:mb-10 h-px bg-[#2a2a2a]"
-            initial={{ width: 0, opacity: 0 }}
-            animate={{ width: "100%", opacity: 1 }}
-            transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
+            className="mb-7 md:mb-10 h-px bg-ink-600"
+            initial={false}
+            animate={loading ? { width: 0, opacity: 0 } : { width: "100%", opacity: 1 }}
+            transition={loading ? { duration: 0 } : { duration: 1.0, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
           />
 
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
+            className="text-scrim"
+            initial={false}
+            animate={loading ? { opacity: 0, y: 16 } : { opacity: 1, y: 0 }}
+            transition={loading ? { duration: 0 } : { duration: 0.6, delay: 0.1 }}
           >
-            <p className="font-mono text-xs tracking-widest uppercase text-[#999] mb-6">
+            <p className="font-mono text-xs tracking-widest uppercase text-ink-300 mb-6">
               oh hey, you found this page
             </p>
 
-            <h1 className="text-[clamp(3.5rem,9vw,6.5rem)] font-bold tracking-[-0.03em] text-[#e8e8e8] leading-[1.03]">
+            <h1 className="text-[clamp(3.75rem,10vw,8rem)] font-bold tracking-[-0.03em] text-ink-100 leading-[1.02]">
               <button
                 type="button"
                 className="block cursor-pointer border-0 bg-transparent p-0 text-left flex items-baseline gap-3 relative z-20"
@@ -334,7 +332,7 @@ export default function Home() {
                 aria-label="Toggle between som and 0xs0m"
               >
                 <span>{"i'm"}</span>
-                <span className="flex items-baseline">
+                <span id="hero-name" className="flex items-baseline">
                   <TextMorph
                     text={nameConfig[nameMode].text}
                     className={nameMode === "nerdy" ? "font-mono" : ""}
@@ -348,68 +346,60 @@ export default function Home() {
               </button>
             </h1>
 
-            {/* Cycling hero tagline with pretext-measured highlight */}
-            <div className="mt-4 h-10 md:h-12 relative z-20">
+            {/* The one cycling hero line — pretext-measured highlight pill. Pauses on
+                hover/focus; polite live region so SR users get the current line only. */}
+            <div
+              className="mt-4 h-10 md:h-12 relative z-20"
+              aria-live="polite"
+              aria-atomic="true"
+              onMouseEnter={() => setRotatorPaused(true)}
+              onMouseLeave={() => setRotatorPaused(false)}
+              onFocus={() => setRotatorPaused(true)}
+              onBlur={() => setRotatorPaused(false)}
+            >
               <PretextHighlight
                 lines={heroLines}
                 currentIndex={heroIdx}
                 fontSize={isCompactSpotify ? 18 : 24}
-                bgColor="#e2d2c1"
-                textColor="#111"
+                bgColor={PAPER_CREAM}
+                textColor={INK[800]}
                 paddingX={8}
                 paddingY={4}
               />
             </div>
-
-            {/* Auto-cycling fun fact */}
-            <div className="mt-6 md:mt-8 h-6 overflow-hidden relative z-20">
-              <AnimatePresence mode="wait">
-                <motion.p
-                  key={factIdx}
-                  className="font-mono text-sm text-[#888]"
-                  initial={{ opacity: 0, y: 14, x: -4 }}
-                  animate={{ opacity: 1, y: 0, x: 0 }}
-                  exit={{ opacity: 0, y: -10, x: 4 }}
-                  transition={{ duration: 0.28, ease: "easeOut" }}
-                >
-                  {"/ "}
-                  {funFacts[factIdx]}
-                </motion.p>
-              </AnimatePresence>
-            </div>
           </motion.div>
 
           <motion.div
-            className="mt-10 md:mt-14 h-px bg-gradient-to-r from-transparent via-[#333] to-transparent"
-            initial={{ width: 0 }}
-            animate={{ width: "60%" }}
-            transition={{ duration: 1.5, delay: 0.7, ease: "easeInOut" }}
+            className="mt-10 md:mt-14 h-px bg-gradient-to-r from-transparent via-ink-600 to-transparent"
+            initial={false}
+            animate={loading ? { width: 0 } : { width: "60%" }}
+            transition={loading ? { duration: 0 } : { duration: 1.2, delay: 0.3, ease: "easeInOut" }}
           />
 
           {/* ---- THE CHOICE ---- */}
           <motion.div
             className="mt-9 md:mt-12 relative z-20"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.9 }}
+            initial={false}
+            animate={loading ? { opacity: 0 } : { opacity: 1 }}
+            transition={loading ? { duration: 0 } : { delay: 0.35 }}
           >
             <motion.p
               className="font-mono text-xs tracking-widest uppercase mb-6"
-              initial={{ opacity: 0, y: -6, scale: 0.95 }}
+              initial={false}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ duration: 0.34, ease: [0.16, 1, 0.3, 1] }}
-              style={{ color: "#999" }}
+              style={{ color: INK[300] }}
             >
               pick a side
             </motion.p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6 max-w-2xl">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6 max-w-3xl">
               {/* NERDY */}
               <motion.div
                 ref={nerdyCardRef}
-                initial={{ opacity: 0, y: 24 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 1 }}
+                initial={false}
+                animate={loading ? { opacity: 0, y: 24 } : { opacity: 1, y: 0 }}
+                transition={loading ? { duration: 0 } : { duration: 0.5, delay: 0.5 }}
                 onHoverStart={() => { setHoverSide("nerdy"); if (!isHoverLocked) setNameMode("nerdy") }}
                 onHoverEnd={() => { if (!exiting) { setHoverSide(null); if (!isHoverLocked) setNameMode("default") } }}
                 className="group h-full"
@@ -418,12 +408,12 @@ export default function Home() {
                   <Link href="/nerdy" onClick={handleCardClick("nerdy", "/nerdy")} className="block h-full cursor-pointer">
                     <motion.div
                       whileHover={{ y: -8, scale: 1.02 }}
-                      className="paper-card crt-scanlines isolate relative p-7 md:p-9 min-h-[220px] h-full flex flex-col justify-between overflow-hidden"
+                      className="paper-card crt-scanlines isolate relative p-7 md:p-9 min-h-[240px] h-full flex flex-col justify-between overflow-hidden"
                       animate={nameMode === "nerdy" ? {
-                      borderColor: "#7fb07f",
-                      boxShadow: "0 0 34px rgba(127, 176, 127, 0.16)"
+                      borderColor: ACCENT.nerdy,
+                      boxShadow: `0 0 34px ${glow("nerdy", 0.16)}`
                     } : {
-                      borderColor: "#2a2a2a",
+                      borderColor: INK[600],
                       boxShadow: "none"
                     }}
                     transition={{ duration: 0.5 }}
@@ -431,7 +421,7 @@ export default function Home() {
                     <div className="tape-top" />
                     {/* CRT terminal backdrop */}
                     <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden>
-                      <pre className="absolute right-1 top-1 m-0 select-none whitespace-pre font-mono text-[9px] leading-[1.6] text-[#7fb07f]/10 transition-colors duration-500 group-hover:text-[#7fb07f]/20">{`$ whoami
+                      <pre className="absolute right-1 top-1 m-0 select-none whitespace-pre font-mono text-[9px] leading-[1.6] text-accent-nerdy/10 transition-colors duration-500 group-hover:text-accent-nerdy/20">{`$ whoami
 0xs0m
 $ nmap -sV 10.0.0.1
 [+] 22/tcp  open  ssh
@@ -443,11 +433,11 @@ $ ./exploit --pwn`}</pre>
                         <motion.div
                           className="flex h-9 w-9 items-center justify-center border"
                           animate={nameMode === "nerdy" ? {
-                            borderColor: "#7fb07f",
-                            color: "#7fb07f"
+                            borderColor: ACCENT.nerdy,
+                            color: ACCENT.nerdy
                           } : {
-                            borderColor: "#444",
-                            color: "#e8e8e8"
+                            borderColor: INK[500],
+                            color: INK[100]
                           }}
                           transition={{ duration: 0.5 }}
                         >
@@ -455,27 +445,27 @@ $ ./exploit --pwn`}</pre>
                         </motion.div>
                         <motion.span
                           className="font-mono text-xs"
-                          animate={nameMode === "nerdy" ? { color: "#7fb07f" } : { color: "#888" }}
+                          animate={nameMode === "nerdy" ? { color: ACCENT.nerdy } : { color: INK[300] }}
                           transition={{ duration: 0.5 }}
                         >
                           {"> whoami"}
                         </motion.span>
                       </div>
                       <motion.h2
-                        className="text-xl md:text-2xl font-bold tracking-tight mb-2"
-                        animate={nameMode === "nerdy" ? { color: "#7fb07f" } : { color: "#e8e8e8" }}
+                        className="text-2xl md:text-[1.65rem] font-bold tracking-tight mb-2"
+                        animate={nameMode === "nerdy" ? { color: ACCENT.nerdy } : { color: INK[100] }}
                         transition={{ duration: 0.5 }}
                       >
                         the nerdy side
                       </motion.h2>
-                      <p className="text-sm text-[#aaa] leading-relaxed max-w-xs">
+                      <p className="text-sm text-ink-200 leading-relaxed max-w-xs">
                         resume, hacking stuff, certs, all that serious jazz.
                       </p>
-                      <p className="mt-3 text-xs font-mono text-[#666] group-hover:text-[#e8e8e8] transition-colors italic">
+                      <p className="mt-3 text-xs font-mono text-ink-400 group-hover:text-ink-100 transition-colors italic">
                         psst -- wanna hire me?
                       </p>
                     </div>
-                    <div className="mt-6 flex items-center gap-2 text-sm font-mono text-[#666] group-hover:text-[#e8e8e8] transition-colors">
+                    <div className="mt-6 flex items-center gap-2 text-sm font-mono text-ink-400 group-hover:text-ink-100 transition-colors">
                       <span>go there</span>
                       <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
                     </div>
@@ -487,9 +477,9 @@ $ ./exploit --pwn`}</pre>
               {/* CREATIVE */}
               <motion.div
                 ref={creativeCardRef}
-                initial={{ opacity: 0, y: 24 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 1.15 }}
+                initial={false}
+                animate={loading ? { opacity: 0, y: 24 } : { opacity: 1, y: 0 }}
+                transition={loading ? { duration: 0 } : { duration: 0.5, delay: 0.65 }}
                 onHoverStart={() => setHoverSide("creative")}
                 onHoverEnd={() => { if (!exiting) { setHoverSide(null) } }}
                 className="group h-full"
@@ -498,12 +488,12 @@ $ ./exploit --pwn`}</pre>
                   <Link href="/creative" onClick={handleCardClick("creative", "/creative")} className="block h-full cursor-pointer">
                     <motion.div
                       whileHover={{ y: -8, scale: 1.02 }}
-                      className="paper-card isolate relative p-7 md:p-9 min-h-[220px] h-full flex flex-col justify-between overflow-hidden"
+                      className="paper-card isolate relative p-7 md:p-9 min-h-[240px] h-full flex flex-col justify-between overflow-hidden"
                       animate={hoverSide === "creative" ? {
-                      borderColor: "#f0c6cf",
-                      boxShadow: "0 0 34px rgba(240, 198, 207, 0.16)"
+                      borderColor: ACCENT.creative,
+                      boxShadow: `0 0 34px ${glow("creative", 0.16)}`
                     } : {
-                      borderColor: "#2a2a2a",
+                      borderColor: INK[600],
                       boxShadow: "none"
                     }}
                     transition={{ duration: 0.5 }}
@@ -514,11 +504,11 @@ $ ./exploit --pwn`}</pre>
                         <motion.div
                           className="flex h-9 w-9 items-center justify-center border"
                           animate={hoverSide === "creative" ? {
-                            borderColor: "#f0c6cf",
-                            color: "#f0c6cf",
+                            borderColor: ACCENT.creative,
+                            color: ACCENT.creative,
                           } : {
-                            borderColor: "#444",
-                            color: "#e8e8e8",
+                            borderColor: INK[500],
+                            color: INK[100],
                           }}
                           transition={{ duration: 0.5 }}
                         >
@@ -526,27 +516,27 @@ $ ./exploit --pwn`}</pre>
                         </motion.div>
                         <motion.span
                           className="font-mono text-xs"
-                          animate={hoverSide === "creative" ? { color: "#f0c6cf" } : { color: "#888" }}
+                          animate={hoverSide === "creative" ? { color: ACCENT.creative } : { color: INK[300] }}
                           transition={{ duration: 0.5 }}
                         >
                           ~
                         </motion.span>
                       </div>
                       <motion.h2
-                        className="text-xl md:text-2xl font-bold tracking-tight mb-2"
-                        animate={hoverSide === "creative" ? { color: "#f0c6cf" } : { color: "#e8e8e8" }}
+                        className="text-2xl md:text-[1.65rem] font-bold tracking-tight mb-2"
+                        animate={hoverSide === "creative" ? { color: ACCENT.creative } : { color: INK[100] }}
                         transition={{ duration: 0.5 }}
                       >
                         the unhinged side
                       </motion.h2>
-                      <p className="text-sm text-[#aaa] leading-relaxed max-w-xs">
+                      <p className="text-sm text-ink-200 leading-relaxed max-w-xs">
                         photos, sketches, late-night scribbles. the fun stuff.
                       </p>
-                      <p className="mt-3 text-xs font-mono text-[#666] group-hover:text-[#e8e8e8] transition-colors italic">
+                      <p className="mt-3 text-xs font-mono text-ink-400 group-hover:text-ink-100 transition-colors italic">
                         aka the fun one
                       </p>
                     </div>
-                    <div className="mt-6 flex items-center gap-2 text-sm font-mono text-[#666] group-hover:text-[#e8e8e8] transition-colors">
+                    <div className="mt-6 flex items-center gap-2 text-sm font-mono text-ink-400 group-hover:text-ink-100 transition-colors">
                       <span>go there</span>
                       <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
                     </div>
@@ -558,7 +548,7 @@ $ ./exploit --pwn`}</pre>
             
             {/* Hover indicator */}
             <motion.p
-              className="mt-5 font-mono text-xs text-[#666] h-5"
+              className="text-scrim mt-5 font-mono text-xs text-ink-300 h-5"
               animate={{ opacity: hoverSide ? 1 : 0 }}
             >
               {hoverSide === "nerdy"
@@ -569,19 +559,51 @@ $ ./exploit --pwn`}</pre>
             </motion.p>
           </motion.div>
 
+          {/* Descent cue — dissolves as soon as the journey begins. */}
+          <motion.div aria-hidden className="z-20" style={{ opacity: prefersReduced ? 1 : cueOpacity }}>
+            <motion.div
+              className="mt-14 hidden sm:flex flex-col items-center gap-2"
+              initial={false}
+              animate={loading ? { opacity: 0, y: 10 } : { opacity: 1, y: 0 }}
+              transition={loading ? { duration: 0 } : { delay: 1.0, duration: 0.6, ease: "easeOut" }}
+            >
+              <p className="font-mono text-xs text-ink-400">scroll to descend</p>
+              <motion.div
+                animate={{ y: [0, 8, 0] }}
+                transition={{ duration: 1.8, repeat: Infinity, ease: [0.45, 0, 0.55, 1] }}
+              >
+                <ArrowDown className="h-4 w-4 text-ink-300" />
+              </motion.div>
+            </motion.div>
+          </motion.div>
+
+          {/* Vertical meta rail — a quiet editorial log filling the hero's right column. */}
           <motion.div
             aria-hidden
-            className="absolute bottom-10 left-1/2 -translate-x-1/2 hidden sm:flex flex-col items-center gap-2 z-20"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.5, duration: 0.6, ease: "easeOut" }}
+            className="pointer-events-none absolute right-0 top-1/2 hidden -translate-y-1/2 lg:block z-10"
+            style={{ opacity: prefersReduced ? 1 : cueOpacity }}
           >
-            <p className="font-mono text-xs text-[#666]">scroll for more</p>
             <motion.div
-              animate={{ y: [0, 8, 0] }}
-              transition={{ duration: 1.8, repeat: Infinity, ease: [0.45, 0, 0.55, 1] }}
+              className="flex flex-col items-center gap-5"
+              initial={false}
+              animate={loading ? { opacity: 0 } : { opacity: 1 }}
+              transition={loading ? { duration: 0 } : { delay: 1.4, duration: 0.9 }}
             >
-              <ArrowDown className="h-4 w-4 text-[#888]" />
+              <div className="h-16 w-px bg-gradient-to-b from-transparent to-ink-600" />
+              <p
+                className="font-mono text-[0.6rem] uppercase tracking-[0.35em] text-ink-400"
+                style={{ writingMode: "vertical-rl" }}
+              >
+                12.97° n · 77.59° e — bengaluru
+              </p>
+              <span className="h-1 w-1 rounded-full bg-accent-creative/70" />
+              <p
+                className="font-mono text-[0.6rem] uppercase tracking-[0.35em] text-ink-400"
+                style={{ writingMode: "vertical-rl" }}
+              >
+                two worlds · one corner
+              </p>
+              <div className="h-16 w-px bg-gradient-to-t from-transparent to-ink-600" />
             </motion.div>
           </motion.div>
         </motion.div>
@@ -614,10 +636,10 @@ $ ./exploit --pwn`}</pre>
             className="mb-14"
           >
             <div className="flex items-center gap-2 mb-2">
-              <Users className="h-4 w-4 text-[#ccc]" aria-hidden="true" />
-              <h2 className="font-mono text-xs tracking-widest uppercase text-[#ccc]">top artists</h2>
+              <Users className="h-4 w-4 text-ink-200" aria-hidden="true" />
+              <h2 className="font-mono text-xs tracking-widest uppercase text-ink-200">top artists</h2>
             </div>
-            <p className="text-sm text-[#888] mb-8">the people responsible for my personality</p>
+            <p className="text-sm text-ink-300 mb-8">the people responsible for my personality</p>
 
             <div className="flex flex-wrap gap-4">
               {topArtistCards.map((artist, i) => (
@@ -642,13 +664,13 @@ $ ./exploit --pwn`}</pre>
                     src={artist.imageUrl}
                     alt={artist.name}
                     loading="lazy"
-                    className="w-20 h-20 border-2 border-[#333] bg-[#1a1a1a] mb-3 flex items-center justify-center overflow-hidden group-hover:border-[#e8e8e8] transition-colors"
+                    className="w-20 h-20 border-2 border-ink-600 bg-ink-700 mb-3 flex items-center justify-center overflow-hidden group-hover:border-ink-100 transition-colors"
                     imgClassName="w-full h-full object-cover"
-                    fallback={<Users className="h-8 w-8 text-[#444]" />}
+                    fallback={<Users className="h-8 w-8 text-ink-500" />}
                   />
-                  <p className="text-sm font-bold text-[#e8e8e8] group-hover:underline truncate w-full">{artist.name}</p>
+                  <p className="text-sm font-bold text-ink-100 group-hover:underline truncate w-full">{artist.name}</p>
                   {artist.genreLabel && (
-                    <p className="text-xs text-[#888] truncate w-full mt-1">{artist.genreLabel}</p>
+                    <p className="text-xs text-ink-300 truncate w-full mt-1">{artist.genreLabel}</p>
                   )}
                 </motion.a>
               ))}
@@ -666,10 +688,10 @@ $ ./exploit --pwn`}</pre>
             className="mb-14"
           >
             <div className="flex items-center gap-2 mb-2">
-              <Headphones className="h-4 w-4 text-[#ccc]" aria-hidden="true" />
-              <h2 className="font-mono text-xs tracking-widest uppercase text-[#ccc]">all-time faves</h2>
+              <Headphones className="h-4 w-4 text-ink-200" aria-hidden="true" />
+              <h2 className="font-mono text-xs tracking-widest uppercase text-ink-200">all-time faves</h2>
             </div>
-            <p className="text-sm text-[#888] mb-6">the songs i&apos;ve played to death</p>
+            <p className="text-sm text-ink-300 mb-6">the songs i&apos;ve played to death</p>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               {topTrackRows.map((track, i) => (
@@ -688,18 +710,18 @@ $ ./exploit --pwn`}</pre>
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.04, duration: 0.3 }}
                 >
-                  <span className="font-mono text-xs text-[#666] w-5 shrink-0">{track.rankLabel}</span>
+                  <span className="font-mono text-xs text-ink-400 w-5 shrink-0">{track.rankLabel}</span>
                   <SpotifyArtwork
                     src={track.albumImageUrl}
                     alt={track.album}
                     loading="lazy"
-                    className="w-10 h-10 shrink-0 border border-[#333] bg-[#1a1a1a] flex items-center justify-center overflow-hidden"
+                    className="w-10 h-10 shrink-0 border border-ink-600 bg-ink-700 flex items-center justify-center overflow-hidden"
                     imgClassName="w-full h-full object-cover"
-                    fallback={<span className="text-[#444] text-xs">♪</span>}
+                    fallback={<span className="text-ink-500 text-xs">♪</span>}
                   />
                   <div className="min-w-0">
-                    <p className="text-sm font-bold text-[#e8e8e8] truncate group-hover:underline">{track.title}</p>
-                    <p className="text-xs text-[#aaa] truncate">{track.artist}</p>
+                    <p className="text-sm font-bold text-ink-100 truncate group-hover:underline">{track.title}</p>
+                    <p className="text-xs text-ink-200 truncate">{track.artist}</p>
                   </div>
                 </motion.a>
               ))}
@@ -716,10 +738,10 @@ $ ./exploit --pwn`}</pre>
             transition={{ duration: 0.5 }}
           >
             <div className="flex items-center gap-2 mb-2">
-              <Clock className="h-4 w-4 text-[#ccc]" aria-hidden="true" />
-              <h2 className="font-mono text-xs tracking-widest uppercase text-[#ccc]">recently played</h2>
+              <Clock className="h-4 w-4 text-ink-200" aria-hidden="true" />
+              <h2 className="font-mono text-xs tracking-widest uppercase text-ink-200">recently played</h2>
             </div>
-            <p className="text-sm text-[#888] mb-6">what was in my ears a minute ago</p>
+            <p className="text-sm text-ink-300 mb-6">what was in my ears a minute ago</p>
 
             <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
               {recentTrackRows.map((track, i) => (
@@ -742,15 +764,15 @@ $ ./exploit --pwn`}</pre>
                     src={track.albumImageUrl}
                     alt={track.album}
                     loading="lazy"
-                    className="w-8 h-8 shrink-0 border border-[#333] bg-[#1a1a1a] flex items-center justify-center overflow-hidden"
+                    className="w-8 h-8 shrink-0 border border-ink-600 bg-ink-700 flex items-center justify-center overflow-hidden"
                     imgClassName="w-full h-full object-cover"
-                    fallback={<span className="text-[#444] text-xs">♪</span>}
+                    fallback={<span className="text-ink-500 text-xs">♪</span>}
                   />
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm text-[#e8e8e8] truncate group-hover:underline">{track.title}</p>
-                    <p className="text-xs text-[#aaa] truncate">{track.artist}</p>
+                    <p className="text-sm text-ink-100 truncate group-hover:underline">{track.title}</p>
+                    <p className="text-xs text-ink-200 truncate">{track.artist}</p>
                   </div>
-                  <p className="font-mono text-xs text-[#666] shrink-0">{track.playedLabel}</p>
+                  <p className="font-mono text-xs text-ink-400 shrink-0">{track.playedLabel}</p>
                 </motion.a>
               ))}
             </div>
@@ -781,15 +803,16 @@ $ ./exploit --pwn`}</pre>
       {/* ---- CONVERGENCE: socials ---- */}
       <section className="relative isolate z-10 mx-auto max-w-5xl px-6 pb-24 pt-24">
         <motion.div
+          className="text-scrim"
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-40px" }}
           transition={{ duration: 0.5 }}
         >
-          <h2 className="font-mono text-xs tracking-widest uppercase text-[#ccc] mb-2">
+          <h2 className="font-mono text-xs tracking-widest uppercase text-ink-200 mb-2">
             find me elsewhere
           </h2>
-          <p className="text-sm text-[#888] mb-6">
+          <p className="text-sm text-ink-300 mb-6">
             (i sometimes reply)
           </p>
 
@@ -800,7 +823,7 @@ $ ./exploit --pwn`}</pre>
                 href={s.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="paper-card flex items-center gap-2.5 px-4 py-2.5 text-sm text-[#bbb] hover:text-[#e8e8e8] transition-colors hover-bounce"
+                className="paper-card flex items-center gap-2.5 px-4 py-2.5 text-sm text-ink-200 hover:text-ink-100 transition-colors hover-bounce"
                 initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -816,14 +839,12 @@ $ ./exploit --pwn`}</pre>
 
       {/* ---- FOOTER ---- */}
       <footer className="relative z-10 overflow-hidden">
-        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#2a2a2a] to-transparent opacity-50" />
-        <div className="mx-auto max-w-5xl px-6 py-12 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="font-mono text-xs text-[#888]">som chandra, {new Date().getFullYear()}</p>
-          <p className="font-mono text-xs text-[#666]">made with monster and bunch of tokens</p>
+        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-ink-600 to-transparent opacity-50" />
+        <div className="text-scrim mx-auto max-w-5xl px-6 py-12 flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="font-mono text-xs text-ink-300">som chandra, {new Date().getFullYear()}</p>
+          <p className="font-mono text-xs text-ink-300">made with monster and bunch of tokens</p>
         </div>
       </footer>
-      </>
-      )}
     </main>
   )
 }

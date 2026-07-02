@@ -20,7 +20,33 @@ const eslintConfig = [
       "react-hooks/set-state-in-effect": "off",
       "react-hooks/refs": "off",
       "react-hooks/use-memo": "off",
+      "react-hooks/preserve-manual-memoization": "off",
     },
+  },
+  {
+    // Design-token guard: colors live in app/globals.css (+ the lib/tokens.ts mirror for
+    // framer/canvas/SVG). Raw hex in components bypasses the world-theming system.
+    files: ["app/**/*.tsx", "components/**/*.tsx"],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "Literal[value=/#[0-9a-fA-F]{3,8}\\b/]",
+          message:
+            "Raw hex color — use a token utility (text-ink-300, border-world, …) or import from lib/tokens.ts.",
+        },
+        {
+          selector: "TemplateElement[value.raw=/#[0-9a-fA-F]{3,8}\\b/]",
+          message:
+            "Raw hex color in template string — use a token utility or import from lib/tokens.ts.",
+        },
+      ],
+    },
+  },
+  {
+    // The viewport themeColor is metadata, not styling; it mirrors --ink-900.
+    files: ["app/layout.tsx"],
+    rules: { "no-restricted-syntax": "off" },
   },
 ]
 

@@ -5,10 +5,15 @@ import useSWR from "swr"
 import { PageHeader } from "@/components/page-header"
 import { PageTransition } from "@/components/page-transition"
 import { SectionHeader } from "@/components/section-header"
+import { SectionReveal } from "@/components/motion/section-reveal"
+import { SectionRule } from "@/components/section-rule"
+import { StatusBar } from "@/components/status-bar"
 import { SpotifyNowPlayingContent } from "@/components/now-playing"
 import { GitHubStats } from "@/components/github-stats"
 import { fetcher, type NowPlayingData } from "@/lib/creative-data"
-import { ExternalLink, Shield, Terminal, Flag, Bug, Github, Linkedin, Mail } from "lucide-react"
+import { ExternalLink, Shield, Terminal, Flag, Bug, Github, Linkedin, Mail, FileDown } from "lucide-react"
+
+const HAS_RESUME = process.env.NEXT_PUBLIC_HAS_RESUME === "1"
 
 const linkHub = [
   {
@@ -149,19 +154,13 @@ const achievements = [
   "34th Place, RuCTF 2022",
 ]
 
-const fadeUp = {
-  initial: { opacity: 0, y: 20 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: "-60px" as const },
-  transition: { duration: 0.5 },
-}
-
 export default function NerdyPage() {
   const { data: nowPlaying } = useSWR<NowPlayingData>("/api/spotify/now-playing", fetcher, { refreshInterval: 30000 })
 
   return (
     <>
       <PageHeader title="the nerdy side" subtitle="resume / projects / hacking stuff" breadcrumb="som / nerdy" />
+      <StatusBar />
 
       <PageTransition>
         <main id="main-content" className="relative min-h-screen">
@@ -173,7 +172,7 @@ export default function NerdyPage() {
                 viewport={{ once: true, margin: "-60px" }}
                 transition={{ duration: 0.5 }}
               >
-                <div className="border-t border-[#333] pt-8">
+                <div className="border-t border-ink-600 pt-8">
                   <SpotifyNowPlayingContent nowPlaying={nowPlaying} />
                 </div>
               </motion.div>
@@ -181,15 +180,16 @@ export default function NerdyPage() {
           )}
 
           {/* -- About -- */}
-          <section className="relative z-10 mx-auto max-w-4xl px-6 pt-14 pb-10">
-            <motion.div {...fadeUp}>
+          <section className="world-gutter relative z-10 mx-auto max-w-4xl px-6 pt-12 pb-10">
+            <SectionReveal>
               <SectionHeader
                 kicker="about"
                 title="cybersecurity engineer who breaks things for a living."
                 aside="(legally... mostly)"
+                typeIn
                 className="mb-5"
               />
-              <div className="max-w-2xl space-y-4 text-sm md:text-base text-[#ccc] leading-relaxed margin-line">
+              <div className="max-w-2xl space-y-4 text-sm md:text-base text-ink-200 leading-relaxed margin-line">
                 <p>
                   {"Application Security / Cyber Security Engineer focused on web, API, Android, and iOS VAPT. I spend most days doing gray-box testing, runtime analysis, vulnerability validation, and writing the kind of remediation notes that developers pretend not to hate."}
                 </p>
@@ -197,7 +197,19 @@ export default function NerdyPage() {
                   {"Right now that means shipping AppSec work at MoveInSync, building internal automation, and making sure rooted phones, weak WebViews, or exposed endpoints don't quietly ruin everyone's week. Before that, I was hunting bugs on Bugcrowd, building weird tools, and collecting Hall of Fames from companies that definitely would have preferred a quieter email."}
                 </p>
               </div>
-            </motion.div>
+
+              {HAS_RESUME && (
+                <a
+                  href="/resume.pdf"
+                  download="som-chandra-resume.pdf"
+                  className="mt-6 inline-flex items-center gap-2.5 border border-world px-4 py-2.5 font-mono text-sm text-world transition-colors hover:bg-world hover:text-ink-900"
+                >
+                  <FileDown className="h-4 w-4" aria-hidden="true" />
+                  <span>{"$ cat resume.txt"}</span>
+                  <span className="opacity-60">· pdf</span>
+                </a>
+              )}
+            </SectionReveal>
 
             <motion.div
               className="mt-8 paper-card p-5 md:p-6"
@@ -208,10 +220,10 @@ export default function NerdyPage() {
             >
               <div className="flex items-center justify-between gap-4 flex-wrap mb-4">
                 <div>
-                  <p className="font-mono text-xs tracking-widest uppercase text-[#999] mb-1">link bunker</p>
-                  <p className="text-sm text-[#666]">{"everything public, in one place, so nobody has to go treasure hunting."}</p>
+                  <p className="font-mono text-xs tracking-widest uppercase text-ink-300 mb-1">link bunker</p>
+                  <p className="text-sm text-ink-400">{"everything public, in one place, so nobody has to go treasure hunting."}</p>
                 </div>
-                <p className="font-mono text-xs text-[#666]">{"$ whoami --everywhere"}</p>
+                <p className="font-mono text-xs text-ink-400">{"$ whoami --everywhere"}</p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -223,14 +235,14 @@ export default function NerdyPage() {
                       href={link.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="group border border-[#333] px-4 py-3 transition-colors hover:border-[#666] hover:bg-[#101010]"
+                      className="group border border-ink-600 px-4 py-3 transition-colors hover:border-ink-400 hover:bg-ink-800"
                     >
-                      <div className="flex items-center gap-2 text-[#999] mb-2">
+                      <div className="flex items-center gap-2 text-ink-300 mb-2">
                         <Icon className="h-3.5 w-3.5" />
                         <span className="font-mono text-[11px] tracking-[0.22em] uppercase">{link.label}</span>
                       </div>
-                      <p className="text-sm font-medium text-[#e8e8e8] break-all">{link.value}</p>
-                      <p className="text-xs text-[#666] mt-1">{link.aside}</p>
+                      <p className="text-sm font-medium text-ink-100 break-all">{link.value}</p>
+                      <p className="text-xs text-ink-400 mt-1">{link.aside}</p>
                     </a>
                   )
                 })}
@@ -250,8 +262,8 @@ export default function NerdyPage() {
                 { num: "#44", label: "merged upstream PR" },
               ].map((s) => (
                 <div key={s.label} className="paper-card px-4 py-3 hover-bounce">
-                  <p className="text-lg md:text-xl font-bold text-[#e8e8e8]">{s.num}</p>
-                  <p className="text-xs font-mono text-[#999] mt-0.5">{s.label}</p>
+                  <p className="text-lg md:text-xl font-bold text-ink-100">{s.num}</p>
+                  <p className="text-xs font-mono text-ink-300 mt-0.5">{s.label}</p>
                 </div>
               ))}
             </motion.div>
@@ -259,65 +271,65 @@ export default function NerdyPage() {
             <GitHubStats />
           </section>
 
-          <div className="mx-auto max-w-4xl px-6"><div className="h-px bg-[#333]" /></div>
+          <SectionRule />
 
           {/* -- Experience -- */}
-          <section className="relative z-10 mx-auto max-w-4xl px-6 py-14">
-            <motion.div {...fadeUp}>
+          <section className="world-gutter relative z-10 mx-auto max-w-4xl px-6 py-12">
+            <SectionReveal>
               <SectionHeader
                 kicker="experience"
                 title="places that let me in."
                 aside="(on purpose, I mean)"
+                typeIn
                 className="mb-8"
               />
-            </motion.div>
+            </SectionReveal>
 
             <div className="space-y-6">
               {experience.map((job, i) => (
-                <motion.div
+                <SectionReveal
                   key={job.role + job.company}
+                  move="settle"
+                  index={i}
                   className="paper-card p-5 md:p-7 relative hover-bounce"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-40px" }}
-                  transition={{ delay: i * 0.08, duration: 0.45 }}
                 >
                   {i === 0 && <div className="tape-top" />}
 
                   <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-1 mb-3">
                     <div>
-                      <h3 className="text-lg font-bold text-[#e8e8e8]">{job.role}</h3>
-                      <p className="text-sm text-[#aaa]">{job.company} <span className="text-[#666]">-- {job.location}</span></p>
-                      <p className="text-xs text-[#666] italic mt-0.5">{job.aside}</p>
+                      <h3 className="text-lg font-bold text-ink-100">{job.role}</h3>
+                      <p className="text-sm text-ink-200">{job.company} <span className="text-ink-400">-- {job.location}</span></p>
+                      <p className="text-xs text-ink-400 italic mt-0.5">{job.aside}</p>
                     </div>
-                    <p className="font-mono text-xs text-[#999] shrink-0">{job.period}</p>
+                    <p className="font-mono text-xs text-world-dim shrink-0">{job.period}</p>
                   </div>
 
                   <ul className="space-y-1.5">
                     {job.bullets.map((b) => (
-                      <li key={b} className="flex gap-3 text-sm text-[#ccc]">
-                        <span className="mt-1.5 h-1.5 w-1.5 shrink-0 bg-[#e8e8e8]" style={{ borderRadius: "50%" }} />
+                      <li key={b} className="flex gap-3 text-sm text-ink-200">
+                        <span className="mt-[0.55rem] h-1 w-1 shrink-0 bg-world-dim" />
                         {b}
                       </li>
                     ))}
                   </ul>
-                </motion.div>
+                </SectionReveal>
               ))}
             </div>
           </section>
 
-          <div className="mx-auto max-w-4xl px-6"><div className="h-px bg-[#333]" /></div>
+          <SectionRule />
 
           {/* -- Projects -- */}
-          <section className="relative z-10 mx-auto max-w-4xl px-6 py-14">
-            <motion.div {...fadeUp}>
+          <section className="world-gutter relative z-10 mx-auto max-w-4xl px-6 py-12">
+            <SectionReveal>
               <SectionHeader
                 kicker="projects"
                 title="things i built at 2 AM."
                 aside="(fueled by questionable decisions and instant noodles)"
+                typeIn
                 className="mb-8"
               />
-            </motion.div>
+            </SectionReveal>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {projects.map((p, i) => (
@@ -330,18 +342,18 @@ export default function NerdyPage() {
                   initial={{ opacity: 0, y: 16 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-40px" }}
-                  transition={{ delay: i * 0.08, duration: 0.4 }}
+                  transition={{ delay: i * 0.05, duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
                 >
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-lg font-bold text-[#e8e8e8]">{p.name}</h3>
-                      <ExternalLink className="h-3.5 w-3.5 text-[#666] group-hover:text-[#e8e8e8] transition-colors" />
+                      <h3 className="text-lg font-bold text-ink-100 group-hover:text-world transition-colors">{p.name}</h3>
+                      <ExternalLink className="h-3.5 w-3.5 text-ink-400 group-hover:text-world transition-colors" />
                     </div>
-                    <p className="text-sm text-[#aaa] leading-relaxed">{p.desc}</p>
+                    <p className="text-sm text-ink-200 leading-relaxed">{p.desc}</p>
                   </div>
                   <div className="flex flex-wrap gap-2 mt-3">
                     {p.tech.map((t) => (
-                      <span key={t} className="font-mono text-xs px-2 py-1 border border-[#333] text-[#999] group-hover:border-[#666] transition-colors">
+                      <span key={t} className="font-mono text-xs px-2 py-1 border border-ink-600 text-ink-300 group-hover:border-world-dim transition-colors">
                         {t}
                       </span>
                     ))}
@@ -351,18 +363,19 @@ export default function NerdyPage() {
             </div>
           </section>
 
-          <div className="mx-auto max-w-4xl px-6"><div className="h-px bg-[#333]" /></div>
+          <SectionRule />
 
           {/* -- Skills -- */}
-          <section className="relative z-10 mx-auto max-w-4xl px-6 py-14">
-            <motion.div {...fadeUp}>
+          <section className="world-gutter relative z-10 mx-auto max-w-4xl px-6 py-12">
+            <SectionReveal>
               <SectionHeader
                 kicker="skills"
                 title="my toolbox."
                 aside="(or at least what I claim on LinkedIn)"
+                typeIn
                 className="mb-8"
               />
-            </motion.div>
+            </SectionReveal>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {Object.entries(skills).map(([category, items], i) => (
@@ -375,14 +388,14 @@ export default function NerdyPage() {
                   transition={{ delay: i * 0.08, duration: 0.4 }}
                 >
                   <div className="flex items-center gap-2 mb-3">
-                    <Terminal className="h-3.5 w-3.5 text-[#999]" />
-                    <h3 className="font-mono text-xs tracking-widest uppercase text-[#999]">{category}</h3>
+                    <Terminal className="h-3.5 w-3.5 text-ink-300" />
+                    <h3 className="font-mono text-xs tracking-widest uppercase text-ink-300">{category}</h3>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {items.map((item) => (
                       <span
                         key={item}
-                        className="text-sm px-3 py-1.5 border border-[#333] text-[#ccc] hover:bg-[#e8e8e8] hover:text-[#0a0a0a] hover:border-[#e8e8e8] transition-colors cursor-default"
+                        className="text-sm px-3 py-1.5 border border-ink-600 text-ink-200 hover:bg-world hover:text-ink-900 hover:border-world transition-colors cursor-default"
                       >
                         {item}
                       </span>
@@ -393,36 +406,36 @@ export default function NerdyPage() {
             </div>
           </section>
 
-          <div className="mx-auto max-w-4xl px-6"><div className="h-px bg-[#333]" /></div>
+          <SectionRule />
 
           {/* -- Certs & Achievements -- */}
-          <section className="relative z-10 mx-auto max-w-4xl px-6 py-14">
+          <section className="world-gutter relative z-10 mx-auto max-w-4xl px-6 py-12">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-              <motion.div {...fadeUp}>
+              <SectionReveal>
                 <div className="flex items-center gap-2 mb-5">
-                  <Shield className="h-4 w-4 text-[#999]" />
-                  <p className="font-mono text-xs tracking-widest uppercase text-[#999]">certifications</p>
+                  <Shield className="h-4 w-4 text-world-dim" />
+                  <p className="font-mono text-xs tracking-widest uppercase text-ink-300">certifications</p>
                 </div>
                 <div className="space-y-3">
                   {certs.map((c) => (
                     <div key={c.name} className="paper-card p-4 hover-bounce">
-                      <p className="font-bold text-[#e8e8e8]">{c.name}</p>
-                      <p className="text-xs text-[#aaa] mt-0.5">{c.issuer}</p>
-                      <p className="font-mono text-xs text-[#999] mt-0.5">{c.date}</p>
+                      <p className="font-bold text-ink-100">{c.name}</p>
+                      <p className="text-xs text-ink-200 mt-0.5">{c.issuer}</p>
+                      <p className="font-mono text-xs text-ink-300 mt-0.5">{c.date}</p>
                     </div>
                   ))}
                 </div>
-              </motion.div>
+              </SectionReveal>
 
-              <motion.div {...fadeUp}>
+              <SectionReveal>
                 <div className="flex items-center gap-2 mb-5">
-                  <Bug className="h-4 w-4 text-[#999]" />
-                  <p className="font-mono text-xs tracking-widest uppercase text-[#999]">hall of fame & achievements</p>
+                  <Bug className="h-4 w-4 text-world-dim" />
+                  <p className="font-mono text-xs tracking-widest uppercase text-ink-300">hall of fame & achievements</p>
                 </div>
                 <div className="space-y-2.5">
                   {achievements.map((a, i) => (
-                    <div key={a} className="flex items-start gap-3 text-sm text-[#ccc]">
-                      <Flag className="h-3 w-3 mt-1.5 shrink-0 text-[#999]" />
+                    <div key={a} className="flex items-start gap-3 text-sm text-ink-200">
+                      <Flag className="h-3 w-3 mt-1.5 shrink-0 text-ink-300" />
                       <motion.span
                         initial={{ opacity: 0, x: -8 }}
                         whileInView={{ opacity: 1, x: 0 }}
@@ -434,15 +447,25 @@ export default function NerdyPage() {
                     </div>
                   ))}
                 </div>
-              </motion.div>
+              </SectionReveal>
             </div>
           </section>
 
           {/* Footer */}
-          <footer className="relative z-10 border-t border-[#333]">
+          <footer className="relative z-10 border-t border-ink-600">
             <div className="mx-auto max-w-4xl px-6 py-7 flex items-center justify-between">
-              <p className="font-mono text-xs text-[#666]">som chandra, {new Date().getFullYear()}</p>
-              <p className="font-mono text-xs text-[#555]">{"$ cat resume.txt"}</p>
+              <p className="font-mono text-xs text-ink-400">som chandra, {new Date().getFullYear()}</p>
+              {HAS_RESUME ? (
+                <a
+                  href="/resume.pdf"
+                  download="som-chandra-resume.pdf"
+                  className="draw-underline font-mono text-xs text-ink-400 hover:text-world transition-colors"
+                >
+                  {"$ cat resume.txt"}
+                </a>
+              ) : (
+                <p className="font-mono text-xs text-ink-400">{"$ echo 'resume soon'"}</p>
+              )}
             </div>
           </footer>
         </main>

@@ -18,14 +18,14 @@ export function SpotifyNowPlayingContent({ nowPlaying }: { nowPlaying: NowPlayin
         src={nowPlaying.albumImageUrl}
         alt={album || title}
         loading="eager"
-        className="w-16 h-16 object-cover border border-[#333] shrink-0 bg-[#111] flex items-center justify-center overflow-hidden"
+        className="w-16 h-16 object-cover border border-ink-600 shrink-0 bg-ink-800 flex items-center justify-center overflow-hidden"
         imgClassName="w-full h-full object-cover"
-        fallback={<span className="text-[#444] text-xs">♪</span>}
+        fallback={<span className="text-ink-500 text-xs">♪</span>}
       />
       <div className="min-w-0" aria-live="polite" aria-atomic="true">
-        <p className="text-base font-bold text-[#e8e8e8] truncate group-hover:underline">{title}</p>
-        <p className="text-sm text-[#aaa] truncate">{artist}</p>
-        <p className="text-xs text-[#666] truncate mt-0.5">{album}</p>
+        <p className="text-base font-bold text-ink-100 truncate group-hover:underline">{title}</p>
+        <p className="text-sm text-ink-200 truncate">{artist}</p>
+        <p className="text-xs text-ink-400 truncate mt-0.5">{album}</p>
       </div>
     </>
   )
@@ -35,19 +35,19 @@ export function SpotifyNowPlayingContent({ nowPlaying }: { nowPlaying: NowPlayin
       <div className="flex items-center gap-2 mb-4">
         <Disc3
           aria-hidden="true"
-          className={`h-4 w-4 ${isNowPlaying ? "animate-spin text-[#1DB954]" : "text-[#767676]"}`}
+          className={`h-4 w-4 ${isNowPlaying ? "animate-spin text-spotify" : "text-ink-400"}`}
           style={{ animationDuration: "3s" }}
         />
-        <p className={`font-mono text-xs tracking-widest uppercase ${isNowPlaying ? "text-[#1DB954]" : "text-[#8a8a8a]"}`}>
+        <p className={`font-mono text-xs tracking-widest uppercase ${isNowPlaying ? "text-spotify" : "text-ink-300"}`}>
           {isNowPlaying ? "now playing" : "last played song"}
         </p>
         {!isNowPlaying && (
-          <span className="border border-[#3a3a3a] bg-[#141414] px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.14em] text-[#8b8b8b]">
+          <span className="border border-ink-600 bg-ink-850 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.14em] text-ink-300">
             afk
           </span>
         )}
         {!isNowPlaying && relativePlayed && (
-          <span className="font-mono text-[10px] text-[#6f6f6f]">({relativePlayed})</span>
+          <span className="font-mono text-[10px] text-ink-400">({relativePlayed})</span>
         )}
       </div>
       {nowPlaying.songUrl ? (
@@ -74,7 +74,7 @@ export function NowPlaying() {
   if (error) {
     return (
       <section className="relative z-10 mx-auto max-w-4xl px-6 pt-6 pb-2">
-        <p className="paper-card p-5 text-sm text-[#888]">couldn&apos;t reach spotify right now</p>
+        <p className="paper-card p-5 text-sm text-ink-300">couldn&apos;t reach spotify right now</p>
       </section>
     )
   }
@@ -89,7 +89,7 @@ export function NowPlaying() {
         viewport={{ once: true, margin: "-60px" }}
         transition={{ duration: 0.5 }}
       >
-        <div className="border-t border-[#333] pt-8">
+        <div className="border-t border-ink-600 pt-8">
           <SpotifyNowPlayingContent nowPlaying={nowPlaying} />
         </div>
       </motion.div>

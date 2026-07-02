@@ -1,0 +1,3 @@
+# Full-resolution gallery sources — never needed in a deploy.
+# scripts/optimize-images.mjs generates the served variants in public/gallery/.
+originals

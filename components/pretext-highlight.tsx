@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { getShrinkWrapWidth, fonts } from "@/lib/pretext"
+import { INK } from "@/lib/tokens"
 
 interface PretextHighlightProps {
   lines: string[]
@@ -24,8 +25,8 @@ export function PretextHighlight({
   currentIndex,
   className = "",
   fontSize = 24,
-  bgColor = "#e8e8e8",
-  textColor = "#0a0a0a",
+  bgColor = INK[100],
+  textColor = INK[900],
   paddingX = 8,
   paddingY = 2,
 }: PretextHighlightProps) {

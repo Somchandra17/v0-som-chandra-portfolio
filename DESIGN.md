@@ -9,6 +9,53 @@ paths + positions), interactions, and the mobile view for every route.
 
 ---
 
+## 2026-07 redesign addendum (read first — supersedes stale sections below)
+
+The bold per-world redesign landed. What changed since this spec was written:
+
+**Tokens are now real.** Every component uses the `@theme` utilities
+(`text-ink-300`, `border-world`, …) or [`lib/tokens.ts`](lib/tokens.ts) (the TS
+mirror for framer `animate` targets, SVG fills, canvas). Zero raw hex in tsx —
+guarded by an eslint `no-restricted-syntax` rule. New tokens: `paper-cream`,
+`term-hint/warn/error`, `roast-ink`, `spotify`, accent dims.
+
+**Worlds diverge for real.** `[data-world]` now also flips non-color temperature
+(`--grain-opacity` 0.16 nerdy / 0.3 creative, `--reveal-duration/-ease`,
+`--world-glow`); [`components/world-context.tsx`](components/world-context.tsx)
+mirrors the world onto `<html data-world-active>` for the fixed grain/vignette.
+Motion vocabulary in [`lib/motion.ts`](lib/motion.ts) + primitives:
+`SectionReveal` (per-world rise/settle), `TypeIn` (nerdy headers, caret,
+SSR-safe), `DevelopIn` (darkroom expose for creative images/cards),
+`StatusBar` (nerdy tmux strip), `SectionRule` (`── EOF` vs film notches).
+Nerdy is green-at-rest (kickers, date rail, bullets, hover fills); creative is
+pinker, grainier, and its images develop in.
+
+**Loader is ≤2.2s** (one status line → name reveal → hand-off) with a 0.45-alpha
+brightness floor, a visible `skip ↵` chip, and a measured morph of the loader
+name onto the hero name (`#hero-name`). §5's old 2-message timeline is stale.
+
+**SSR is un-gated.** Content is server-rendered on every route; the intro is a
+pre-paint `<html data-intro>` veil (inline script in `app/layout.tsx` +
+noscript-safe CSS failsafe). `LayoutShell` no longer returns null.
+
+**Galleries are photos-first.** One compact strip (back + toggle + note + count
++ inline sort) replaces the info panel / sorting desk / contact strip; the
+Spotify card is gone from gallery routes; the lightbox side panel renders only
+when there's something to say (sketches get a full-bleed stage). Images serve
+from `public/gallery/` (480–2000w AVIF/WebP via `pnpm images`,
+[`scripts/optimize-images.mjs`](scripts/optimize-images.mjs)); full-res
+originals live in `originals/` (never deployed). Clicks page weight:
+222 MB → ~6 MB.
+
+**Squiggles are rationed.** One wavy typo per text block by default; the pink
+disclaimer chip is now a `[show all]` toggle.
+
+**Per-route titles** (`%s · som` template), OG images for both worlds, an
+in-voice `app/not-found.tsx`, and a resume CTA (renders when
+`public/resume.pdf` exists) also landed.
+
+---
+
 ## Table of contents
 
 1. [Design language & tokens](#1-design-language--tokens)
